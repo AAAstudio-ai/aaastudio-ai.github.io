@@ -311,6 +311,7 @@ p,li,dd,h1,h2,h3{text-wrap:pretty}
 .porte .lien-porte.attente{color:var(--gris-2);font-weight:500;font-style:italic}
 .about .about-grid{grid-template-columns:220px minmax(0,1fr);gap:44px;align-items:center;text-align:left;justify-items:stretch}
 .about .portrait{width:220px;height:275px;border-radius:28px;border:0;object-fit:cover;object-position:50% 18%;box-shadow:0 14px 34px rgba(23,50,78,.18)}
+@media(min-width:701px){.about .about-grid{align-items:stretch}.about .about-grid>div{display:flex;flex-direction:column;justify-content:space-between;max-width:500px;padding:2px 0}.about .about-grid h2{margin:0;line-height:1.02}.about .about-grid p{font-size:18px;line-height:1.62;margin:0}.about .about-grid .lieu{margin:0;line-height:1}}
 @media(max-width:700px){.about .about-grid{grid-template-columns:minmax(0,1fr);gap:22px}.about .portrait{width:100%;height:auto;aspect-ratio:4/5;max-width:420px}}
 .portes-cta .btn{padding:17px 34px;font-size:17px}
 .porte-num{font-family:'Literata',serif;font-weight:700;font-size:clamp(30px,2.6vw,38px);line-height:1;letter-spacing:-.01em;color:var(--encre);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--trait)}
