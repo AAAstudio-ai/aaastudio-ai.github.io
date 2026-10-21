@@ -1085,6 +1085,15 @@ html[lang=ja] .o-tour-l{letter-spacing:.04em;font-size:12px}
 .tuile-flip:hover .o-tour{background:rgba(var(--accent-r),.18)}
 @media(max-width:760px){.o-in{padding:16px 16px 50px}.o-tete h3{font-size:20px}}
 
+/* calendrier : la mise en page etroite de Calendly (400 x 600, sans blanc sur les cotes, ruban et « Cookie settings » entiers),
+   affichee a 82 % (Anthony, 21/10 au soir : « dezoomer d'environ 20 % et retirer les blancs a gauche et a droite ») */
+@media(min-width:1021px){.fin-grid{grid-template-columns:minmax(0,1fr) auto}}
+.fin-cal{width:auto;max-width:none;margin:0}
+.fin-cal>.verre-in{padding:6px}
+.cal{width:328px;height:492px;border-radius:12px}
+.cal iframe{left:0!important;top:0!important;width:400px!important;height:600px!important;min-width:0!important;transform:scale(.82);transform-origin:0 0}
+@media(max-width:1020px){.fin-cal{margin:0 auto}}
+
 h1,h2,h3,.cite,.chute,.presentation,.num{font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","Noto Serif JP",serif;letter-spacing:0}
 body,p,li,a,button,.sur,.btn,.geste,.gp-etq,.fx-in,.fx-out,.flux-cap,.signature{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif}
 body{font-feature-settings:"palt" 1}
