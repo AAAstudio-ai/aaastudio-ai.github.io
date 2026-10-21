@@ -1104,6 +1104,9 @@ html[lang=ja] .o-tour-l{letter-spacing:.04em;font-size:12px}
 @media(max-width:1099px) and (min-width:761px){.why-coches{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.why-coches{grid-template-columns:1fr}}
 
+/* methode : le retour a la ligne voulu dans un titre d'etape ne vaut que sur grand ecran ; plus etroit, le titre se coupe seul */
+@media(max-width:1300px){.etapes h3 br{display:none}}
+
 h1,h2,h3,.cite,.chute,.presentation,.num{font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","Noto Serif JP",serif;letter-spacing:0}
 body,p,li,a,button,.sur,.btn,.geste,.gp-etq,.fx-in,.fx-out,.flux-cap,.signature{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif}
 body{font-feature-settings:"palt" 1}
@@ -1167,7 +1170,7 @@ body{word-break:keep-all;overflow-wrap:normal;line-break:strict}
 .ny-g .ny-pts{left:100%;margin-left:9px;flex-direction:row-reverse;transform-origin:-9px 50%}
 .ny-d .ny-pts{right:100%;margin-right:9px;transform-origin:calc(100% + 9px) 50%}
 .ny-h .ny-pts{top:100%;left:50%;margin:5px 0 0 -7px;flex-direction:column-reverse;gap:3px;transform:none}
-.ny-pts i{display:block;flex:none;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(30,51,88,.18);transition:background .3s ease,box-shadow .6s ease,transform .3s ease}
+.ny-pts i{display:block;flex:none;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(30,51,88,.18);transition:background .6s ease,box-shadow .8s ease,transform .6s ease}
 .ny-pts i:nth-child(1){width:4px;height:4px}.ny-pts i:nth-child(2){width:6px;height:6px}.ny-pts i:nth-child(3){width:8px;height:8px}.ny-pts i:nth-child(4){width:11px;height:11px}.ny-pts i:nth-child(5){width:14px;height:14px}
 .ny-pts i.on{background:linear-gradient(180deg,#3B73DC,#3567C6);box-shadow:0 0 0 3px rgba(59,115,220,.16);transform:scale(1.12)}
 /* l'anneau autour des points ne vit que pendant l'allumage : il s'efface en fondu des que la bulle est retournee (Anthony, 21/10 au soir) */
@@ -1252,7 +1255,7 @@ if(fix){
    puis s'efface. Jouee une fois a l'arrivee ;
    le bouton la rejoue ; etat final direct, sans pointeur, si l'utilisateur limite les animations. */
 (function(){
-var SYS_TEMPS={t1:150,t2:3700,t3:7900,t4:12700,onglet:5200};
+var SYS_TEMPS={t1:150,t2:3700,t3:7900,t4:11050,onglet:5200};   /* t4 : le portail arrive 1,5 s apres le dernier fichier range (Anthony, 22/10) */
 var SURVOL='.sys-tr,.sys-kpi,.sys-pr,.sys-fic,.sys-carte,.sys-bar,.sys-mois,.sys-periode,.sys-ti-x,.sys-it,.sys-ong,.sys-tq,.sys-conf-o,.sys-ti-b1,.sys-annees span';
 var VISITES={
   clients:[['.v-clients .sys-tr:nth-child(3) .sys-pil',.5,.55,1100],['.v-clients .sys-tr:nth-child(5) .n',.7,.5,1200]],
@@ -1496,8 +1499,10 @@ if(b)b.addEventListener('click',async function(){var u=location.href.split('#')[
 (function(){var sec=document.querySelector('.ny'),sc=sec&&sec.querySelector('.ny-scene');if(!sc)return;
 var red=(typeof reduit!=='undefined')?reduit:window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var bs=[].slice.call(sc.querySelectorAll('.ny-bulle')),perso=sc.querySelector('.ny-perso'),halo=sc.querySelector('.ny-halo'),tel=window.matchMedia('(max-width:1100px)'),run=0,vis=false;
-/* durees en ms : apparition de la bulle, allumage des cercles (en tout), retournement (= transition de .ny-in), tenue finale */
-var DEPART=1200,APPARAIT=600,CERCLES=500,TOURNE=700,CONTENT=1100,TENUE=8000;
+/* durees en ms : apparition de la bulle, retournement (= transition de .ny-in), tenue finale.
+   22/10 (Anthony) : 30 % de temps en plus avant chaque retournement (LENT) ; les cercles s'allument un par un, lentement,
+   pendant tout ce temps ; le personnage est inquiet quand une bulle blanche apparait et content au moment ou elle passe au bleu (ALTERNE) */
+var DEPART=1200,APPARAIT=600,LENT=1.3,TOURNE=700,CONTENT=1100,TENUE=8000,ALTERNE=true;
 function attendre(ms){return new Promise(function(r){setTimeout(r,ms);});}
 function pts(b,on){[].forEach.call(b.querySelectorAll('.ny-pts i'),function(p){p.classList.toggle('on',on);});}
 /* temps de lecture d'une face : le souci au moins 2,2 s a 7,5 signes par seconde ; la solution au moins 1,8 s a 10 signes par seconde
@@ -1519,16 +1524,20 @@ async function boucle(){var id=++run;function ok(){return id===run&&vis;}
   while(ok()){
     await attendre(DEPART);if(!ok())return;   /* le personnage inquiet, seul */
     for(var j=0;j<bs.length;j++){var b=bs[j],ps=b.querySelector('.ny-pts').offsetWidth?b.querySelectorAll('.ny-pts i'):[];
-      /* 1. la bulle blanche apparait, seule, et reste le temps d'etre lue */
-      b.classList.add('vu');await attendre(APPARAIT+lireSouci(b));if(!ok())return;
-      /* 2. ses cercles passent au bleu un par un, de la tete vers elle (au telephone, seule la derniere bulle en a) */
-      if(ps.length){for(var k=0;k<ps.length;k++){ps[k].classList.add('on');await attendre(CERCLES/ps.length);if(!ok())return;}}
-      else{await attendre(CERCLES);if(!ok())return;}
-      /* 3. elle se retourne sur sa solution, qui reste le temps d'etre lue ; le halo grandit */
+      /* 1. la bulle blanche apparait, seule ; le personnage redevient inquiet */
+      b.classList.add('vu');if(ALTERNE)sc.classList.remove('content');await attendre(APPARAIT);if(!ok())return;
+      /* 2. pendant qu'on la lit, ses cercles passent au bleu un par un, lentement, de la tete vers elle ;
+            le dernier s'allume juste avant le retournement (au telephone, seule la derniere bulle a des cercles) */
+      var lire=Math.round(lireSouci(b)*LENT);
+      if(ps.length){var pas=lire/(ps.length+1);await attendre(pas);if(!ok())return;
+        for(var k=0;k<ps.length;k++){ps[k].classList.add('on');await attendre(pas);if(!ok())return;}}
+      else{await attendre(lire);if(!ok())return;}
+      /* 3. elle se retourne sur sa solution ; le personnage devient content au meme instant ; le halo grandit */
       b.classList.add('tourne');pts(b,true);halo.style.setProperty('--a',((j+1)/bs.length).toFixed(3));
+      if(ALTERNE||j===bs.length-1)sc.classList.add('content');
       await attendre(TOURNE+lireSolution(b));if(!ok())return;}
-    /* apres la septieme : le personnage devient content (fondu de .8 s), puis la conclusion arrive, et l'etat final est tenu */
-    sc.classList.add('content');await attendre(CONTENT);if(!ok())return;
+    /* apres la septieme : le personnage est deja content depuis le retournement ; la conclusion arrive, l'etat final est tenu */
+    await attendre(Math.max(0,CONTENT-TOURNE-1800));if(!ok())return;
     sec.classList.add('fini');await attendre(TENUE);if(!ok())return;
     /* les solutions s'effacent une a une, le personnage redevient inquiet, et tout reprend */
     for(var m=0;m<bs.length;m++){bs[m].classList.remove('vu');await attendre(70);}
