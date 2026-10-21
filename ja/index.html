@@ -393,6 +393,7 @@ html.js .carte.grande.rev:hover,html.js .tuiles .tuile.rev:hover,html .carte.gra
 @media(max-width:1100px){.about .about-grid.about-duo{grid-template-columns:280px minmax(0,1fr);column-gap:36px}.about-lead{font-size:22px}}
 @media(max-width:760px){.about .about-grid.about-duo{grid-template-columns:1fr;row-gap:26px}.about-lead{font-size:20px}.about .atouts.atouts-ligne{grid-template-columns:1fr;margin-top:30px}}
 html[lang=ja] .about-lead{font-size:21px;line-height:1.6}
+@media(max-width:760px){.cite-txt{padding:0 34px}.cite-txt::before,.cite-txt::after{font-size:52px}.about-plus{margin-left:34px}.about .signature{padding-left:34px;white-space:normal}}
 /* barre d'onglets de « Votre semaine » : toute la largeur du panneau, onglets aeres, onglet choisi bien visible (Anthony, 21/10) */
 .gestes{padding:7px}
 .lentille{top:7px;left:7px;height:calc(100% - 14px);background:linear-gradient(145deg,#6E9BF2,#3B73DC);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 18px -10px rgba(59,115,220,.8);backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -601,9 +602,11 @@ body{word-break:keep-all;overflow-wrap:normal;line-break:strict}
 .ny-g .ny-pts{left:100%;margin-left:9px;flex-direction:row-reverse;transform-origin:-9px 50%}
 .ny-d .ny-pts{right:100%;margin-right:9px;transform-origin:calc(100% + 9px) 50%}
 .ny-h .ny-pts{top:100%;left:50%;margin:5px 0 0 -7px;flex-direction:column-reverse;gap:3px;transform:none}
-.ny-pts i{display:block;flex:none;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(30,51,88,.18);transition:background .3s ease,box-shadow .3s ease,transform .3s ease}
+.ny-pts i{display:block;flex:none;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(30,51,88,.18);transition:background .3s ease,box-shadow .6s ease,transform .3s ease}
 .ny-pts i:nth-child(1){width:4px;height:4px}.ny-pts i:nth-child(2){width:6px;height:6px}.ny-pts i:nth-child(3){width:8px;height:8px}.ny-pts i:nth-child(4){width:11px;height:11px}.ny-pts i:nth-child(5){width:14px;height:14px}
 .ny-pts i.on{background:linear-gradient(180deg,#3B73DC,#3567C6);box-shadow:0 0 0 3px rgba(59,115,220,.16);transform:scale(1.12)}
+/* l'anneau autour des points ne vit que pendant l'allumage : il s'efface en fondu des que la bulle est retournee (Anthony, 21/10 au soir) */
+.ny-bulle.tourne .ny-pts i.on{box-shadow:0 0 0 3px rgba(59,115,220,0)}
 /* la conclusion, l'issue heureuse : une pastille claire et lumineuse sous le panneau, qui arrive franchement ;
    sa place est reservee (rien ne bouge quand elle arrive) */
 .ny-final{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;width:max-content;max-width:100%;margin:22px auto 0;padding:13px 34px 13px 14px;border-radius:999px;text-align:left;
