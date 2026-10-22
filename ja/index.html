@@ -1523,7 +1523,10 @@ var bs=[].slice.call(sc.querySelectorAll('.ny-bulle')),perso=sc.querySelector('.
 /* durees en ms : apparition de la bulle, retournement (= transition de .ny-in), tenue finale.
    22/10 (Anthony) : 30 % de temps en plus avant chaque retournement (LENT) ; les cercles s'allument un par un, lentement,
    pendant tout ce temps ; le personnage est inquiet quand une bulle blanche apparait et content au moment ou elle passe au bleu (ALTERNE) */
-var DEPART=1200,APPARAIT=600,LENT=1.3,TOURNE=700,CONTENT=1100,TENUE=8000,ALTERNE=true;
+var DEPART=1200,APPARAIT=600,LENT=1.3,TOURNE=700,CONTENT=1100,TENUE=8000,ALTERNE=true,ENCHAINE=500,LATENCE=1000;
+/* 22/10, retour de Fumiko : une fois la bulle passee au bleu, la suivante arrive vite (ENCHAINE apres le retournement, au lieu du temps
+   de lecture de la solution, qui reste visible jusqu'a la fin) ; le personnage reste content encore LATENCE ms apres l'apparition
+   de la bulle suivante, puis redevient inquiet. La septieme garde son temps de lecture avant la conclusion. */
 function attendre(ms){return new Promise(function(r){setTimeout(r,ms);});}
 function pts(b,on){[].forEach.call(b.querySelectorAll('.ny-pts i'),function(p){p.classList.toggle('on',on);});}
 /* temps de lecture d'une face : le souci au moins 2,2 s a 7,5 signes par seconde ; la solution au moins 1,8 s a 10 signes par seconde
@@ -1545,8 +1548,10 @@ async function boucle(){var id=++run;function ok(){return id===run&&vis;}
   while(ok()){
     await attendre(DEPART);if(!ok())return;   /* le personnage inquiet, seul */
     for(var j=0;j<bs.length;j++){var b=bs[j],ps=b.querySelector('.ny-pts').offsetWidth?b.querySelectorAll('.ny-pts i'):[];
-      /* 1. la bulle blanche apparait, seule ; le personnage redevient inquiet */
-      b.classList.add('vu');if(ALTERNE)sc.classList.remove('content');await attendre(APPARAIT);if(!ok())return;
+      /* 1. la bulle blanche apparait, seule ; le personnage redevient inquiet LATENCE ms plus tard */
+      b.classList.add('vu');
+      if(ALTERNE&&j>0)setTimeout(function(){if(ok())sc.classList.remove('content');},LATENCE);else if(ALTERNE)sc.classList.remove('content');
+      await attendre(APPARAIT);if(!ok())return;
       /* 2. pendant qu'on la lit, ses cercles passent au bleu un par un, lentement, de la tete vers elle ;
             le dernier s'allume juste avant le retournement (au telephone, seule la derniere bulle a des cercles) */
       var lire=Math.round(lireSouci(b)*LENT);
@@ -1556,7 +1561,7 @@ async function boucle(){var id=++run;function ok(){return id===run&&vis;}
       /* 3. elle se retourne sur sa solution ; le personnage devient content au meme instant ; le halo grandit */
       b.classList.add('tourne');pts(b,true);halo.style.setProperty('--a',((j+1)/bs.length).toFixed(3));
       if(ALTERNE||j===bs.length-1)sc.classList.add('content');
-      await attendre(TOURNE+lireSolution(b));if(!ok())return;}
+      await attendre(TOURNE+(j===bs.length-1?lireSolution(b):ENCHAINE));if(!ok())return;}
     /* apres la septieme : le personnage est deja content depuis le retournement ; la conclusion arrive, l'etat final est tenu */
     await attendre(Math.max(0,CONTENT-TOURNE-1800));if(!ok())return;
     sec.classList.add('fini');await attendre(TENUE);if(!ok())return;
