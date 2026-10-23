@@ -854,6 +854,22 @@ html[lang=ja] .about-lead{font-size:21px;line-height:1.6}
 .lentille.etire{transform:scaleX(1.05)}
 .geste[aria-selected=true],.geste[aria-selected=true]:hover{color:#fff}
 @media(min-width:761px){.gestes{display:flex;width:100%;overflow:visible}.geste{flex:1 1 auto;justify-content:center}}
+/* tablette (761 a 1100 px) : les six onglets ne tiennent pas (jusqu'a 288 px de trop en francais) ; la rangee defile comme au telephone,
+   au lieu de sortir de l'ecran (defaut ancien, corrige le 23/10 au soir). Au-dela de 1100 px, rien ne change. */
+@media(min-width:761px) and (max-width:1100px){.gestes{overflow-x:auto;-webkit-overflow-scrolling:touch}.gestes::-webkit-scrollbar{display:none}
+  /* onglets un peu plus serres : a 1024 px (iPad en paysage), les six tiennent sans defiler dans les trois langues */
+  .gestes .geste{padding:0 9px 0 8px;gap:5px}
+  /* un fondu blanc sur le bord ou il reste des onglets a voir (sinon, en japonais a 768 px, le sixieme est cache sans que rien ne le dise) ;
+     il s'efface quand on arrive au bout ; classes posees par le script selon le defilement */
+  /* le fondu se colle au bord du contenu, 7 px en retrait (la marge interieure de la capsule) : decale de -7 px, sinon une lettre qui defile
+     dans cette marge reste visible au-dela du fondu (« D » de Devis, « u » de d'un, vus par Anthony le 23/10) */
+  /* Anthony, 23/10 : le fondu porte sur l'onglet coupe, pas sur le dernier mot entier ; aucun aplat blanc, il n'est opaque qu'au bord meme,
+     pour que l'onglet coupe ait l'air de continuer au-dela de la capsule */
+  .gestes::before,.gestes::after{content:"";position:sticky;z-index:2;flex:none;align-self:stretch;width:46px;margin:-7px 0;pointer-events:none;opacity:0;transition:opacity .3s}
+  .gestes::before{left:-7px;margin-right:-46px;background:linear-gradient(270deg,rgba(255,255,255,0),rgba(255,255,255,.7) 60%,#fff)}
+  .gestes::after{right:-7px;margin-left:-46px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.7) 60%,#fff)}
+  .gestes.suite-g::before,.gestes.suite-d::after{opacity:1}
+}
 /* bouton pour revenir en haut */
 .haut{position:fixed;right:20px;bottom:24px;z-index:40;width:46px;height:46px;border-radius:50%;border:1px solid rgba(var(--accent-r),.3);background:rgba(255,255,255,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--accent);display:grid;place-items:center;box-shadow:0 10px 24px -12px rgba(30,51,88,.45);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;cursor:pointer}
 .haut.vu{opacity:1;transform:none;pointer-events:auto}
@@ -1135,6 +1151,33 @@ html[lang=ja] .about-lead{font-size:19px}
 .about .about-duo .portrait img{transform:none;object-position:50% 18%}
 /* la photo occupe toute la hauteur du bloc de texte, du surtitre a la signature (Anthony, 22/10 : « mieux equilibree ») */
 @media(min-width:761px){.about .about-grid.about-duo{align-items:stretch}.about .about-duo .portrait{aspect-ratio:auto;height:100%;min-height:240px}}
+/* bandeau de langue (Anthony, 23/10 : pas de redirection automatique) : au premier passage, si le navigateur est dans une autre langue
+   du site, une capsule de verre le dit en bas de l'ecran, dans la langue du visiteur ; posee par-dessus la page, rien ne bouge */
+.bandeau-langue{position:fixed;left:50%;bottom:24px;z-index:45;display:flex;align-items:center;gap:14px;width:max-content;max-width:calc(100% - 32px);padding:8px 8px 8px 22px;border-radius:999px;
+  background:rgba(255,255,255,.9);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);border:1px solid rgba(var(--accent-r),.22);
+  box-shadow:inset 0 1px 0 #fff,0 18px 40px -16px rgba(30,51,88,.45);color:var(--texte);
+  opacity:0;transform:translate(-50%,14px);transition:opacity .6s ease,transform .6s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.bandeau-langue.vu{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.bandeau-langue p{margin:0;font:500 15px/1.4 'Inter',sans-serif;color:var(--texte)}
+.bl-aller{flex:none;display:inline-flex;align-items:center;height:38px;padding:0 18px;border-radius:999px;background:linear-gradient(180deg,#2A4573,#1E3358);color:#fff;text-decoration:none;font:600 14px/1 'Inter',sans-serif;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 14px -8px rgba(30,51,88,.7);transition:background .2s}
+.bl-aller:hover{background:linear-gradient(180deg,#34528A,#22396A)}
+.bl-fermer{all:unset;box-sizing:border-box;flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--texte2);cursor:pointer;transition:background .2s,color .2s}
+.bl-fermer:hover{background:rgba(30,51,88,.07);color:var(--texte)}
+.bl-aller:focus-visible,.bl-fermer:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bl-fermer svg{width:16px;height:16px;max-width:none}
+.bandeau-langue[lang=ja] p,.bandeau-langue[lang=ja] .bl-aller{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;font-feature-settings:"palt" 1}
+.bandeau-langue[lang=ja] p{word-break:keep-all}
+@media(max-width:760px){
+  .bandeau-langue{left:14px;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:auto;max-width:none;border-radius:20px;padding:10px 8px 10px 16px;gap:10px;transform:translateY(14px)}
+  .bandeau-langue.vu{transform:none}
+  .bandeau-langue p{flex:1 1 auto;min-width:0;font-size:14px}
+  .bl-aller{height:36px;padding:0 14px;font-size:13.5px}
+  /* le bouton pour revenir en haut monte au-dessus du bandeau tant qu'il est la */
+  html.bandeau-ouvert .haut{translate:0 calc(-1 * var(--bandeau-h, 0px) - 10px)}
+}
+/* telephone etroit (360 px, Android courant) : un peu plus serre, pour que la phrase tienne en deux lignes dans les trois langues */
+@media(max-width:380px){.bandeau-langue{padding:10px 6px 10px 14px;gap:8px}.bandeau-langue p{font-size:13.5px}.bl-aller{padding:0 12px;font-size:13px}}
 
 h1,h2,h3,.cite,.chute,.presentation,.num{font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","Noto Serif JP",serif;letter-spacing:0}
 body,p,li,a,button,.sur,.btn,.geste,.gp-etq,.fx-in,.fx-out,.flux-cap,.signature{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",-apple-system,sans-serif}
@@ -1341,14 +1384,19 @@ if(fix){
   var onglets=[].slice.call(fix.querySelectorAll('.geste')),panneaux=[].slice.call(fix.querySelectorAll('.gp')),courant=0,auto=null,visible=false,touche=false;
   var lentille=fix.querySelector('.lentille'),tempo;
   function poserLentille(i,anime){var o=onglets[i];lentille.style.left=o.offsetLeft+'px';lentille.style.width=o.offsetWidth+'px';if(anime&&!reduit){lentille.classList.add('etire');clearTimeout(tempo);tempo=setTimeout(function(){lentille.classList.remove('etire');},260);}}
-  function montrer(i){var change=i!==courant;courant=i;poserLentille(i,change);onglets.forEach(function(o,k){o.setAttribute('aria-selected',k===i?'true':'false');});
+  function montrer(i,centrer){var change=i!==courant;courant=i;poserLentille(i,change);onglets.forEach(function(o,k){o.setAttribute('aria-selected',k===i?'true':'false');});
     panneaux.forEach(function(p,k){if(k===i){p.hidden=false;p.classList.remove('entre');void p.offsetWidth;p.classList.add('entre');}else{p.hidden=true;}});
     chutes.forEach(function(c,k){if(k===i){c.hidden=false;c.classList.remove('entre');void c.offsetWidth;c.classList.add('entre');}else{c.hidden=true;}});
-    if(window.innerWidth<761&&onglets[i].scrollIntoView)onglets[i].scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});}
-  onglets.forEach(function(o,k){o.addEventListener('click',function(){clearTimeout(auto);if(k!==courant)montrer(k);});
+    var rangee=onglets[i].parentNode;if(centrer&&rangee.scrollWidth>rangee.clientWidth+1&&onglets[i].scrollIntoView)onglets[i].scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});}
+  onglets.forEach(function(o,k){o.addEventListener('click',function(){clearTimeout(auto);if(k!==courant)montrer(k,true);});
     o.addEventListener('pointerenter',function(e){if(e.pointerType!=='mouse')return;clearTimeout(auto);auto=setTimeout(function(){if(k!==courant)montrer(k);},170);});
     o.addEventListener('pointerleave',function(){clearTimeout(auto);});});
-  poserLentille(0,false);window.addEventListener('resize',function(){poserLentille(courant,false);});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){poserLentille(courant,false);});
+  /* fondus de la rangee qui defile (tablette) : a gauche s'il reste des onglets a gauche, a droite s'il en reste a droite */
+  /* d'apres la place reelle du premier et du dernier onglet : la lentille, qui s'etire un instant au changement, allonge la rangee et faussait le calcul */
+  var rangeeG=fix.querySelector('.gestes');function bords(){var r=rangeeG.getBoundingClientRect(),pad=parseFloat(getComputedStyle(rangeeG).paddingLeft)||0,a=onglets[0].getBoundingClientRect(),b=onglets[onglets.length-1].getBoundingClientRect();
+    rangeeG.classList.toggle('suite-g',a.left<r.left+pad-2);rangeeG.classList.toggle('suite-d',b.right>r.right-pad+2);}
+  rangeeG.addEventListener('scroll',bords,{passive:true});window.addEventListener('resize',bords);bords();
+  poserLentille(0,false);window.addEventListener('resize',function(){poserLentille(courant,false);});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){poserLentille(courant,false);bords();});
 }
 
 /* animation « un seul systeme », V2 (21/10) : un petit lecteur. Une ligne de temps (TL) n'avance qu'en lecture : pause, reprise,
@@ -1595,6 +1643,30 @@ if(b)b.addEventListener('click',async function(){var u=location.href.split('#')[
   history.replaceState(null,'',location.pathname+location.search);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(placer);
   window.addEventListener('load',placer,{once:true});
+})();
+/* bandeau de langue : une seule fois par visiteur ; robots exclus ; langue retenue = la premiere du navigateur que le site propose */
+(function(){
+  var B={"en": ["This page is also available in English.", "View in English", "Close"], "fr": ["Cette page existe aussi en français.", "Voir en français", "Fermer"], "ja": ["このページは|日本語でも|ご覧いただけます。", "日本語で見る", "閉じる"]},ici=document.documentElement.lang,cle='aaa-bandeau-langue';
+  if(/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent||''))return;
+  try{if(localStorage.getItem(cle))return;}catch(e){return;}
+  var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||''],pref=null;
+  for(var i=0;i<langs.length;i++){var p=String(langs[i]).toLowerCase().split(/[-_;]/)[0];if(B[p]){pref=p;break;}}
+  if(!pref||pref===ici)return;
+  var lien=document.querySelector('.entete a[data-langue][hreflang="'+pref+'"]');if(!lien)return;
+  var t=B[pref],d=document.createElement('div');
+  d.className='bandeau-langue';d.lang=pref;
+  d.innerHTML='<p>'+t[0].replace(/\|/g,'<wbr>')+'</p><a class="bl-aller">'+t[1]+'</a>'
+    +'<button type="button" class="bl-fermer" aria-label="'+t[2]+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
+  /* l'adresse est posee a part : ecrite dans la chaine, publier-dossier.py la prenait pour un lien vers un fichier absent (24/10) */
+  var aller=d.querySelector('.bl-aller');aller.setAttribute('href',lien.getAttribute('href'));aller.setAttribute('hreflang',pref);
+  document.body.appendChild(d);
+  function hauteur(){document.documentElement.style.setProperty('--bandeau-h',d.offsetHeight+'px');}
+  function fermer(){d.classList.remove('vu');document.documentElement.classList.remove('bandeau-ouvert');setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},700);}
+  /* le lien du bandeau passe par celui de l'en-tete, qui garde la position dans la page */
+  d.querySelector('.bl-aller').addEventListener('click',function(e){e.preventDefault();lien.click();});
+  d.querySelector('.bl-fermer').addEventListener('click',fermer);
+  setTimeout(function(){try{localStorage.setItem(cle,'1');}catch(e){}
+    hauteur();d.classList.add('vu');document.documentElement.classList.add('bandeau-ouvert');window.addEventListener('resize',hauteur);},1200);
 })();
 
 /* scene des soucis, un souci a la fois du debut a la fin (Anthony, 21/10 a 23 h) : la bulle blanche apparait seule, le temps
