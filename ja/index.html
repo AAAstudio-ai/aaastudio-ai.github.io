@@ -340,7 +340,13 @@ html.js .carte.grande.rev:hover,html.js .tuiles .tuile.rev:hover,html .carte.gra
 /* un seul systeme, V2 (21/10) : quatre temps, puis le portail et ses onglets ouverts au pointeur ; plan de 1120 x 380 unites mis a l'echelle */
 .systeme{padding:clamp(64px,7vw,96px) 0;background:var(--fond)}
 .sys-scene{position:relative;container-type:inline-size;aspect-ratio:1120/380;margin-top:34px;border-radius:22px;overflow:hidden;background:radial-gradient(55% 80% at 8% 12%,rgba(var(--accent-r),.08),transparent 70%),radial-gradient(45% 70% at 95% 92%,rgba(240,138,160,.09),transparent 70%),#fff}
-.sys-scene::after{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid var(--trait);pointer-events:none;z-index:20}
+/* premier temps seulement (fichiers qui apparaissent, puis eparpilles) : fond marine a points, trainees bleu clair et rose marquees.
+   Anthony, 23/10 : sur blanc, « ton sur ton », et sur telephone on passe a cote en defilant vite. Option 02 renforcee de 17_Options_Fond_Systeme_2026-10-23.
+   Des que tout se range (temps 3), le voile s'efface et la scene retrouve son fond blanc : colonnes et portail inchanges. */
+.sys-scene::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 1.5px 1.5px,rgba(120,164,245,.38) 1.2px,transparent 1.8px) 0 0/24px 24px,linear-gradient(115deg,transparent 20%,rgba(157,189,250,.34) 39%,transparent 51%,rgba(240,138,160,.32) 63%,transparent 80%),#1E3358;opacity:1;transition:opacity 1.6s cubic-bezier(.33,0,.2,1)}
+.sys-scene[data-t="3"]::before,.sys-scene[data-t="4"]::before{opacity:0}
+.sys-scene::after{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid rgba(120,164,245,.35);pointer-events:none;z-index:20;transition:border-color 1.6s}
+.sys-scene[data-t="3"]::after,.sys-scene[data-t="4"]::after{border-color:var(--trait)}
 .sys-plan{position:absolute;inset:0;--u:calc(100cqw/1120);font-family:'Inter',system-ui,sans-serif;color:var(--texte);line-height:1.25;text-align:left}
 .sys-kpi-v,.sys-tr .n,.sys-eqc,.sys-carte-c b,.sys-av-bar em,.sys-it em,.sys-bar>b,.sys-bulle-t,.sys-dos-t em,.sys-pan-t em{font-variant-numeric:tabular-nums}
 .sys-plan svg{display:block;flex:none}
@@ -487,7 +493,9 @@ html.js .carte.grande.rev:hover,html.js .tuiles .tuile.rev:hover,html .carte.gra
 .sys-pr-t b{font-size:calc(11.5*var(--u));font-weight:600}
 .sys-pr-t small{font-size:calc(10*var(--u));color:var(--texte2)}
 .sys-eqs{display:flex;flex-direction:column;justify-content:space-between;flex:1;min-height:0}
-.sys-eqr{display:grid;grid-template-columns:calc(20*var(--u)) calc(40*var(--u)) minmax(0,1fr) calc(34*var(--u));align-items:center;gap:calc(8*var(--u));font-size:calc(11.5*var(--u));white-space:nowrap}
+.sys-eqr{display:grid;grid-template-columns:calc(20*var(--u)) calc(54*var(--u)) minmax(0,1fr) calc(34*var(--u));align-items:center;gap:calc(8*var(--u));font-size:calc(11.5*var(--u));white-space:nowrap}
+/* prenom et initiale en anglais et en francais (« Sarah M. », 23/10) ; le japonais garde sa colonne de 40 u (noms de famille courts) */
+.sys-plan:lang(ja) .sys-eqr{grid-template-columns:calc(20*var(--u)) calc(40*var(--u)) minmax(0,1fr) calc(34*var(--u))}
 .sys-eqr b{font-weight:600}
 .sys-prog{display:block;height:calc(5*var(--u));border-radius:calc(3*var(--u));background:rgba(var(--accent-r),.12);overflow:hidden}
 .sys-prog>i{display:block;height:100%;width:100%;border-radius:calc(3*var(--u));background:linear-gradient(90deg,var(--accent),#F08AA0);transform:scaleX(var(--p));transform-origin:left;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
@@ -751,7 +759,8 @@ html:not(.js) .sys-lecteur{display:none}
 .sys-bar>.sys-mo{display:none}.sys-bar>.sys-mt{display:block}
 .sys-bulle-t{font-size:calc(8*var(--u));padding:calc(4*var(--u)) calc(7*var(--u))}
 .sys-obj em{font-size:calc(7.5*var(--u))}
-.sys-eqr{grid-template-columns:calc(16*var(--u)) calc(30*var(--u)) minmax(0,1fr) calc(27*var(--u));gap:calc(5*var(--u));font-size:calc(9.5*var(--u))}
+.sys-eqr{grid-template-columns:calc(16*var(--u)) calc(44*var(--u)) minmax(0,1fr) calc(27*var(--u));gap:calc(5*var(--u));font-size:calc(9.5*var(--u))}
+.sys-plan:lang(ja) .sys-eqr{grid-template-columns:calc(16*var(--u)) calc(30*var(--u)) minmax(0,1fr) calc(27*var(--u))}
 .sys-eqr .sys-av{width:calc(16*var(--u));height:calc(16*var(--u));font-size:calc(8*var(--u))}
 .sys-eqr:nth-child(5){display:none}
 .sys-eqc{font-size:calc(8.5*var(--u))}
