@@ -1357,6 +1357,8 @@ body{overflow-wrap:break-word}
 <script>
 (function(){
 var RELAIS="https://aaastudio-suite.pages.dev/api/inscription", RES=[[2, "Vos informations sont à leur place. Refaites le test dans six mois, ou quand l'équipe grandit."], [5, "Vos informations sont éparpillées. Chaque case cochée, c'est du temps payé pour chercher ou recopier. Celle qui vous coûte le plus est celle à régler en premier."], [10, "Votre entreprise tient parce que des personnes compensent à la main. Ça se règle, une tâche après l'autre."]];
+try{localStorage.setItem('aaa-test-vu',String(Date.now()));}catch(e){}
+var DE=(function(){try{var d=new URLSearchParams(location.search).get('de')||'';return /^[a-z]{1,20}$/.test(d)?d:'';}catch(e){return '';}})();
 var cases=[].slice.call(document.querySelectorAll('#cases input'));
 function coches(){return cases.filter(function(c){return c.checked}).map(function(c){return +c.value});}
 document.getElementById('voir').addEventListener('click',function(){
@@ -1377,7 +1379,7 @@ document.getElementById('suite').addEventListener('submit',function(e){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){dire('Vérifiez votre adresse e-mail.',true);em.focus();return;}
   var l=coches(); if(!l.length){dire('Cochez au moins une situation.',true);return;}
   b.disabled=true;
-  fetch(RELAIS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v,langue:'fr',cases:l,consentement:true,lettre:document.getElementById('lettre').checked,societe:document.getElementById('societe').value})})
+  fetch(RELAIS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v,langue:'fr',cases:l,consentement:true,lettre:document.getElementById('lettre').checked,societe:document.getElementById('societe').value,origine:DE})})
   .then(function(r){return r.json().then(function(j){return [r.status,j];});})
   .then(function(x){
     if(x[1]&&x[1].ok){dire('C\u2019est parti\u00a0: la suite vient de partir à '+v+'. Si vous ne la voyez pas d\u2019ici quelques minutes, regardez dans vos courriers indésirables.');em.disabled=true;return;}
