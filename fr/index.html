@@ -1593,30 +1593,8 @@ if(b)b.addEventListener('click',async function(){var u=location.href.split('#')[
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(placer);
   window.addEventListener('load',placer,{once:true});
 })();
-/* bandeau de langue : une seule fois par visiteur ; robots exclus ; langue retenue = la premiere du navigateur que le site propose */
-(function(){
-  var B={"en": ["This page is also available in English.", "View in English", "Close"], "fr": ["Cette page existe aussi en français.", "Voir en français", "Fermer"], "ja": ["このページは|日本語でも|ご覧いただけます。", "日本語で見る", "閉じる"]},ici=document.documentElement.lang,cle='aaa-bandeau-langue';
-  if(/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent||''))return;
-  try{if(localStorage.getItem(cle))return;}catch(e){return;}
-  var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||''],pref=null;
-  for(var i=0;i<langs.length;i++){var p=String(langs[i]).toLowerCase().split(/[-_;]/)[0];if(B[p]){pref=p;break;}}
-  if(!pref||pref===ici)return;
-  var lien=document.querySelector('.entete a[data-langue][hreflang="'+pref+'"]');if(!lien)return;
-  var t=B[pref],d=document.createElement('div');
-  d.className='bandeau-langue';d.lang=pref;
-  d.innerHTML='<p>'+t[0].replace(/\|/g,'<wbr>')+'</p><a class="bl-aller">'+t[1]+'</a>'
-    +'<button type="button" class="bl-fermer" aria-label="'+t[2]+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
-  /* l'adresse est posee a part : ecrite dans la chaine, publier-dossier.py la prenait pour un lien vers un fichier absent (24/10) */
-  var aller=d.querySelector('.bl-aller');aller.setAttribute('href',lien.getAttribute('href'));aller.setAttribute('hreflang',pref);
-  document.body.appendChild(d);
-  function hauteur(){document.documentElement.style.setProperty('--bandeau-h',d.offsetHeight+'px');}
-  function fermer(){d.classList.remove('vu');document.documentElement.classList.remove('bandeau-ouvert');setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},700);}
-  /* le lien du bandeau passe par celui de l'en-tete, qui garde la position dans la page */
-  d.querySelector('.bl-aller').addEventListener('click',function(e){e.preventDefault();lien.click();});
-  d.querySelector('.bl-fermer').addEventListener('click',fermer);
-  setTimeout(function(){try{localStorage.setItem(cle,'1');}catch(e){}
-    hauteur();d.classList.add('vu');document.documentElement.classList.add('bandeau-ouvert');window.addEventListener('resize',hauteur);},1200);
-})();
+/* choix de langue (6/11, remplace le bandeau de langue retire a la demande d'Anthony) : un clic sur le selecteur est retenu, l'accueil anglais n'envoie plus ce visiteur ailleurs */
+(function(){[].forEach.call(document.querySelectorAll('a[data-langue][hreflang]'),function(a){a.addEventListener('click',function(){try{localStorage.setItem('aaa-langue',a.getAttribute('hreflang'));}catch(e){}});});})();
 
 (function(){var c=document.getElementById('test-carte'),p=document.getElementById('what'),f=document.getElementById('contact');if(!c||!p||!f)return;
 var ferme=false,SEM=7*24*3600*1000;

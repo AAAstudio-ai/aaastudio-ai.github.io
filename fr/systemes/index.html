@@ -1245,6 +1245,32 @@ body{overflow-wrap:break-word}
 @media(max-width:760px){.btn:not(.btn-s){white-space:normal;height:auto;min-height:48px;padding:11px 22px;line-height:1.25}.hero-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:760px){.identite{flex:0 1 auto;min-width:0}.identite .logo{flex:none}.marque{flex:0 1 auto;min-width:0}.entete .rdv,.entete .pilule{flex:none}}
 
+/* carte accrochée vers le test du lundi matin (6/11) : apparaît après le portail, s'efface sur « Parlons-en », croix = fermée pour la visite */
+.test-carte{position:fixed;right:24px;bottom:24px;z-index:60;width:340px;background:#fff;border-radius:20px;padding:22px 22px 20px;box-shadow:0 22px 50px rgba(30,51,88,.22),0 2px 6px rgba(30,51,88,.08);transform:translateY(24px);opacity:0;pointer-events:none;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .35s}
+.test-carte::before{content:"";position:absolute;inset:-1.5px;border-radius:21.5px;padding:1.5px;background:linear-gradient(135deg,#5B8EF0,#9B7BEA 45%,#F08AA0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.test-carte.vu{transform:none;opacity:1;pointer-events:auto}
+.test-carte .sur{font-size:12.5px;margin:0 0 8px}
+.test-carte .tc-titre{font:700 19px/1.25 'Literata',Georgia,serif;color:var(--texte);margin:0 0 8px}
+.test-carte .tc-p{font:400 14.5px/1.5 'Inter',sans-serif;color:var(--texte2);margin:0 0 16px}
+.test-carte .tc-mini{display:none}
+.test-carte .btn{height:42px;padding:0 22px;font-size:15px}
+.test-carte .tc-fermer{position:absolute;top:10px;right:12px;width:30px;height:30px;border:0;background:transparent;color:var(--texte2);font:400 22px/30px 'Inter',sans-serif;cursor:pointer;border-radius:50%}
+.test-carte .tc-fermer:hover{background:rgba(30,51,88,.06);color:var(--texte)}
+html.carte-test-vue .haut{opacity:0!important;pointer-events:none!important}
+@media(prefers-reduced-motion:reduce){.test-carte{transition:none;transform:none}}
+@media(max-width:720px){.test-carte{right:10px;left:10px;bottom:calc(10px + env(safe-area-inset-bottom));width:auto;padding:9px 6px 9px 14px;border-radius:14px;display:flex;align-items:center;gap:12px}.test-carte::before{border-radius:15.5px}
+.test-carte .tc-txt{flex:1;min-width:0}.test-carte .tc-titre,.test-carte .tc-p{display:none}
+.test-carte .sur{display:block;font:700 15px/1.25 'Literata',Georgia,serif;color:var(--texte);letter-spacing:0;text-transform:none;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.test-carte .tc-mini{display:block;font:400 12px/1.3 'Inter',sans-serif;color:var(--texte2)}
+.test-carte .btn{height:34px;padding:0 13px;font-size:13.5px;flex:none}
+.test-carte .tc-fermer{position:static;width:40px;height:40px;font-size:20px;line-height:40px;flex:none;margin-left:2px}}
+@media(max-width:360px){.test-carte .sur{white-space:normal;font-size:14px;line-height:1.2}.test-carte .btn{padding:0 11px;font-size:13px}}
+@media(min-width:721px) and (max-width:1500px){.test-carte{width:300px}.test-carte .tc-p{display:none}.test-carte .tc-titre{margin-bottom:14px}}
+.fin-test-wrap{position:relative;z-index:1;padding-bottom:clamp(40px,5vw,64px)}
+.fin-test{margin:0 auto;max-width:600px;text-align:center;font:400 15.5px/1.55 'Inter',sans-serif;color:var(--texte2)}
+.fin-test a{color:#fff;font-weight:600;text-decoration:underline;text-underline-offset:4px}
+.pied-liens .test-lien span{text-decoration:underline;text-underline-offset:3px}
+
 /* landing sur mesure (30/10, v2) : seuls ajouts au CSS de l'accueil */
 .entete .nav:empty{display:none}
 /* haut de page (01/11) */
@@ -1844,30 +1870,8 @@ if(b)b.addEventListener('click',async function(){var u=location.href.split('#')[
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(placer);
   window.addEventListener('load',placer,{once:true});
 })();
-/* bandeau de langue : une seule fois par visiteur ; robots exclus ; langue retenue = la premiere du navigateur que le site propose */
-(function(){
-  var B={"en": ["This page is also available in English.", "View in English", "Close"], "fr": ["Cette page existe aussi en français.", "Voir en français", "Fermer"], "ja": ["このページは|日本語でも|ご覧いただけます。", "日本語で見る", "閉じる"]},ici=document.documentElement.lang,cle='aaa-bandeau-langue';
-  if(/bot|crawl|spider|slurp|lighthouse|headless/i.test(navigator.userAgent||''))return;
-  try{if(localStorage.getItem(cle))return;}catch(e){return;}
-  var langs=(navigator.languages&&navigator.languages.length)?navigator.languages:[navigator.language||''],pref=null;
-  for(var i=0;i<langs.length;i++){var p=String(langs[i]).toLowerCase().split(/[-_;]/)[0];if(B[p]){pref=p;break;}}
-  if(!pref||pref===ici)return;
-  var lien=document.querySelector('.entete a[data-langue][hreflang="'+pref+'"]');if(!lien)return;
-  var t=B[pref],d=document.createElement('div');
-  d.className='bandeau-langue';d.lang=pref;
-  d.innerHTML='<p>'+t[0].replace(/\|/g,'<wbr>')+'</p><a class="bl-aller">'+t[1]+'</a>'
-    +'<button type="button" class="bl-fermer" aria-label="'+t[2]+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
-  /* l'adresse est posee a part : ecrite dans la chaine, publier-dossier.py la prenait pour un lien vers un fichier absent (24/10) */
-  var aller=d.querySelector('.bl-aller');aller.setAttribute('href',lien.getAttribute('href'));aller.setAttribute('hreflang',pref);
-  document.body.appendChild(d);
-  function hauteur(){document.documentElement.style.setProperty('--bandeau-h',d.offsetHeight+'px');}
-  function fermer(){d.classList.remove('vu');document.documentElement.classList.remove('bandeau-ouvert');setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},700);}
-  /* le lien du bandeau passe par celui de l'en-tete, qui garde la position dans la page */
-  d.querySelector('.bl-aller').addEventListener('click',function(e){e.preventDefault();lien.click();});
-  d.querySelector('.bl-fermer').addEventListener('click',fermer);
-  setTimeout(function(){try{localStorage.setItem(cle,'1');}catch(e){}
-    hauteur();d.classList.add('vu');document.documentElement.classList.add('bandeau-ouvert');window.addEventListener('resize',hauteur);},1200);
-})();
+/* choix de langue (6/11, remplace le bandeau de langue retire a la demande d'Anthony) : un clic sur le selecteur est retenu, l'accueil anglais n'envoie plus ce visiteur ailleurs */
+(function(){[].forEach.call(document.querySelectorAll('a[data-langue][hreflang]'),function(a){a.addEventListener('click',function(){try{localStorage.setItem('aaa-langue',a.getAttribute('hreflang'));}catch(e){}});});})();
 
 /* curseur Excel -> tableau de bord : glisser a la souris ou au doigt (par le script : Safari sur iPhone ne deplace pas un curseur natif quand on touche sa piste), fleches du clavier par le champ cache ;
    au doigt, un geste vertical laisse defiler la page ; les graphes se dessinent une seule fois, quand 30 % de la scene est a l'ecran (01/11 : le curseur est en haut de page, la moitie n'est pas visible sur un ecran bas ni au telephone), puis un va-et-vient montre que le curseur bouge */
