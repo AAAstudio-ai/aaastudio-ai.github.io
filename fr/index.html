@@ -1605,7 +1605,7 @@ function montre(v){c.classList.toggle('vu',v);document.documentElement.classList
 c.querySelector('.tc-fermer').addEventListener('click',function(){ferme=true;silence();montre(false);});
 c.querySelector('.btn').addEventListener('click',function(){ferme=true;visite();});
 function maj(){if(ferme){montre(false);return;}var bas=window.scrollY+window.innerHeight;
-if(bas>f.offsetTop+140){ferme=true;visite();montre(false);return;}
+if(bas>f.offsetTop+140){montre(false);return;}
 montre(bas>p.offsetTop+p.offsetHeight);}
 window.addEventListener('scroll',maj,{passive:true});window.addEventListener('resize',maj);maj();})();
 
