@@ -1907,13 +1907,13 @@ new IntersectionObserver(function(es){es.forEach(function(e){
 })();
 
 (function(){var c=document.getElementById('test-carte'),p=document.getElementById('what'),f=document.getElementById('contact');if(!c||!p||!f)return;
-var ferme=false,SEM=7*24*3600*1000;
-try{if(localStorage.getItem('aaa-test-vu'))ferme=true;var d=+localStorage.getItem('aaa-carte-test-fermee')||0;if(Date.now()-d<SEM)ferme=true;if(sessionStorage.getItem('aaa-carte-test')==='1')ferme=true;}catch(e){}
-function silence(){try{localStorage.setItem('aaa-carte-test-fermee',String(Date.now()));}catch(e){}}
-function visite(){try{sessionStorage.setItem('aaa-carte-test','1');}catch(e){}}
+var ferme=false;
+try{if(sessionStorage.getItem('aaa-carte-test-fermee')==='1')ferme=true;}catch(e){}
+function silence(){try{sessionStorage.setItem('aaa-carte-test-fermee','1');}catch(e){}}
+function visite(){}
 function montre(v){c.classList.toggle('vu',v);document.documentElement.classList.toggle('carte-test-vue',v);}
 c.querySelector('.tc-fermer').addEventListener('click',function(){ferme=true;silence();montre(false);});
-c.querySelector('.btn').addEventListener('click',function(){ferme=true;visite();});
+c.querySelector('.btn').addEventListener('click',function(){visite();});
 function maj(){if(ferme){montre(false);return;}var bas=window.scrollY+window.innerHeight;
 if(bas>f.offsetTop+140){montre(false);return;}
 montre(bas>p.offsetTop+p.offsetHeight);}
