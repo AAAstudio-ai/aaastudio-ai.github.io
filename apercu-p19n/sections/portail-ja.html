@@ -2026,4 +2026,6 @@ function avecSon(e){if(e){e.preventDefault();e.stopPropagation();}actif=false;f.
 s.addEventListener('click',avecSon);
 f.addEventListener('click',function(e){if(actif&&e.target!==s&&!s.contains(e.target))avecSon(e);},true);
 })();
+</script><script>/* PORTAIL-TEL-20-11 : au téléphone, l'accueil ajuste son cadre à la hauteur de ce portail (forme verticale de la page en ligne) */
+(function(){if(window.parent===window)return;var der=0,dv=null;function env(){var h=Math.ceil(document.body.scrollHeight),v=matchMedia('(max-width:760px)').matches;if(h&&(h!==der||v!==dv)){der=h;dv=v;parent.postMessage({hauteurPortail:h,vertical:matchMedia('(max-width:760px)').matches},'*');}}addEventListener('load',env);addEventListener('resize',env);if(window.ResizeObserver)new ResizeObserver(env).observe(document.body);setTimeout(env,600);setTimeout(env,2500);})();
 </script></body></html>
