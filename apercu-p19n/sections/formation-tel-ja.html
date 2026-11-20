@@ -1,0 +1,105 @@
+<!doctype html><html lang="ja"><head><meta name="robots" content="noindex,indexifembedded"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>チーム向けのClaude AI研修</title><style>
+@font-face{font-family:'Literata';src:url(assets/fonts/literata-normal-latin.woff2) format('woff2');font-weight:200 900;font-style:normal;font-display:swap}
+@font-face{font-family:'Literata';src:url(assets/fonts/literata-normal-latin-ext.woff2) format('woff2');font-weight:200 900;font-style:normal;font-display:swap;unicode-range:U+0100-02BA,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Literata';src:url(assets/fonts/literata-italic-latin.woff2) format('woff2');font-weight:200 900;font-style:italic;font-display:swap}
+@font-face{font-family:'Inter';src:url(assets/fonts/inter-normal-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Inter';src:url(assets/fonts/inter-normal-latin-ext.woff2) format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0100-02BA,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+:root{--fond:#F3F5F9;--carte:#FFFFFF;--texte:#1E3358;--texte2:#5B6B8C;--accent:#3B73DC;--accent-f:#3567C6;--doux:#B9CBEF;--rose:#E8657A;--trait:#D8DEEA;--accent-r:59,115,220}.sombre{--fond:#1E3358;--carte:#26406B;--texte:#EEF2F8;--texte2:#B7C4DB;--accent:#78A4F5;--accent-f:#6C93DC;--doux:#3F5F96;--rose:#F08AA0;--trait:#34507F;--accent-r:120,164,245}.verre{background:linear-gradient(165deg,rgba(255,255,255,0.62) 0%,rgba(255,255,255,0.4) 38%,rgba(255,255,255,0.26) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,0.9)}.verre::before{background:linear-gradient(135deg,rgba(59,115,220,0.85),rgba(59,115,220,0.65) 50%,rgba(59,115,220,0.85) 100%)}.sombre .verre{background:linear-gradient(165deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.1) 38%,rgba(255,255,255,0.05) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,0.35)}.sombre .verre::before{background:linear-gradient(135deg,rgba(120,164,245,0.85),rgba(120,164,245,0.65) 50%,rgba(120,164,245,0.85) 100%)}
+*{box-sizing:border-box}
+html,body{background:transparent;margin:0;overflow:hidden}
+body{padding:0 32px 32px;font-family:'Inter',sans-serif;color:var(--texte)}   /* de l'air autour du lecteur : le halo du bouton rond n'est pas coupé (comme le rond et le portail) */
+.fi-cadre{width:min(100%,430px);margin:0 auto}   /* la vidéo et le lecteur (84 px) tiennent dans la hauteur du cadre */
+.fi-video{position:relative;aspect-ratio:350/553;border-radius:18px;overflow:hidden;background:#172B4B;box-shadow:0 30px 60px -30px rgba(30,51,88,.45)}
+.fi-video video{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+/* le lecteur : barre des huit etapes (cliquables), bouton lecture / pause / rejouer, legende courte de l'etape affichee */
+.sys-lecteur{margin-top:12px}
+.sys-temps{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.sys-temps{position:relative;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent;outline:none}
+.sys-temps:focus-visible{box-shadow:0 0 0 2px rgba(var(--accent-r),.45);border-radius:6px}
+.sys-seg{position:relative;display:block;height:22px;padding:0;margin:0;border:0;background:none;pointer-events:none}
+.sys-seg::before,.sys-seg i{content:"";position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px}
+.sys-seg::before{background:rgba(var(--accent-r),.16);transition:background .2s ease}
+.sys-seg i{background:var(--accent);transform:scaleX(var(--f,0));transform-origin:left center}
+.sys-temps:hover .sys-seg::before{background:rgba(var(--accent-r),.26)}
+.sys-temps:hover .sys-seg::before,.sys-temps:hover .sys-seg i,.sys-temps.glisse .sys-seg::before,.sys-temps.glisse .sys-seg i{top:8px;height:6px;border-radius:3px}
+.sys-pouce{position:absolute;top:11px;left:var(--x,0%);width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;box-shadow:0 0 0 2.5px var(--accent),0 3px 8px rgba(30,51,88,.3);transition:transform .15s ease;pointer-events:none}
+.sys-temps:hover .sys-pouce,.sys-temps.glisse .sys-pouce{transform:scale(1.2)}
+.sys-ligne{display:flex;align-items:center;gap:14px;margin-top:6px;min-height:44px}
+.sys-lire{flex:none;display:grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:50%;cursor:pointer;color:#fff;background:linear-gradient(145deg,#5B8EF0,var(--accent));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 18px -8px rgba(var(--accent-r),.8);transition:transform .2s ease,box-shadow .2s ease}
+.sys-lire:hover{transform:scale(1.06)}
+.sys-lire:focus-visible{outline:2px solid rgba(var(--accent-r),.55);outline-offset:3px}
+.sys-lire svg{grid-area:1/1;width:16px;height:16px;opacity:0;transition:opacity .2s ease}
+.sys-lire .i-pause,.sys-lire .i-lire{fill:currentColor}
+.sys-lire[data-etat="joue"] .i-pause,.sys-lire[data-etat="pause"] .i-lire,.sys-lire[data-etat="fin"] .i-rejouer{opacity:1}
+.sys-legendes{display:grid;min-width:0;text-align:left}
+.sys-leg{grid-area:1/1;margin:0;font:500 19px/1.4 'Literata',serif;color:var(--texte);opacity:0;transform:translateY(4px);transition:opacity .25s ease,transform .25s ease}
+.sys-leg.actif{opacity:1;transform:none;transition:opacity .45s ease .2s,transform .45s ease .2s}
+.systeme.sans-lecteur .sys-temps,.systeme.sans-lecteur .sys-lire{display:none}
+html:not(.js) .sys-lecteur{display:none}
+.rd-rdv{display:inline-flex;align-items:center;gap:6px;font:600 14px/1 'Inter',sans-serif;color:var(--accent);text-decoration:none;border-bottom:1.5px solid rgba(var(--accent-r),.35);padding-bottom:3px;opacity:0;pointer-events:none;transition:opacity .4s .2s}
+.rd-rdv svg{width:14px;height:14px}
+.rd-lecteur .sys-temps{grid-template-columns:repeat(8,minmax(0,1fr))}
+.rd-lecteur .rd-rdv{flex:none;margin-left:auto;opacity:1;pointer-events:auto;font-size:15px}
+.rd-lecteur .rd-rdv{align-self:flex-end;margin-bottom:-1.17px}   /* comme la note « Demo » du portail : à droite, en bas, sa ligne de base à 4,83 px du bas de la ligne */
+.rd-lecteur.sans-lecteur .sys-temps,.rd-lecteur.sans-lecteur .sys-lire{display:none}
+@media(prefers-reduced-motion:reduce){.sys-leg,.sys-lire,.sys-pouce{transition:none!important}}
+.sys-leg:lang(ja){font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","Noto Serif JP",serif;font-weight:600;line-height:1.7;font-size:16.5px}   /* comme portail-ja.html */
+.rd-rdv:lang(ja){font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif}
+@media(max-width:620px){.rd-lecteur .rd-rdv{display:none}}   /* téléphone : le libellé passe sur plusieurs lignes et couvrait le lien ; le second cerveau ne le montre pas non plus à cette largeur */
+/* FORMATION-TEL-20-11 : réglages du lecteur au téléphone, ceux de la carte verticale du second cerveau */
+@media(max-width:760px){.sys-leg{font-size:16.5px}.sys-temps{gap:4px}.sys-lire{width:38px;height:38px}}
+</style>
+</head><body><div class="fi-cadre"><div class="fi-video" role="img" aria-label="動画：チーム向けのClaude AI研修。いま使っているのは、ChatGPT、Gemini、Copilot？ Claudeも気になるところ。でも、何から始めればいいのか、社内ではまだ手探り。AAA Studio：半日または1日、一緒に、チームの実際の業務で。1対1でも、チームのみんなでも。オフィスに伺います。オンラインでも。研修の内容：プロンプト、AIモデル、コンテキスト、エージェント、プロジェクト、メモリ、エフォート、コネクタ、スキル、Artifacts、Claude Code。終わるころには、すべてがクリアに。そして仕事はスピードアップ。受講後も、フォローします。"><video muted playsinline preload="auto" poster="formation-illustree-tel-ja_debut.jpg"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.webm" type="video/webm"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.mp4" type="video/mp4"></video></div>
+<div class="sys-lecteur rd-lecteur"><div class="sys-temps" role="slider" tabindex="0" aria-label="アニメーションのステップ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-pouce" aria-hidden="true"></span></div><div class="sys-ligne"><button type="button" class="sys-lire" data-etat="fin" data-joue="一時停止" data-pause="再生" data-fin="もう一度再生" aria-label="もう一度再生"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg><svg class="i-lire" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.53.85l10-6.4a1 1 0 0 0 0-1.7l-10-6.4A1 1 0 0 0 8.5 5.6z"/></svg><svg class="i-rejouer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66"/><path d="M4 4.5V9h4.5"/></svg></button><div class="sys-legendes" aria-live="polite"><p class="sys-leg">おなじみのAIツール</p><p class="sys-leg">何から始めるか</p><p class="sys-leg">実際の業務で、一緒に</p><p class="sys-leg">1対1でも、チームでも</p><p class="sys-leg">訪問またはオンライン</p><p class="sys-leg">プロンプトからClaude Codeまで</p><p class="sys-leg">すべてがクリアに</p><p class="sys-leg">受講後のフォローアップ付き</p></div></div></div></div>
+<script>
+/* 19/11 : lecteur du second cerveau et du portail, à l'identique, branché sur la vidéo ; un segment par scène du film */
+(function(){
+  document.documentElement.classList.add('js');
+  var CH=[0, 5.0, 11.0, 17.1, 22.6, 27.0, 33.7, 39.5],FIN=44.2,PAS=5;
+  var vd=document.querySelector('.fi-video video'),lec=document.querySelector('.rd-lecteur'),
+      legs=[].slice.call(lec.querySelectorAll('.sys-leg')),segs=[].slice.call(lec.querySelectorAll('.sys-seg')),barre=lec.querySelector('.sys-temps'),btn=lec.querySelector('.sys-lire'),
+      TL={joue:false,fini:false,vu:false,auto:false,glisse:false,c:-1};
+  /* mouvement réduit : la dernière image, le dernier libellé, plus de barre ni de bouton (comme le rond) */
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){
+    lec.classList.add('sans-lecteur');vd.removeAttribute('preload');vd.setAttribute('poster','formation-illustree-tel-ja_fin.jpg');
+    legs.forEach(function(l,i){l.classList.toggle('actif',i===legs.length-1);});return;}
+  function pos(){return TL.fini?FIN:Math.min(FIN,vd.currentTime||0);}
+  function etape(t){var c=0;for(var i=0;i<CH.length;i++)if(t>=CH[i])c=i;return c;}
+  function bornes(i){return [CH[i],i+1<CH.length?CH[i+1]:FIN];}
+  /* chaque scène occupe un segment de même largeur, sa durée s'y étale (comme le portail et le rond) */
+  function tVersX(t){var c=etape(t),r=segs[c].getBoundingClientRect(),b=barre.getBoundingClientRect(),z=bornes(c),f=Math.max(0,Math.min(1,(t-z[0])/(z[1]-z[0])));
+    return b.width?(r.left-b.left+f*r.width)/b.width:0;}
+  function xVersT(x){for(var i=0;i<segs.length;i++){var r=segs[i].getBoundingClientRect(),z=bornes(i);
+      if(x<r.right||i===segs.length-1)return z[0]+Math.max(0,Math.min(1,(x-r.left)/r.width))*(z[1]-z[0]);}return FIN;}
+  function maj(){var t=pos(),c=TL.fini?segs.length-1:etape(t);if(c!==TL.c){TL.c=c;legs.forEach(function(l,i){l.classList.toggle('actif',i===c);});}
+    segs.forEach(function(sg,i){var z=bornes(i),f=(TL.fini||t>=z[1])?1:(t<=z[0]?0:(t-z[0])/(z[1]-z[0]));sg.style.setProperty('--f',f.toFixed(4));});
+    var px=TL.fini?1:tVersX(t);barre.style.setProperty('--x',(px*100).toFixed(2)+'%');barre.setAttribute('aria-valuenow',Math.round(px*100));
+    var lg=legs[c];if(lg)barre.setAttribute('aria-valuetext',lg.textContent);}
+  function bouton(){var et=TL.fini?'fin':(TL.joue?'joue':'pause');btn.setAttribute('data-etat',et);btn.setAttribute('aria-label',btn.getAttribute('data-'+et));}
+  function lire(){if(TL.joue||TL.fini)return;TL.joue=true;var p=vd.play();if(p&&p.catch)p.catch(function(){TL.joue=false;bouton();});bouton();}
+  function suspendre(){if(!TL.joue)return;TL.joue=false;vd.pause();bouton();}
+  /* fin : barre pleine, dernier libellé, bouton « rejouer » ; la vidéo reste sur sa dernière image */
+  function terminer(){TL.joue=false;TL.fini=true;maj();bouton();}
+  vd.addEventListener('ended',terminer);
+  function chercher(t){t=Math.max(0,Math.min(FIN-.05,t));TL.joue=false;TL.fini=false;TL.c=-1;vd.pause();try{vd.currentTime=t;}catch(e){}maj();bouton();}
+  function depuisDebut(){chercher(0);lire();}
+  (function boucle(){maj();requestAnimationFrame(boucle);})();
+  btn.addEventListener('click',function(){TL.vu=true;TL.auto=false;if(TL.fini)depuisDebut();else if(TL.joue)suspendre();else lire();});
+  var enLecture=false,cible=null,attente=0;
+  function viser(e){cible=xVersT(e.clientX);if(!attente)attente=requestAnimationFrame(function(){attente=0;if(cible!=null)chercher(cible);});}
+  barre.addEventListener('pointerdown',function(e){TL.vu=true;TL.auto=false;enLecture=TL.joue||(!TL.fini&&pos()===0);TL.glisse=true;barre.classList.add('glisse');
+    try{barre.setPointerCapture(e.pointerId);}catch(x){}viser(e);e.preventDefault();});
+  barre.addEventListener('pointermove',function(e){if(TL.glisse)viser(e);});
+  function lacher(){if(!TL.glisse)return;TL.glisse=false;barre.classList.remove('glisse');if(attente){cancelAnimationFrame(attente);attente=0;}if(cible!=null)chercher(cible);if(enLecture)lire();}
+  barre.addEventListener('pointerup',lacher);barre.addEventListener('pointercancel',lacher);
+  barre.addEventListener('keydown',function(e){var d={ArrowRight:PAS,ArrowLeft:-PAS,Home:-1e9,End:1e9}[e.key];if(d==null)return;e.preventDefault();TL.vu=true;TL.auto=false;
+    var j=TL.joue;chercher(pos()+d);if(j)lire();});
+  maj();bouton();
+  /* lecture quand la moitié de la vidéo est à l'écran ; en dessous, pause ; reprise quand elle revient, si la pause n'a pas été demandée (comme le rond) */
+  new IntersectionObserver(function(es){es.forEach(function(x){
+    if(x.intersectionRatio>=.5){if(!TL.vu){TL.vu=true;depuisDebut();}else if(TL.auto&&!TL.joue&&!TL.fini){TL.auto=false;lire();}}
+    else if(TL.joue){TL.auto=true;suspendre();}});},{threshold:[0,.25,.5,.75,1]}).observe(vd);
+  window.LECTEUR_FILM={get t(){return pos();},get etat(){return TL;},chapitres:CH,fin:FIN,aller:chercher,lire:lire};
+})();
+</script>
+</body></html>
