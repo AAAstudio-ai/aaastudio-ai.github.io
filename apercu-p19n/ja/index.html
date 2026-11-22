@@ -95,7 +95,7 @@ h2{font-family:Literata,Georgia,serif;font-weight:500;font-size:clamp(2rem,2.8vw
 .film-lien .tri{width:0;height:0;border-left:11px solid var(--accent);border-top:7px solid transparent;border-bottom:7px solid transparent}
 .film-dlg{border:0;padding:0;background:transparent;max-height:92vh}
 .film-dlg::backdrop{background:rgba(10,12,18,.82)}
-.film-dlg video{position:static;width:auto;height:88vh;opacity:1;pointer-events:auto;border-radius:18px;display:block}
+.film-dlg video{position:static;width:auto;height:min(88vh,calc((100vw - 32px) * 16 / 9));aspect-ratio:9/16;opacity:1;pointer-events:auto;border-radius:18px;display:block}   /* 22/11 : au téléphone, 88vh donnait un film plus large que l'écran (récap coupé à droite) ; la hauteur se limite aussi par la largeur */
 .film-dlg .fermer{position:absolute;top:8px;right:8px;z-index:2;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);font-size:24px;cursor:pointer}
 /* ===== charte de la page en ligne (boutons et halo repris tels quels, 18/11) ===== */
 @property --halo-a{syntax:'<angle>';inherits:true;initial-value:0deg}
@@ -211,7 +211,7 @@ section[id]{scroll-margin-top:92px}
 .plus p{margin:1rem 0 0}
 /* ===== blocs d'origine montés tels quels (garantie, fondateur, carte du test) et apparitions au défilement, 18/11 au soir ===== */
 .origine{display:block}#about{scroll-margin-top:92px}
-.rv{opacity:0;transform:translateY(24px);filter:blur(7px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.8,.2,1),filter 1s ease;transition-delay:calc(var(--i,0)*.16s)}
+.rv{will-change:transform,opacity,filter;opacity:0;transform:translateY(24px);filter:blur(7px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.8,.2,1),filter 1s ease;transition-delay:calc(var(--i,0)*.16s)}
 .rv.vu{opacity:1;transform:none;filter:none}
 /* ===== haut de page : titre en deux lignes et deux tons, chapô et « Who it's for » de la page en ligne (18/11, 19 h 30) ===== */
 .titre{max-width:none;top:14.5vh}
@@ -442,7 +442,7 @@ h2{font-size:clamp(25px,2.5vw,32px);line-height:1.3}
     </article>
     <article class="offre large">
       <h3 class="offre-t" aria-label="社内の資料をもとに答えるAIアシスタント"><span class="o-num" aria-hidden="true">2</span><span class="o-nom" aria-hidden="true">AIアシスタント</span><span class="o-reste" aria-hidden="true">社内の資料をもとに答える</span></h3>
-      <div class="anim rond" data-src="../sections/rond-ja.html" data-src-tel="../sections/rond-ja-tel.html"></div>
+      <div class="anim rond" data-src="../sections/rond-cerveau-ja.html" data-src-tel="../sections/rond-cerveau-ja-tel.html"></div>
     </article>
     <article class="offre">
       <h3 class="offre-t" aria-label="チーム向けのClaude AI研修"><span class="o-num" aria-hidden="true">3</span><span class="o-nom" aria-hidden="true">Claude AI研修</span><span class="o-reste" aria-hidden="true">チーム向けの</span></h3>
@@ -1347,12 +1347,30 @@ for (let i = 0; i < S.nombre; i++) {
 const proche = (i) => { for (let d = 0; d < S.nombre; d++) { if (images[i - d]) return images[i - d]; if (images[i + d]) return images[i + d]; } return null; };
 
 // --- image d'arrivée HD + écran vivant (vidéo de la zone, posée avec son masque)
-const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; }; fin.src = S.fin.image;
+const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); };   /* 22/11 : préparée dès le chargement */ fin.src = S.fin.image;
 const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; masque.src = S.fin.masque;
 const v = document.getElementById('v');
 for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); }
 v.load();   // 19/11 : la vidéo attend à l'instant 0, celui des images de l'approche ; elle part à la fin du fondu
 const [ZX, ZY, ZW, ZH] = S.fin.zone;
+// 2026-11-22 (fluidité) : drapeau « image neuve de la vidéo d'écran » ; image d'arrivée préparée une fois à la taille du canvas
+let videoNeuve = false;
+if (v.requestVideoFrameCallback) { const rv = () => { videoNeuve = true; v.requestVideoFrameCallback(rv); }; v.requestVideoFrameCallback(rv); }
+else setInterval(() => { if (!v.paused) videoNeuve = true; }, 33);
+let finC = null, finCle = '', finCouvre = false;
+// k : calage pour le canvas ACTUEL ; l'image est construite à la taille de la pleine définition (celle de l'arrivée),
+// ce qui permet de la préparer dès le chargement, avant le passage du canvas en pleine définition
+function finPrepare(k) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), W = Math.round(innerWidth * dpr), H = Math.round(innerHeight * dpr), q = W / c.width;
+  const cf = W + 'x' + H + '|' + (k.x * q).toFixed(1) + '|' + (k.y * q).toFixed(1) + '|' + (k.s * q).toFixed(4);
+  if (finC && cf === finCle) return finC;
+  finCle = cf; finC = finC || document.createElement('canvas'); finC.width = W; finC.height = H;
+  const g = finC.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  const x = k.x * q, y = k.y * q, s = k.s * q;
+  g.drawImage(fin, x, y, S.fin.largeur * s, S.fin.hauteur * s);
+  finCouvre = x <= 0.5 && y <= 0.5 && x + S.fin.largeur * s >= W - 0.5 && y + S.fin.hauteur * s >= H - 0.5;
+  return finC;
+}
 const oc = document.createElement('canvas'); oc.width = ZW; oc.height = ZH; const octx = oc.getContext('2d');
 
 const lisse = (t) => t * t * t * (t * (t * 6 - 15) + 10);
@@ -1389,10 +1407,10 @@ function couvrir(w, h) { const s = Math.max(c.width / w, c.height / h); return {
 let chauffe = -1;
 function chauffer(i) { if (i === chauffe) return; chauffe = i; for (let d = -4; d <= 14; d++) { const im = images[i + d]; if (im && im.decode) im.decode().catch(() => {}); } }
 
-let pLisse = null, tPrec = 0, clePrec = '';
+let pLisse = null, tPrec = 0, clePrec = '', clePDom = '';
 function dessiner(ts) {
   requestAnimationFrame(dessiner);
-  if (sec.getBoundingClientRect().bottom <= 0) return;                 // haut de page sorti de l'écran : on ne dessine rien
+  if (sec.getBoundingClientRect().bottom <= 0) { if (!v.paused) v.pause(); return; }   // 22/11 : vidéo arrêtée hors écran                 // haut de page sorti de l'écran : on ne dessine rien
   const cible = progression();
   const dt = Math.min(64, (ts - tPrec) || 16); tPrec = ts;
   pLisse = pLisse === null ? cible : pLisse + (cible - pLisse) * (1 - Math.exp(-dt / REGLAGES.inertie));
@@ -1404,22 +1422,34 @@ function dessiner(ts) {
   if ((af > 0) !== hd) { hd = af > 0; taille(); }
   const cle = p.toFixed(5) + '|' + chargees + '|' + c.width + 'x' + c.height + '|' + finPrete + masquePret;
   window.__etat = { chargees, total: S.nombre, finPrete, videoPrete: v.readyState >= 2, p, cible };
-  if (af === 0 && cle === clePrec) return;                             // rien n'a bougé : pas de dessin
-  clePrec = cle;
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = hd ? 'high' : 'low';
+  // 22/11 (fluidité) : clé du CANVAS ; une fois arrivé (af = 1), l'image ne dépend plus du défilement : seule la vidéo d'écran
+  // la change. Le titre et le voile (plus bas) suivent toujours le défilement.
+  const vNeuve = videoNeuve; videoNeuve = false;
+  const cleC = (af >= 1 ? 'arrivee' : p.toFixed(5)) + '|' + chargees + '|' + c.width + 'x' + c.height + '|' + finPrete + masquePret;
+  const rien = cleC === clePrec && !(af >= 1 && vNeuve);
+  if (rien && cle === clePDom) return;                                 // rien n'a bougé du tout
+  clePDom = cle;
+  const seuleVideo = !rien && cleC === clePrec;                        // seule la vidéo d'écran a changé : on ne repeint que sa zone
+  clePrec = cleC;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';   // 22/11 : plus de « high » à chaque image (coût x10) ; la fin est préparée une fois en « high »
   const f = t * (S.nombre - 1), i0 = Math.floor(f), part = f - i0;
   chauffer(i0);
   const im = proche(i0);
-  if (im) {
+  if (im && !rien && !seuleVideo && !(af >= 1 && finPrete && finCouvre)) {   // 22/11 : arrivé, l'image d'arrivée couvre tout
     const k = couvrir(S.largeur, S.hauteur); ctx.globalAlpha = 1; ctx.drawImage(im, k.x, k.y, S.largeur * k.s, S.hauteur * k.s);
     const im2 = part > 0.02 ? images[i0 + 1] : null;                   // fondu vers l'image suivante : le mouvement devient continu
     if (im2) { ctx.globalAlpha = part; ctx.drawImage(im2, k.x, k.y, S.largeur * k.s, S.hauteur * k.s); ctx.globalAlpha = 1; }
   }
   if (af >= 1) { if (v.paused) v.play().catch(() => {}); } else if (af === 0 && !v.paused) { v.pause(); v.currentTime = 0; }
-  if (af > 0 && finPrete) {
+  if (af > 0 && finPrete && !rien) {
     const k = calerFin(Math.round(f));
     ctx.globalAlpha = af;
-    ctx.drawImage(fin, k.x, k.y, S.fin.largeur * k.s, S.fin.hauteur * k.s);
+    const kf = calerFin(S.nombre - 1), fc = finPrepare(kf), r = k.s / kf.s;
+    const pile = fc.width === c.width && Math.abs(r - 1) < 1e-4 && Math.abs(k.x - kf.x) < 0.05 && Math.abs(k.y - kf.y) < 0.05;
+    if (seuleVideo && pile) { const zx = Math.floor(k.x + ZX * k.s) - 2, zy = Math.floor(k.y + ZY * k.s) - 2, zw = Math.ceil(ZW * k.s) + 4, zh = Math.ceil(ZH * k.s) + 4;
+      ctx.drawImage(fc, zx, zy, zw, zh, zx, zy, zw, zh); }
+    else if (pile) ctx.drawImage(fc, 0, 0);
+    else { const q = c.width / fc.width; ctx.drawImage(fc, k.x - kf.x * r, k.y - kf.y * r, fc.width * q * r, fc.height * q * r); }   // fondu : simple décalage
     if (masquePret && v.readyState >= 2) {
       octx.globalCompositeOperation = 'source-over'; octx.clearRect(0, 0, ZW, ZH);
       octx.drawImage(v, 0, 0, ZW, ZH);
@@ -1436,7 +1466,7 @@ function dessiner(ts) {
 }
 requestAnimationFrame(dessiner);
 </script>
-<dialog id="film" class="film-dlg"><button type="button" class="fermer" aria-label="閉じる">×</button><video id="filmV" controls playsinline preload="none" src="https://aaastudio.ai/films/film-accueil-ja_v5g.mp4"></video></dialog>
+<dialog id="film" class="film-dlg"><button type="button" class="fermer" aria-label="閉じる">×</button><video id="filmV" controls playsinline preload="none" src="https://aaastudio.ai/films/film-accueil-ja_v5h.mp4"></video></dialog>
 <script>
 (() => {
   const d = document.getElementById('film'), v = document.getElementById('filmV');
@@ -1460,5 +1490,115 @@ addEventListener('scroll', zoomLogo, { passive: true }); addEventListener('resiz
 </script>
 <script>/* PORTAIL-TEL-20-11 : portail vertical (le portail le signale), le cadre prend la hauteur qu'il envoie ; au-dessus, format d'ordinateur inchangé */
 (function(){var der=0,vert=false;function poser(){var a=document.querySelector('.anim.portail');if(!a)return;if(vert&&der){a.style.setProperty('height',(der-32)+'px','important');a.style.setProperty('aspect-ratio','auto','important');}else{a.style.removeProperty('height');a.style.removeProperty('aspect-ratio');}}addEventListener('message',function(e){if(!e.data||!e.data.hauteurPortail)return;var a=document.querySelector('.anim.portail'),f=a&&a.querySelector('iframe');if(!f||e.source!==f.contentWindow)return;der=e.data.hauteurPortail;vert=!!e.data.vertical;poser();});})();
-</script></body>
+</script>
+<script>/* Changer de langue au même endroit (règle d'Anthony du 2026-10-09, remise sur le nouvel accueil le 2026-11-22).
+   Méthode : memoire/changer-de-langue-au-meme-endroit.md du vault.
+   Au clic sur une langue de la pilule : on repère le plus petit bloc sous l'en-tête fixe et le décalage, en pixels,
+   de la ligne d'en-tête dans ce bloc ; on l'ajoute au lien (#b=N.T&o=px&q=part, #b=fin en bas de page).
+   À l'arrivée : on se place sans animation, puis on se replace pendant que la page finit de se construire
+   (polices, cadres, zones à défilement fixé), et on s'arrête dès que le visiteur bouge.
+   Les trois pages ont la même suite de blocs (contrôlé par outils/tester-langue-meme-endroit-2026-11-22.mjs) ;
+   si le nombre de blocs diffère, on retombe sur la part de la page (q). Sans JavaScript : haut de page, comme avant. */
+(() => {
+  const BLOC = 'section,article,h1,h2,h3,h4,p,li,figure,blockquote,details,iframe';
+  // zones prises d'un seul bloc : défilement fixé (leurs enfants sont « sticky ») et cadres chargés à la demande
+  const ZONE = '.approche,[data-fix-defilement],.anim';
+  const IGNORE = 'script,style,template,link,dialog,svg,canvas,.entete';
+
+  const parent = n => n.parentElement || (n.parentNode && n.parentNode.host) || null;
+  // translation verticale des transformations (apparitions au défilement, survol), retirée de la mesure
+  const decalage = el => {
+    let t = 0;
+    for (let n = el; n && n !== document.documentElement; n = parent(n)) {
+      const m = getComputedStyle(n).transform;
+      if (m && m !== 'none') t += new DOMMatrixReadOnly(m).m42;
+    }
+    return t;
+  };
+  const haut = el => el.getBoundingClientRect().top + scrollY - decalage(el);
+  const ligne = () => { const e = document.querySelector('.entete'); return e ? Math.max(0, e.getBoundingClientRect().bottom) : 0; };
+
+  // tous les blocs, dans l'ordre du document, racines isolées comprises
+  const blocs = () => {
+    const out = [];
+    const marche = racine => {
+      for (const el of racine.children) {
+        if (el.matches(IGNORE)) continue;
+        if (getComputedStyle(el).position === 'fixed') continue;
+        if (el.matches(ZONE)) { out.push(el); continue; }
+        if (el.matches(BLOC)) out.push(el);
+        if (el.shadowRoot) marche(el.shadowRoot);
+        marche(el);
+      }
+    };
+    marche(document.body);
+    return out;
+  };
+
+  const bas = () => scrollY + innerHeight >= document.documentElement.scrollHeight - 4;
+  const part = () => { const max = document.documentElement.scrollHeight - innerHeight; return max > 0 ? scrollY / max : 0; };
+
+  const reperer = () => {
+    if (scrollY < 4) return { hash: '' };
+    if (bas()) return { hash: '#b=fin' };
+    // Bloc de référence : celui dont le HAUT est le plus près de la ligne d'en-tête, parmi les blocs qui la contiennent
+    // et ceux qui commencent dans la demi-hauteur d'écran en dessous ; à égalité, le plus petit.
+    // (22/11 : « le plus petit bloc qui contient la ligne » prenait toute la section des offres quand la ligne tombait
+    // entre deux offres, 2 228 px plus bas que son haut ; au téléphone, le titre de l'offre 2 sortait de l'écran.)
+    const L = scrollY + ligne(), liste = blocs();
+    let i = -1, ecartMin = Infinity, hMin = Infinity;
+    liste.forEach((el, k) => {
+      const r = el.getBoundingClientRect(); if (!r.height) return;
+      const t = r.top + scrollY - decalage(el);
+      const contient = t <= L && L < t + r.height, dessous = t > L && t - L < innerHeight * 0.5;
+      if (!contient && !dessous) return;
+      const ecart = Math.abs(L - t);
+      if (ecart < ecartMin - 0.5 || (Math.abs(ecart - ecartMin) <= 0.5 && r.height < hMin)) { ecartMin = ecart; hMin = r.height; i = k; }
+    });
+    const q = part().toFixed(4);
+    if (i < 0) return { hash: `#b=q&q=${q}` };
+    const o = Math.round(L - haut(liste[i]));
+    return { hash: `#b=${i}.${liste.length}&o=${o}&q=${q}`, i, T: liste.length, o };
+  };
+
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('.pilule a[hreflang]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const { hash } = reperer(); if (!hash) return;
+    e.preventDefault();
+    location.href = a.href.split('#')[0] + hash;
+  });
+
+  // pour les contrôles automatiques
+  window.__langue = { reperer, blocs, mesurer: i => { const el = blocs()[i]; return el ? Math.round(scrollY + ligne() - haut(el)) : null; } };
+
+  // ---------- arrivée
+  const m = /^#b=(?:(fin)|(q)|(\d+)\.(\d+)&o=(-?\d+))(?:&q=([\d.]+))?$/.exec(location.hash);
+  if (!m) return;
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  history.replaceState(null, '', location.pathname + location.search);   // adresse propre
+  let cible = null;
+  if (m[3] !== undefined) { const liste = blocs(); if (liste.length === +m[4]) cible = liste[+m[3]] || null; }
+  const y = () => {
+    const H = document.documentElement;
+    if (m[1]) return H.scrollHeight;
+    if (cible) return haut(cible) + (+m[5]) - ligne();
+    return (+(m[6] || 0)) * (H.scrollHeight - innerHeight);
+  };
+  const aller = () => {
+    const v = Math.max(0, Math.round(y()));
+    if (Math.abs(v - scrollY) < 1) return;
+    const H = document.documentElement, avant = H.style.scrollBehavior;
+    H.style.scrollBehavior = 'auto'; scrollTo(0, v); H.style.scrollBehavior = avant;
+  };
+  let fini = false; const t0 = performance.now();
+  const stop = () => { fini = true; };
+  for (const ev of ['wheel', 'touchstart', 'keydown', 'mousedown']) addEventListener(ev, stop, { passive: true, once: true });
+  const boucle = () => { if (fini) return; aller(); if (performance.now() - t0 < 4500) requestAnimationFrame(boucle); };
+  aller(); requestAnimationFrame(boucle);
+  if (document.fonts) document.fonts.ready.then(() => { if (!fini) aller(); });
+  addEventListener('load', () => { if (!fini) aller(); });
+})();
+</script>   <!-- 22/11 : changer de langue au même endroit (règle du 2026-10-09, memoire/changer-de-langue-au-meme-endroit.md) -->
+</body>
 </html>
