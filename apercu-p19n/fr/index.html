@@ -1408,14 +1408,25 @@ function vpH() { vpMaj(); return vpHaut; }
    des 416 que permet le plein écran ; 12 h 45, Anthony : « le logo AAA Studio presque collé sur la droite » : bord droit à x 1185 (fin de l enseigne : 1167). L'image est alors un
    peu moins haute que l'écran : calée en haut, la bande du bas reçoit son reflet, fondu dans le sombre. Retour au cadrage normal
    (plein écran, centré) entre les images 40 et 170, bien avant l'arrivée. Un écran plus large que 478 px d'image : pas de bande. */
+/* 23/11, 14 h 55 : bord droit de l'arrivée au téléphone, en px de l'approche (1 600 de large). 15 h 20 (Anthony : « trop d'espace
+   entre le mug et la bordure droite (...) on peut couper l'écran un peu sur la droite, et il faudrait qu'on ait un peu d'espace à
+   gauche à l'extérieur de l'écran ») : x 1893 de l'image d'arrivée, 22 px après la poignée de la tasse (1871) ; à 428 x 847, bord
+   gauche à x 1121, du mur avant le grand écran (bord gauche 1158). Écran plus étroit : la tasse prime, le grand écran est coupé à gauche.
+   (Tasse 1760-1871 ; dossier de la chaise 1280-1874, « AAA Studio » 1570-1810 ; ordinateur portable 1272-1592.) */
+const ARRIVEE_TEL_DROITE = 1118;
 function cadrageTel(f) {
   const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478);
   // 12 h 45 (Anthony) : enseigne presque collée au bord droit. 23/11, 13 h : le bord droit SUIT l'enseigne, qui glisse vers la droite
   // pendant l'avancée (fin des lettres mesurée image par image : x 1167 à l'image 1, 1217 à la 53, 1337 à la 130) : bord = fin + 18 px.
   // Image 1 : bord à x 1185, comme avant. Elle reste entière jusqu'à l'image 62 environ, puis sort pendant le retour vers le bureau.
+  // 23/11, 14 h 55 (Anthony) : à l'arrivée on doit voir la tasse et le dossier de la chaise avec « AAA Studio » en entier, l'ordinateur
+  // plus à gauche : l'avancée reste centrée (x 800) tant que la cloison en bois passe à droite, puis le cadre glisse vers un bord
+  // droit à x ARRIVEE_TEL_DROITE entre les images 320 et 352 (défilement 0,50 à 0,61), derrière la cloison qui sort (voir calerFin).
   const R = Math.min(S.largeur, 1185 + 0.688683 * f + 0.00478341 * f * f);
   const u0 = Math.min(1, Math.max(0, (f - 40) / 130)), u = u0 * u0 * (3 - 2 * u0);
-  const V = V0 + (Vc - V0) * u, s = c.width / V, cx = (1 - u) * (R - V / 2) + u * S.largeur / 2;
+  const w0 = Math.min(1, Math.max(0, (f - 320) / 32)), w = w0 * w0 * (3 - 2 * w0);
+  const V = V0 + (Vc - V0) * u, s = c.width / V, C = (1 - w) * S.largeur / 2 + w * (ARRIVEE_TEL_DROITE - V / 2);
+  const cx = (1 - u) * (R - V / 2) + u * C;
   return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2) };
 }
 function refletTel(k) {   // bande sous l'image (téléphone, départ) : le bas de l'image se fond dans le sombre, bande sombre dessous
@@ -1504,7 +1515,9 @@ function progression() { const r = sec.getBoundingClientRect(); return borne(-r.
 // pour que l'écran ne saute pas au fondu. On aligne la boîte de l'écran de l'arrivée sur celle de l'approche.
 function calerFin(i) {
   // 19/11 : calage mesuré sur toute la pièce (outils/raccord.py) ; les dernières images de l'approche le rejoignent
-  if (S.fin.cale) { const ka = couvrir(S.largeur, S.hauteur), [cs, cx, cy] = S.fin.cale; return { s: ka.s * cs, x: ka.x + cx * ka.s, y: ka.y + cy * ka.s }; }
+  if (S.fin.cale) { const ka = couvrir(S.largeur, S.hauteur), [cs, cx, cy] = S.fin.cale;
+    if (vpL() <= 760) ka.x = Math.min(0, c.width - ARRIVEE_TEL_DROITE * ka.s);   // 23/11 : téléphone, même bord droit que la fin de cadrageTel
+    return { s: ka.s * cs, x: ka.x + cx * ka.s, y: ka.y + cy * ka.s }; }
   const k = couvrir(S.fin.largeur, S.fin.hauteur);
   const g = S.geometries && S.geometries[Math.min(i, S.nombre - 1)];
   if (!g || !g.quad) return k;
