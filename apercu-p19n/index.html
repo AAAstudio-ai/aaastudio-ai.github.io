@@ -1409,16 +1409,17 @@ function cadrageTel(f) {
   const V = V0 + (Vc - V0) * u, s = c.width / V, cx = (1 - u) * (R - V / 2) + u * S.largeur / 2;
   return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2) };
 }
-function refletTel(k) {   // bande sous l'image (téléphone, départ) : reflet du bas de l'image, fondu dans le sombre
-  // 23/11, 13 h : jonction calée sur un pixel ENTIER. Avant, la rangée à moitié couverte par l'image (bord fractionnaire) était
-  // recopiée dans le reflet : trait fin visible en 390 x 844. Elle est maintenant remplacée par le reflet de la rangée pleine.
+function refletTel(k) {   // bande sous l'image (téléphone, départ) : le bas de l'image se fond dans le sombre, bande sombre dessous
+  // 23/11, 14 h 35 (Anthony, captures iPhone) : le reflet en miroir du parquet « c'est absolument pas bon » (tapis et montant
+  // repliés en V). Plus de miroir : rien n'est inventé sous l'image. Le fondu commence au-dessus de la jonction et atteint le
+  // sombre plein SUR la jonction (pixel entier) : ni ligne, ni pli.
   const y0 = Math.floor(k.y + S.hauteur * k.s), b = c.height - y0;
   if (b < 1) return;
-  ctx.save(); ctx.translate(0, 2 * y0); ctx.scale(1, -1); ctx.globalAlpha = 1;
-  ctx.drawImage(c, 0, y0 - b, c.width, b, 0, y0 - b, c.width, b); ctx.restore();
-  const yh = y0 - 0.8 * b;   // fondu qui commence AU-DESSUS de la jonction : pas de ligne entre l'image et son reflet
-  const g = ctx.createLinearGradient(0, yh, 0, c.height); g.addColorStop(0, 'rgba(22,15,10,0)'); g.addColorStop(0.45, 'rgba(22,15,10,.45)'); g.addColorStop(1, 'rgba(22,15,10,.9)');
-  ctx.fillStyle = g; ctx.fillRect(0, yh, c.width, c.height - yh);
+  const yh = Math.max(0, y0 - 1.1 * b);
+  const g = ctx.createLinearGradient(0, yh, 0, y0);
+  g.addColorStop(0, 'rgba(22,15,10,0)'); g.addColorStop(0.35, 'rgba(22,15,10,.22)'); g.addColorStop(0.7, 'rgba(22,15,10,.62)'); g.addColorStop(1, 'rgba(22,15,10,1)');
+  ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, yh, c.width, y0 - yh);
+  ctx.fillStyle = 'rgb(22,15,10)'; ctx.fillRect(0, y0, c.width, b);
 }
 // Réglages de mise en scène (le reste vient de sequence.js, écrit par outils/composer.py).
 const REGLAGES = {
