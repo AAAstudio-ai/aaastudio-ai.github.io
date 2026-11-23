@@ -1764,13 +1764,15 @@ function vif(t){return doux(Math.pow(t,.68));}
   if(reduit){fin();return;}
   etatEtape(0);maj();bouton();
   /* image d'annonce (Anthony, 5-6/11) : visible tant que l'animation n'est pas partie, puis 2 s au depart, puis fondu */
-  if(sc.querySelector('.sys-annonce'))sc.classList.add('annonce');
+  /* 23/11 (Anthony) : plus d'image d'annonce fixe ni d'attente : l'animation part dès que le cadre est entièrement à l'écran */
   /* lecture quand la moitie de la scene est a l'ecran (le bas de la fenetre atteint le milieu de la carte, Anthony 21/10) ;
      en dessous de la moitie, pause ; reprise quand elle revient (si la pause n'a pas ete demandee) : elle ne joue jamais a moitie cachee */
   new IntersectionObserver(function(es){es.forEach(function(x){
+    var ent=x.intersectionRatio>=.97;try{ent=ent||(x.rootBounds&&x.intersectionRect.height>=Math.min(x.boundingClientRect.height,x.rootBounds.height)-2);}catch(e){}
     TL.vis=x.intersectionRatio>=.5;
-    if(x.intersectionRatio>=.5){if(!TL.vu){TL.vu=true;annoncer();}else if(TL.auto&&!TL.joue&&!TL.fini){TL.auto=false;lire();}}
-    else if(TL.joue){TL.auto=true;suspendre();}});},{threshold:[0,.25,.5,.75,1]}).observe(sc);
+    if(ent&&!TL.vu){TL.vu=true;annoncer();}
+    else if(x.intersectionRatio>=.5){if(!TL.vu){}else if(TL.auto&&!TL.joue&&!TL.fini){TL.auto=false;lire();}}
+    else if(TL.joue){TL.auto=true;suspendre();}});},{threshold:[0,.25,.5,.75,.9,.97,1]}).observe(sc);
 });
 })();
 
