@@ -1394,9 +1394,26 @@ let vpLarg = innerWidth, vpHaut = innerHeight;
 function vpMaj() { const vv = window.visualViewport; if (!vv || vv.scale < 1.02) { vpLarg = innerWidth; vpHaut = innerHeight; } }
 function vpL() { vpMaj(); return vpLarg; }
 function vpH() { vpMaj(); return vpHaut; }
-/* 23/11 (Anthony, téléphone : « on perd un peu de branding ») : le cadre étroit du téléphone coupait l'enseigne « AAA Studio » ;
-   il part décalé vers la droite (enseigne entière), puis revient au centre pendant l'avancée (images 40 à 170), bien avant l'arrivée. */
-function cadreTel(f) { const u = Math.min(1, Math.max(0, (f - 40) / 130)); return 0.70 - 0.20 * u * u * (3 - 2 * u); }
+/* 23/11 (Anthony, téléphone : « on perd un peu de branding », puis 12 h 30 : « il faut un entre deux (...) pour l'alignement à droite
+   utilise le screenshot (...) pour la partie de gauche élargis un peu ») : au départ, le téléphone montre 478 px de l'image au lieu
+   des 416 que permet le plein écran, bord droit calé sur la capture d'Anthony (x 1245, juste après l'enseigne). L'image est alors un
+   peu moins haute que l'écran : calée en haut, la bande du bas reçoit son reflet, fondu dans le sombre. Retour au cadrage normal
+   (plein écran, centré) entre les images 40 et 170, bien avant l'arrivée. Un écran plus large que 478 px d'image : pas de bande. */
+function cadrageTel(f) {
+  const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478), R0 = 1245;
+  const u0 = Math.min(1, Math.max(0, (f - 40) / 130)), u = u0 * u0 * (3 - 2 * u0);
+  const V = V0 + (Vc - V0) * u, s = c.width / V, cx = (R0 - V0 / 2) + (S.largeur / 2 - (R0 - V0 / 2)) * u;
+  return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2) };
+}
+function refletTel(k) {   // bande sous l'image (téléphone, départ) : reflet du bas de l'image, fondu dans le sombre
+  const y0 = k.y + S.hauteur * k.s, b = c.height - y0;
+  if (b < 0.5) return;
+  ctx.save(); ctx.translate(0, 2 * y0); ctx.scale(1, -1); ctx.globalAlpha = 1;
+  ctx.drawImage(c, 0, y0 - b, c.width, b, 0, y0 - b, c.width, b); ctx.restore();
+  const yh = y0 - 0.8 * b;   // fondu qui commence AU-DESSUS de la jonction : pas de ligne entre l'image et son reflet
+  const g = ctx.createLinearGradient(0, yh, 0, c.height); g.addColorStop(0, 'rgba(22,15,10,0)'); g.addColorStop(0.45, 'rgba(22,15,10,.45)'); g.addColorStop(1, 'rgba(22,15,10,.9)');
+  ctx.fillStyle = g; ctx.fillRect(0, yh, c.width, c.height - yh);
+}
 // Réglages de mise en scène (le reste vient de sequence.js, écrit par outils/composer.py).
 const REGLAGES = {
   finApproche: 0.6938,      // 27 : réglages de la 26 ramenés à la même distance de défilement (hauteur +100vh pour le coussin)
@@ -1530,10 +1547,11 @@ function dessiner(ts) {
   chauffer(i0);
   const im = proche(i0);
   if (im && !rien && !seuleVideo && !(af >= 1 && finPrete && finCouvre)) {   // 22/11 : arrivé, l'image d'arrivée couvre tout
-    const k = couvrir(S.largeur, S.hauteur); if (vpL() <= 760) k.x = (c.width - S.largeur * k.s) * cadreTel(f);   // 23/11 : enseigne visible au départ (téléphone)
+    const tel = vpL() <= 760, k = tel ? cadrageTel(f) : couvrir(S.largeur, S.hauteur);   // 23/11 : cadrage du départ au téléphone
     ctx.globalAlpha = 1; ctx.drawImage(im, k.x, k.y, S.largeur * k.s, S.hauteur * k.s);
     const im2 = part > 0.02 ? images[i0 + 1] : null;                   // fondu vers l'image suivante : le mouvement devient continu
     if (im2) { ctx.globalAlpha = part; ctx.drawImage(im2, k.x, k.y, S.largeur * k.s, S.hauteur * k.s); ctx.globalAlpha = 1; }
+    if (tel) refletTel(k);
   }
   if (af >= 1) { if (v.paused) v.play().catch(() => {}); } else if (af === 0 && !v.paused) { v.pause(); v.currentTime = 0; }
   if (af > 0 && finPrete && !rien) {
