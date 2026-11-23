@@ -1396,18 +1396,24 @@ function vpL() { vpMaj(); return vpLarg; }
 function vpH() { vpMaj(); return vpHaut; }
 /* 23/11 (Anthony, téléphone : « on perd un peu de branding », puis 12 h 30 : « il faut un entre deux (...) pour l'alignement à droite
    utilise le screenshot (...) pour la partie de gauche élargis un peu ») : au départ, le téléphone montre 478 px de l'image au lieu
-   des 416 que permet le plein écran, bord droit calé sur la capture d'Anthony (x 1245, juste après l'enseigne). L'image est alors un
+   des 416 que permet le plein écran ; 12 h 45, Anthony : « le logo AAA Studio presque collé sur la droite » : bord droit à x 1185 (fin de l enseigne : 1167). L'image est alors un
    peu moins haute que l'écran : calée en haut, la bande du bas reçoit son reflet, fondu dans le sombre. Retour au cadrage normal
    (plein écran, centré) entre les images 40 et 170, bien avant l'arrivée. Un écran plus large que 478 px d'image : pas de bande. */
 function cadrageTel(f) {
-  const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478), R0 = 1245;
+  const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478);
+  // 12 h 45 (Anthony) : enseigne presque collée au bord droit. 23/11, 13 h : le bord droit SUIT l'enseigne, qui glisse vers la droite
+  // pendant l'avancée (fin des lettres mesurée image par image : x 1167 à l'image 1, 1217 à la 53, 1337 à la 130) : bord = fin + 18 px.
+  // Image 1 : bord à x 1185, comme avant. Elle reste entière jusqu'à l'image 62 environ, puis sort pendant le retour vers le bureau.
+  const R = Math.min(S.largeur, 1185 + 0.688683 * f + 0.00478341 * f * f);
   const u0 = Math.min(1, Math.max(0, (f - 40) / 130)), u = u0 * u0 * (3 - 2 * u0);
-  const V = V0 + (Vc - V0) * u, s = c.width / V, cx = (R0 - V0 / 2) + (S.largeur / 2 - (R0 - V0 / 2)) * u;
+  const V = V0 + (Vc - V0) * u, s = c.width / V, cx = (1 - u) * (R - V / 2) + u * S.largeur / 2;
   return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2) };
 }
 function refletTel(k) {   // bande sous l'image (téléphone, départ) : reflet du bas de l'image, fondu dans le sombre
-  const y0 = k.y + S.hauteur * k.s, b = c.height - y0;
-  if (b < 0.5) return;
+  // 23/11, 13 h : jonction calée sur un pixel ENTIER. Avant, la rangée à moitié couverte par l'image (bord fractionnaire) était
+  // recopiée dans le reflet : trait fin visible en 390 x 844. Elle est maintenant remplacée par le reflet de la rangée pleine.
+  const y0 = Math.floor(k.y + S.hauteur * k.s), b = c.height - y0;
+  if (b < 1) return;
   ctx.save(); ctx.translate(0, 2 * y0); ctx.scale(1, -1); ctx.globalAlpha = 1;
   ctx.drawImage(c, 0, y0 - b, c.width, b, 0, y0 - b, c.width, b); ctx.restore();
   const yh = y0 - 0.8 * b;   // fondu qui commence AU-DESSUS de la jonction : pas de ligne entre l'image et son reflet
