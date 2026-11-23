@@ -1411,9 +1411,12 @@ function vpH() { vpMaj(); return vpHaut; }
 /* 23/11, 14 h 55 : bord droit de l'arrivée au téléphone, en px de l'approche (1 600 de large). 15 h 20 (Anthony : « trop d'espace
    entre le mug et la bordure droite (...) on peut couper l'écran un peu sur la droite, et il faudrait qu'on ait un peu d'espace à
    gauche à l'extérieur de l'écran ») : x 1893 de l'image d'arrivée, 22 px après la poignée de la tasse (1871) ; à 428 x 847, bord
-   gauche à x 1121, du mur avant le grand écran (bord gauche 1158). Écran plus étroit : la tasse prime, le grand écran est coupé à gauche.
-   (Tasse 1760-1871 ; dossier de la chaise 1280-1874, « AAA Studio » 1570-1810 ; ordinateur portable 1272-1592.) */
-const ARRIVEE_TEL_DROITE = 1118;
+   gauche à x 1121, du mur avant le grand écran (bord gauche 1158).
+   17 h 30 (Anthony : « Fais ce que je te dis ») : le mur à gauche vaut pour TOUS les téléphones. Un écran plus haut que 428 x 847
+   (390 x 844, 428 x 926 en plein écran) recule un peu à l'arrivée pour montrer au moins x 663 à 1118 de l'approche (1121 à 1893 de
+   l'arrivée) : l'image est alors moins haute que l'écran, calée en haut, bande sombre dessous, fondu court qui ne touche pas la chaise.
+   (Tasse 1760-1871 ; dossier de la chaise 1280-1874, « AAA Studio » 1570-1810 x 1405-1465 ; ordinateur portable 1272-1592.) */
+const ARRIVEE_TEL_DROITE = 1118, ARRIVEE_TEL_GAUCHE = 663;
 function cadrageTel(f) {
   const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478);
   // 12 h 45 (Anthony) : enseigne presque collée au bord droit. 23/11, 13 h : le bord droit SUIT l'enseigne, qui glisse vers la droite
@@ -1425,17 +1428,21 @@ function cadrageTel(f) {
   const R = Math.min(S.largeur, 1185 + 0.688683 * f + 0.00478341 * f * f);
   const u0 = Math.min(1, Math.max(0, (f - 40) / 130)), u = u0 * u0 * (3 - 2 * u0);
   const w0 = Math.min(1, Math.max(0, (f - 320) / 32)), w = w0 * w0 * (3 - 2 * w0);
-  const V = V0 + (Vc - V0) * u, s = c.width / V, C = (1 - w) * S.largeur / 2 + w * (ARRIVEE_TEL_DROITE - V / 2);
+  const Va = Math.max(Vc, ARRIVEE_TEL_DROITE - ARRIVEE_TEL_GAUCHE);   // 17 h 30 : largeur montrée à l'arrivée (mur à gauche partout)
+  const V = V0 + (Vc - V0) * u + (Va - Vc) * w, s = c.width / V, C = (1 - w) * S.largeur / 2 + w * (ARRIVEE_TEL_DROITE - V / 2);
   const cx = (1 - u) * (R - V / 2) + u * C;
-  return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2) };
+  return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2), w };
 }
 function refletTel(k) {   // bande sous l'image (téléphone, départ) : le bas de l'image se fond dans le sombre, bande sombre dessous
   // 23/11, 14 h 35 (Anthony, captures iPhone) : le reflet en miroir du parquet « c'est absolument pas bon » (tapis et montant
   // repliés en V). Plus de miroir : rien n'est inventé sous l'image. Le fondu commence au-dessus de la jonction et atteint le
   // sombre plein SUR la jonction (pixel entier) : ni ligne, ni pli.
-  const y0 = Math.floor(k.y + S.hauteur * k.s), b = c.height - y0;
+  bandeTel(Math.floor(k.y + S.hauteur * k.s), k.w || 0);
+}
+function bandeTel(y0, w) {   // 17 h 30 : fondu de 1,1 bande au départ, 0,3 bande à l'arrivée (« AAA Studio » de la chaise intact)
+  const b = c.height - y0;
   if (b < 1) return;
-  const yh = Math.max(0, y0 - 1.1 * b);
+  const yh = Math.max(0, y0 - (1.1 - 0.8 * w) * b);
   const g = ctx.createLinearGradient(0, yh, 0, y0);
   g.addColorStop(0, 'rgba(22,15,10,0)'); g.addColorStop(0.35, 'rgba(22,15,10,.22)'); g.addColorStop(0.7, 'rgba(22,15,10,.62)'); g.addColorStop(1, 'rgba(22,15,10,1)');
   ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, yh, c.width, y0 - yh);
@@ -1516,7 +1523,9 @@ function progression() { const r = sec.getBoundingClientRect(); return borne(-r.
 function calerFin(i) {
   // 19/11 : calage mesuré sur toute la pièce (outils/raccord.py) ; les dernières images de l'approche le rejoignent
   if (S.fin.cale) { const ka = couvrir(S.largeur, S.hauteur), [cs, cx, cy] = S.fin.cale;
-    if (vpL() <= 760) ka.x = Math.min(0, c.width - ARRIVEE_TEL_DROITE * ka.s);   // 23/11 : téléphone, même bord droit que la fin de cadrageTel
+    if (vpL() <= 760) { const ch = c.height - (hd ? finBas : 0), s0 = Math.max(c.width / S.largeur, ch / S.hauteur);   // 23/11 : téléphone, même cadre que la fin de cadrageTel
+      ka.s = c.width / Math.max(c.width / s0, ARRIVEE_TEL_DROITE - ARRIVEE_TEL_GAUCHE);
+      ka.x = Math.min(0, c.width - ARRIVEE_TEL_DROITE * ka.s); ka.y = Math.min(0, (ch - S.hauteur * ka.s) / 2); }
     return { s: ka.s * cs, x: ka.x + cx * ka.s, y: ka.y + cy * ka.s }; }
   const k = couvrir(S.fin.largeur, S.fin.hauteur);
   const g = S.geometries && S.geometries[Math.min(i, S.nombre - 1)];
@@ -1600,6 +1609,7 @@ function dessiner(ts) {
       ctx.drawImage(oc, k.x + ZX * k.s, k.y + ZY * k.s, ZW * k.s, ZH * k.s);
     }
     ctx.globalAlpha = 1;
+    if (vpL() <= 760 && !seuleVideo && !finCouvre) bandeTel(Math.floor(k.y + S.fin.hauteur * k.s), 1);   // 17 h 30 : image d'arrivée moins haute que l'écran : même bande
   }
   const a = lisse(borne((p - REGLAGES.titre[0]) / (REGLAGES.titre[1] - REGLAGES.titre[0]), 0, 1));
   document.getElementById('voile').style.opacity = a;
