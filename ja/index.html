@@ -1491,21 +1491,29 @@ const pour = document.getElementById('pour');
 const titre = document.getElementById('titre'), indice = document.getElementById('indice'), barre = document.getElementById('chargement');
 titre.classList.toggle('clair', REGLAGES.titreClair);
 
-// --- images d'approche, chargées dans l'ordre (les premières d'abord)
+// --- images d'approche. 23/11, 21 h 30 (mesure en 4G simulée : les 376 images demandées d'un coup, 30 Mo, la première arrivait
+// à 28 s, écran gris jusque-là) : la première image SEULE et d'abord, puis 6 à la fois, en passes de plus en plus fines
+// (une sur 16 sur tout le trajet, puis une sur 8, 4, 2, puis le reste) : l'animation marche vite, de plus en plus fluide.
 const images = new Array(S.nombre); let chargees = 0;
-for (let i = 0; i < S.nombre; i++) {
-  const im = new Image(); im.decoding = 'async';
-  im.onload = () => { images[i] = im; chargees++; barre.style.width = (100 * chargees / S.nombre) + '%'; if (chargees === S.nombre) barre.style.opacity = 0; };
+const ORDRE = [0]; { const vu = new Set([0]); for (const pas of [16, 8, 4, 2, 1]) for (let i = 0; i < S.nombre; i += pas) if (!vu.has(i)) { vu.add(i); ORDRE.push(i); } }
+let prochaine = 1, premiereFaite = false; const apresListe = [];
+function apresPremiere(f) { if (premiereFaite) f(); else apresListe.push(f); }
+function chargerImage(i, suite) {
+  const im = new Image(); im.decoding = 'async'; if (i === 0) { try { im.fetchPriority = 'high'; } catch (e) {} }
+  const fini = (ok) => { if (ok) { images[i] = im; chargees++; barre.style.width = (100 * chargees / S.nombre) + '%'; if (chargees === S.nombre) barre.style.opacity = 0; } suite(); };
+  im.onload = () => fini(true); im.onerror = () => fini(false);
   im.src = `${S.dossier}/${String(i + 1).padStart(4, '0')}.${S.ext}`;
 }
+function filImages() { if (prochaine < ORDRE.length) chargerImage(ORDRE[prochaine++], filImages); }
+chargerImage(0, () => { premiereFaite = true; apresListe.splice(0).forEach(f => f()); for (let k = 0; k < 6; k++) filImages(); });
 const proche = (i) => { for (let d = 0; d < S.nombre; d++) { if (images[i - d]) return images[i - d]; if (images[i + d]) return images[i + d]; } return null; };
 
 // --- image d'arrivée HD + écran vivant (vidéo de la zone, posée avec son masque)
-const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); };   /* 22/11 : préparée dès le chargement */ fin.src = S.fin.image;
-const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; masque.src = S.fin.masque;
+const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); };   /* 22/11 : préparée dès le chargement ; 23/11 : après la première image */ apresPremiere(() => { fin.src = S.fin.image; });
+const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; apresPremiere(() => { masque.src = S.fin.masque; });
 const v = document.getElementById('v');
-for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); }
-v.load();   // 19/11 : la vidéo attend à l'instant 0, celui des images de l'approche ; elle part à la fin du fondu
+apresPremiere(() => { for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); } v.load(); });   // 23/11 : sources ajoutées après la première image (les ajouter lance déjà le chargement)
+// 19/11 : la vidéo attend à l'instant 0, celui des images de l'approche ; elle part à la fin du fondu
 const [ZX, ZY, ZW, ZH] = S.fin.zone;
 // 2026-11-22 (fluidité) : drapeau « image neuve de la vidéo d'écran » ; image d'arrivée préparée une fois à la taille du canvas
 let videoNeuve = false;
