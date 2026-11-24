@@ -16,8 +16,8 @@
 :root{--fond:#F3F5F9;--carte:#FFFFFF;--texte:#1E3358;--texte2:#5B6B8C;--accent:#3B73DC;--rose:#E8657A;--sombre:#1E3358}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--fond);color:var(--texte);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-.approche{position:relative;height:810.6vh}
-.scene{position:sticky;top:0;height:100vh;overflow:hidden;background:#d9d6cf}
+.approche{position:relative;height:810.6vh;background:rgb(22,15,10)}   /* 24/11 : si la barre de Safari bouge avant que la page se recale, on voit ce brun du bas de la photo, jamais du gris clair */
+.scene{position:sticky;top:0;height:100vh;height:var(--hs,100vh);overflow:hidden;background:#d9d6cf}
 canvas{display:block;width:100%;height:100%}
 .titre{position:absolute;z-index:2;left:6vw;top:15vh;max-width:min(48rem,46vw);opacity:0;pointer-events:none;color:var(--texte)}
 .titre.visible{pointer-events:auto}
@@ -35,7 +35,7 @@ h1{font-family:Literata,Georgia,serif;font-weight:500;font-size:clamp(2.4rem,3.6
 .parlons{color:#fff;text-decoration:none;font-weight:600;font-size:.95rem;padding:.75rem 1.5rem;border-radius:999px;background:var(--accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 10px 26px -10px rgba(59,115,220,.8)}
 .indice{position:absolute;left:50%;bottom:4.5vh;transform:translateX(-50%) scale(2.6);transform-origin:50% 100%;color:#fff;font-size:.8rem;letter-spacing:.08em;text-align:center;text-shadow:0 1px 10px rgba(0,0,0,.5)}
 .indice i{display:block;width:1px;height:34px;margin:.6rem auto 0;background:linear-gradient(#fff,rgba(255,255,255,0))}
-@media (max-width:760px){.indice{transform:translateX(-50%) scale(1.6);bottom:calc(4.5vh + 100lvh - 100svh)}}   /* 23/11 (Anthony, téléphone) : « Scroll » coupé ; plus petit, et au-dessus de la barre du bas de Chrome / Safari (100vh = écran sans barres) */
+@media (max-width:760px){.indice{transform:translateX(-50%) scale(1.6);bottom:calc(4.5vh + max(0px, var(--hs,100lvh) - 100svh))}}   /* 23/11 (Anthony, téléphone) : « Scroll » coupé ; plus petit, et au-dessus de la barre du bas de Chrome / Safari (100vh = écran sans barres) */
 .chargement{position:absolute;left:0;top:0;height:2px;background:var(--accent);width:0;transition:width .2s linear,opacity .4s}
 .suite{min-height:70vh;display:flex;align-items:center;justify-content:center;color:var(--texte2);font-size:1.05rem}
 video{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
@@ -354,7 +354,7 @@ section[id]{scroll-margin-top:92px}
 .titre .pour li:first-child{text-wrap:wrap}
 .titre .br-tel{display:none}   /* coupure de coche réservée au téléphone */
 @media (max-width:760px){
-  .titre{bottom:calc(100vh - 100svh + 20px);display:flex;flex-direction:column}
+  .titre{bottom:max(20px, var(--hs,100vh) - 100svh + 20px);display:flex;flex-direction:column}
   .col-rdv{display:flex;flex-direction:column;flex:1 1 auto}
   .titre .btn-l{margin-top:auto}
   .titre .br-tel{display:inline}
@@ -363,7 +363,7 @@ section[id]{scroll-margin-top:92px}
   .titre .pour{max-width:min(80vw,330px)!important;background:linear-gradient(160deg,rgba(16,20,30,.36),rgba(16,20,30,.2))!important;
     backdrop-filter:blur(2px) saturate(1.1) brightness(.78)!important;-webkit-backdrop-filter:blur(2px) saturate(1.1) brightness(.78)!important}
   html[lang="fr"] .titre .pour{max-width:min(80vw,292px)!important}   /* la carte FR gardait une bande vide à droite */
-  .titre::after{content:"";position:absolute;z-index:-1;left:-16px;right:-16px;bottom:calc(-1 * (100vh - 100svh + 20px));height:min(34%,260px);
+  .titre::after{content:"";position:absolute;z-index:-1;left:-16px;right:-16px;bottom:calc(-1 * max(20px, var(--hs,100vh) - 100svh + 20px));height:min(34%,260px);
     background:linear-gradient(0deg,rgba(10,12,16,.66) 0%,rgba(10,12,16,.4) 50%,rgba(10,12,16,0) 100%);pointer-events:none}
 }
 /* sous 400 px de large, la carte à 80 % coupait « owners, » seul et passait la coche française sur trois lignes */
@@ -554,13 +554,13 @@ window.ORIGINE = {"css": "\n/* mention « demo » sous le titre du portail anime
      <div data-fix-defilement><div class="origine" data-bloc="fix" id="fix"></div></div>
      <script src=\"../sections/fix-defilement.js"><\/script>      (après le script qui monte les blocs d'origine)
    Script classique et CSS intégré, pas de module ES ni de feuille à part : la page doit marcher ouverte en file://.
-   Ordinateur seulement (au moins 1101 px de large, 640 px de haut, et le bloc tient sous l'en-tête) ; avec prefers-reduced-motion, rien ne change. */
+   Ordinateur et tablette (au moins 850 px de large depuis le 24/11, 640 px de haut, et le bloc tient sous l'en-tête) ; avec prefers-reduced-motion, rien ne change. */
 (() => {
   'use strict';
 
   const REGLAGES = {
     pas: 300,                  // défilement par cas, en px, à toutes les hauteurs de fenêtre (six cas : 1 800 px)
-    largeurMin: 1101,          // en dessous, les onglets marchent comme avant (au-delà de 1100 px, les six onglets tiennent sur une ligne)
+    largeurMin: 850,           // 24/11 (iPad d'Anthony, 1024 px en portrait) : 1101 -> 850 ; mesuré : les six onglets tiennent sur une ligne dès 850 px dans les trois langues
     hauteurMin: 640,           // fenêtre moins haute : les onglets marchent comme avant
     marge: 16,                 // marge minimale au-dessus et au-dessous du contenu fixé (le titre ne passe jamais sous l'en-tête)
     piedHalo: 26,              // place gardée sous le panneau pour le halo
@@ -1530,7 +1530,8 @@ const borne = (x, a, b) => Math.min(b, Math.max(a, x));
 // Pendant l'avancée, le canvas est à la définition des images (dessin 1 pour 1, aucun agrandissement à calculer) ;
 // à l'arrivée il passe à la pleine définition de l'écran, pour l'image HD.
 let hd = false;
-function taille() { const dpr = Math.min(window.devicePixelRatio || 1, 2); const e = hd ? dpr : Math.min(dpr, S.largeur / vpL(), S.hauteur / vpH()); const ext = hd ? finBas : 0;   // 27 : à l'arrivée, le canvas porte aussi la marge du bas de l'image (coussin)
+function taille() { document.documentElement.style.setProperty('--hs', vpH() + 'px');   /* 24/11 (Anthony, iPad et iPhone : bande grise sous le bureau en remontant) : le bloc prend la hauteur visible réelle, comme l'image ; avant, 100vh (écran sans barres) laissait voir le fond gris quand la barre de Safari revient */
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); const e = hd ? dpr : Math.min(dpr, S.largeur / vpL(), S.hauteur / vpH()); const ext = hd ? finBas : 0;   // 27 : à l'arrivée, le canvas porte aussi la marge du bas de l'image (coussin)
   /* 23/11 (bug vu par Anthony sur iPhone) : réaffecter c.width EFFACE le canvas même à taille égale ; à l'arrivée, la clé du cache
      ne changeait pas, seule la vidéo d'écran était repeinte, et le reste restait gris (zoom à deux doigts, barre d'adresse). On ne
      touche au canvas que si sa taille change, et on force alors un dessin complet. */
