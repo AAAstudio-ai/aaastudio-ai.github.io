@@ -1510,12 +1510,16 @@ function versComplete() {   // 25/11 : l'écran sort de la bande recadrée : sé
 const proche = (i) => { for (let d = 0; d < S.nombre; d++) { if (images[i - d]) return images[i - d]; if (images[i + d]) return images[i + d]; } return null; };
 // 25/11 : décodage d'avance, AVANT images devant (sens du défilement), ARRIERE derrière, PARALLELE à la fois ; au-delà de GARDE
 // images de la position, l'ImageBitmap est libérée (mémoire du téléphone : 65 au plus, 157 Mo en série recadrée).
-const AVANT = 24, ARRIERE = 8, GARDE = 32, PARALLELE = 6, enCours = new Set(), BITMAP = typeof createImageBitmap === 'function', WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
+const PARALLELE = 6, enCours = new Set(), BITMAP = typeof createImageBitmap === 'function', WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
+const bitmapsActifs = () => BITMAP && (modeTel || !WEBKIT);   // 25/11, 10 h 15 : WebKit + série complète (iPad, Safari du Mac) = méthode d'avant (mesuré)
+let chauffe = -1;   // méthode d'avant : decode() sur les images autour de la position, l'image elle-même est dessinée
+function chauffer(i) { if (i === chauffe) return; chauffe = i; for (let d = -8; d <= 30; d++) { const im = images[i + d]; if (im && im.decode) im.decode().catch(() => {}); } }
+const fenetreD = () => modeTel ? { av: 24, ar: 8, garde: 32 } : { av: 14, ar: 5, garde: 20 };   // 25/11, 10 h 10 : série complète (iPad, ordinateur), images 2,4 fois plus lourdes : 41 au plus, 236 Mo
 let posD = 0, sensD = 1, attente = false;
 function decoder(i) {
   const im = images[i], sr = serie; enCours.add(i);
   const fin_ = (b) => { enCours.delete(i); if (sr !== serie) { if (b && b.close) b.close(); return; }
-    if (b) { if (bm[i] || Math.abs(i - posD) > GARDE) { if (b.close) b.close(); } else { bm[i] = b; if (attente) { attente = false; clePrec = ''; } } }
+    if (b) { if (bm[i] || Math.abs(i - posD) > fenetreD().garde) { if (b.close) b.close(); } else { bm[i] = b; if (attente) { attente = false; clePrec = ''; } } }
     pompe(); };
   // WebKit (Safari, tous les navigateurs de l'iPhone) : decode() décode en arrière-plan, puis l'ImageBitmap copie l'image décodée ;
   // Chromium et Firefox : createImageBitmap(img) y décode sur le fil principal (mesuré), on part du fichier (décodage en arrière-plan).
@@ -1523,9 +1527,9 @@ function decoder(i) {
           : fetch(im.src).then(r => r.blob()).then(x => createImageBitmap(x)).catch(() => createImageBitmap(im))).then(fin_, () => fin_(null));
 }
 function pompe() {
-  if (!BITMAP) return;
-  for (let j = 0; j < bm.length; j++) if (bm[j] && Math.abs(j - posD) > GARDE) { if (bm[j].close) bm[j].close(); bm[j] = undefined; }
-  for (let d = 0; d <= AVANT && enCours.size < PARALLELE; d++) for (const i of (d && d <= ARRIERE ? [posD + sensD * d, posD - sensD * d] : [posD + sensD * d]))
+  if (!bitmapsActifs()) return; const F = fenetreD();
+  for (let j = 0; j < bm.length; j++) if (bm[j] && Math.abs(j - posD) > F.garde) { if (bm[j].close) bm[j].close(); bm[j] = undefined; }
+  for (let d = 0; d <= F.av && enCours.size < PARALLELE; d++) for (const i of (d && d <= F.ar ? [posD + sensD * d, posD - sensD * d] : [posD + sensD * d]))
     if (i >= 0 && i < S.nombre && images[i] && !bm[i] && !enCours.has(i) && enCours.size < PARALLELE) decoder(i);
 }
 let sortieBande = false;
@@ -1536,7 +1540,11 @@ function poser(im, i, k, a) {   // 25/11 : image i de la série active au calage
 }
 
 // --- image d'arrivée HD + écran vivant (vidéo de la zone, posée avec son masque)
-const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); };   /* 22/11 : préparée dès le chargement ; 23/11 : après la première image */ apresPremiere(() => { fin.src = S.fin.image; });
+const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (fin.decode ? fin.decode().catch(() => {}) : Promise.resolve()).then(prepFin); };   /* 22/11 : préparée dès le chargement ; 23/11 : après la première image ; 25/11 : décodée en arrière-plan, préparée au calme */
+function prepFin() {   // 25/11 : 0,4 s sans mouvement, ou au plus tard à mi-chemin de l'avancée (avant, préparée pendant l'ouverture, sur le fil principal)
+  if (finC) return; if (performance.now() - tRepos < 400 && (pLisse || 0) < REGLAGES.finApproche * 0.5) { setTimeout(prepFin, 250); return; }
+  (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); }
+ apresPremiere(() => { fin.src = S.fin.image; });
 const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; apresPremiere(() => { masque.src = S.fin.masque; });
 const v = document.getElementById('v');
 apresPremiere(() => { for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); } v.load(); });   // 23/11 : sources ajoutées après la première image (les ajouter lance déjà le chargement)
@@ -1645,11 +1653,12 @@ function dessiner(ts) {
   if (kr > 0 && af < 1) { const fr = Math.round(f); f = f + (fr - f) * lisse(kr); if (kr >= 1) f = fr; }
   const i0 = Math.floor(f), part = f - i0; window.__f = f;   // table de positions (densité variable), 2026-11-21 ; __f : contrôle
   if (i0 !== posD) { sensD = i0 > posD ? 1 : -1; posD = i0; pompe(); }   // 25/11 : décodage d'avance autour de la position
+  const BA = bitmapsActifs(); if (!BA) chauffer(i0);
   let j = -1, im = null;
-  if (BITMAP) for (let d = 0; d <= 40 && j < 0; d++) { if (bm[i0 - d]) j = i0 - d; else if (bm[i0 + d]) j = i0 + d; }
+  if (BA) for (let d = 0; d <= 40 && j < 0; d++) { if (bm[i0 - d]) j = i0 - d; else if (bm[i0 + d]) j = i0 + d; }
   if (j >= 0) im = bm[j]; else { im = proche(i0); j = im ? images.indexOf(im) : -1; }   // rien de décodé autour (départ, saut) : image chargée la plus proche
-  const im2 = j === i0 && part > 0.02 ? (BITMAP ? bm[i0 + 1] : images[i0 + 1]) : null;   // fondu vers l'image suivante : le mouvement devient continu
-  attente = BITMAP && (j !== i0 || (part > 0.02 && !im2)); window.__j = j;
+  const im2 = j === i0 && part > 0.02 ? (BA ? bm[i0 + 1] : images[i0 + 1]) : null;   // fondu vers l'image suivante : le mouvement devient continu
+  attente = BA && (j !== i0 || (part > 0.02 && !im2)); window.__j = j;
   if (im && !rien && !seuleVideo && !(af >= 1 && finPrete && finCouvre)) {   // 22/11 : arrivé, l'image d'arrivée couvre tout
     const tel = vpL() <= 760, k = tel ? cadrageTel(f) : couvrir(S.largeur, S.hauteur);   // 23/11 : cadrage du départ au téléphone
     sortieBande = false; poser(im, j, k, 1);
