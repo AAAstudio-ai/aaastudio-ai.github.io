@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AAA Studio · AI for startups and small businesses</title>
 
+<!-- PISTE B (27/11) : image 1 de l'ouverture demandée dès l'en-tête (avant, elle partait à 1,7 s à l'ordinateur et 3,0 s au téléphone). type=image/avif : un navigateur sans AVIF l'ignore. -->
+<link rel="preload" as="image" href="https://aaastudio.ai/films/ouverture-2026-11-29/approche-tel/0001.avif" type="image/avif" fetchpriority="high" media="(max-width: 760px)">
+<link rel="preload" as="image" href="https://aaastudio.ai/films/ouverture-2026-11-29/approche-complete/0001.avif" type="image/avif" fetchpriority="high" media="(min-width: 761px)">
+<script>/* PISTE C (28/11) : le premier étage part dès l'en-tête (fetch) ; le chargeur reprend la réponse sans le retélécharger. Navigateur avec
+   VideoDecoder, Chromium ou WebKit (et pas de ?flux=0) : le FLUX H.264 pleine définition (essai-ouverture-C_2026-11-28/flux-*.bin) ; sinon la passe légère
+   AVIF de la piste B. Même choix de série que serieTel() (bande recadrée : téléphone en portrait). ?leger=corps : sans ce préchargement.
+   Si la configuration est refusée (isConfigSupported), le chargeur prend la passe légère sans préchargement (cas rare). */
+(function () { var q = location.search; if (/[?&](leger=corps|avif=0)/.test(q)) return; var w = innerWidth, h = innerHeight, vc = Math.min(1600, 900 * w / h), tel = w <= 760 && vc >= 400 && vc <= 640, s = tel ? 'tel' : 'complete';
+  // flux dans Chromium et WebKit (28/11, 23 h 40 : voie 'copie' du chargeur pour WebKit ; même règle que le chargeur) ; ailleurs (Firefox,
+  // jamais essayé), passe légère, sauf ?flux=1
+  var webkit = navigator.vendor === 'Apple Computer, Inc.', chromium = !webkit && !!(navigator.userAgentData || window.chrome);
+  var flux = !/[?&]flux=0/.test(q) && typeof VideoDecoder === 'function' && (chromium || webkit || /[?&]flux=1/.test(q)); if (!flux && /[?&]leger=0/.test(q)) return;
+  // PISTE C (28/11) : fetch() lancé ici et repris par le chargeur (window.__premierEtage), au lieu de <link rel=preload as=fetch> :
+  // dans WebKit (constaté dans Playwright), le préchargement n'était pas repris par fetch() et le fichier partait deux fois
+  var u = flux ? 'https://aaastudio.ai/films/ouverture-2026-11-29/' + 'flux-' + s + (/[?&]gop=8/.test(q) ? '' : /[?&]q=normal/.test(q) ? '-g16' : '-g16h') + '.bin' : 'https://aaastudio.ai/films/ouverture-2026-11-29/' + 'leger-' + s + '.bin';   // GOP 16 par défaut, ?gop=8
+  try { var ac = typeof AbortController === 'function' ? new AbortController() : null; var r = fetch(u, ac ? { signal: ac.signal } : undefined); r.catch(function () {});
+    window.__premierEtage = { url: u, reponse: r, arret: ac, pris: false }; } catch (e) {} })();</script>
 <style>
 @font-face{font-family:Literata;src:url(fonts/literata-normal-latin.woff2) format('woff2');font-weight:200 900;font-display:swap}
 @font-face{font-family:Literata;src:url(fonts/literata-italic-latin.woff2) format('woff2');font-weight:200 900;font-style:italic;font-display:swap}
@@ -395,6 +412,40 @@ section[id]{scroll-margin-top:92px}
   .titre .col-rdv>.sous.avec{margin-top:1rem}
 }</style>
 <style>/* 23/11, 19 h 30 (relecture) : au téléphone, pas de mot seul sur la dernière ligne des titres d'offres ; note de démo séparée du grand « 2 » comme les autres numéros (17 -> 61 px) */@media(max-width:760px){.offre-t .o-nom,.offre-t .o-reste{text-wrap:balance}.offre .demo{margin-bottom:44px}}</style>
+<style id="carte-film-2026-11-27">/* 27/11 (Anthony) : le film des trois offres, plus visible. Carte = affiche en miniature + rond de lecture + titre + durée, sous la rangée des cartes ; le bouton d'avant (pilule) était perdu parmi les cartes */
+.film-lien button.film-carte{display:inline-flex;align-items:center;gap:54px;padding:14px 40px 14px 14px;border-radius:24px;text-align:left;color:var(--texte);font-weight:400;
+  background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,rgba(59,115,220,.55),rgba(232,101,122,.45)) border-box;border:1px solid transparent;
+  box-shadow:0 26px 54px -30px rgba(30,51,88,.5),0 2px 6px -2px rgba(30,51,88,.08);transition:transform .25s ease,box-shadow .25s ease;-webkit-tap-highlight-color:transparent}
+.film-lien button.film-carte:hover{transform:translateY(-3px);box-shadow:0 34px 64px -30px rgba(30,51,88,.6),0 2px 6px -2px rgba(30,51,88,.08)}
+.film-lien button.film-carte:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.film-carte .fc-image{position:relative;flex:none;width:156px;aspect-ratio:3/4}   /* le rond de lecture déborde à droite : pas d'overflow ici, l'arrondi est sur l'image */
+.film-carte .fc-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 27%;border-radius:16px;background:#e9eef8;box-shadow:0 0 0 1px rgba(30,51,88,.06)}
+.film-carte .fc-lecture{position:absolute;left:100%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;   /* à cheval sur le bord droit de l'affiche : il ne cache aucun nom d'offre */
+  border-radius:50%;background:var(--accent);   /* Council du 27/11 : disque bleu, triangle blanc, comme le bouton d'appel ; liseré blanc pour se détacher de l'affiche et de la carte */
+  box-shadow:0 0 0 4px #fff,0 14px 30px -8px rgba(59,115,220,.75);transition:transform .25s ease}
+.film-carte .fc-lecture::before{content:"";position:absolute;left:25px;top:20px;border-left:18px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent}
+.film-carte .fc-lecture::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(59,115,220,.55);animation:fc-onde 2.6s ease-out infinite}
+@keyframes fc-onde{0%{transform:scale(1);opacity:.9}70%,100%{transform:scale(1.45);opacity:0}}
+.film-lien button.film-carte:hover .fc-lecture{transform:scale(1.07)}
+.film-carte .fc-texte{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.film-carte .fc-titre{font-family:Literata,Georgia,serif;font-weight:500;font-size:1.55rem;line-height:1.18;max-width:11em;color:var(--texte);text-wrap:balance}   /* FR : pas de « vidéo » seul en bout de titre */
+html[lang="ja"] .film-carte .fc-titre{font-family:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","Noto Serif JP",serif;font-weight:600;font-size:1.4rem;line-height:1.4;max-width:9em}
+@media (min-width:1000px){.film-carte .fc-titre,html[lang="ja"] .film-carte .fc-titre{white-space:nowrap;max-width:none}}   /* Council du 27/11 : titre sur une ligne, largeur de carte calée sur le texte, même marge à droite dans les trois langues */
+.film-carte .fc-duree{display:inline-flex;align-items:center;gap:.6rem;font-family:Inter,system-ui,sans-serif;font-weight:600;font-size:1rem;color:var(--accent);background:rgba(59,115,220,.09);border-radius:999px;padding:.42rem .95rem}   /* Council du 27/11 : plus de triangle ici, le rond porte seul le signe « lecture » */
+@media (max-width:760px){
+  .film-lien button.film-carte{display:flex;width:100%;max-width:440px;margin:0 auto;gap:42px;padding:12px 18px 12px 12px;border-radius:22px}
+  .film-carte .fc-image{width:min(126px,33vw)}
+  .film-carte .fc-image img{border-radius:14px}
+  .film-carte .fc-lecture{width:54px;height:54px;margin:-27px 0 0 -27px}
+  .film-carte .fc-lecture::before{left:21px;top:16px;border-left-width:16px;border-top-width:11px;border-bottom-width:11px}
+  .film-carte .fc-texte{gap:12px}
+  .film-carte .fc-titre{font-size:1.32rem;max-width:none}
+  html[lang="ja"] .film-carte .fc-titre{font-size:1.2rem}
+  .film-carte .fc-duree{font-size:.92rem;padding:.38rem .85rem}
+  .film-carte .fc-lecture::after{inset:-7px}
+}
+@media (prefers-reduced-motion:reduce){.film-carte .fc-lecture::after{animation:none;opacity:0}.film-lien button.film-carte,.film-carte .fc-lecture{transition:none}}
+</style>
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij4KPHN0eWxlPnJlY3R7ZmlsbDojMTczMjRFfUBtZWRpYShwcmVmZXJzLWNvbG9yLXNjaGVtZTpkYXJrKXtyZWN0e2ZpbGw6I0Y2RjJFQX19PC9zdHlsZT4KPG1hc2sgaWQ9Im0iPjxpbWFnZSBocmVmPSJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUlBQUFBQ0FDQVlBQUFERFBtSExBQUFZbFVsRVFWUjQydTFkZWJSY1paSC8xZTJYRFNFaGdLd3lFQXpLSGdRRTJVV1dVVVE1TUxnTW00Z3lPSVI5RFVzTUVCWVRkZ2lnNkdGMUJrWFJ3eUlJZ1dHUkVjTWlJSXNjU0VBSU81SVF0aVN2dSs5di9yaFZTZVdqKzc3WHQ3ZDdlN2puOU9uazlldnYzZnQ5OVZYOXF1cFg5UWtLZHBFVUFCRUFBUkNMU0J4OFBnekFtZ0RXQmpCVzM5Y0FzQXFBNVFCOENrQWZnTkhCMEhNQlZBQzhCMkFlZ05jQnZBaGdKb0JaQUo0SDhBOFJXUmo4dlVqdmh5SlNMZHA4U29FV1BnSVFpVWdsK1BsS0FMNEFZSE1BbXdGWUI4RHFBSWEzK0JZV0FKZ040RmtBandCNENNQmpJdkltQ254SlFYWjdMQ0owUDk4RXdDNEFkZ2F3S1lCUnRiNE9JQTZlVlZLZW5jRy8vZitqT25NMUQ4Q2pBS1lEdUFQQWN3QSs4dmY2aVFCa1gvaVMzKzBrTndTd0Y0QnY2STczVjZ3dkNWNHR2YTNnWmFyZlh6dUt5UCtRTEFGQUVVeUM1SEhIMjhTUkhBbGdEd0RmQTdBZGdKTDc5WXJlZjlURjV5Q0FzdDdYM1FDK1pqOHZpaGFRbkM3ODZnQU9BbkNBMm5PLzZMVjJIcm9vQUxFS3dVWWk4anpKa29oVVNYNFJ3Sk1pc2dDZlhLbUxYM0wvWHAza0ZKSnp1UGlxNkN0bS9xNnl2azl5SGdoSTdxWS8zMVAvMy9mSlN0ZEE5YnJ6UVhJNWttY0VDMS9PNmFMYlZkWDdlNWJrY0pKOUpFc2tQMFZ5bG42MmI5NEZvSzlMaTk5bkFJL2tBUUJPZDZxK29qWTE3N3ZHZ09CaElyS0E1REFSV1VqeU5BQnJmYkxGQjk3MUc1Rzh1MEE3bm9GWklzbmY2TE1NMWZlTjliTisvVHozR2lEcXBLMjNxQjNKNHdIOEJjQlhBRlIxTi9VVkpEQkZ2YzhQQUJ5akFTcEQvQmVyOW9wYmhZdDZ3Z1NZeWllNU5vQ2ZBOWhlUDZvR3JsMFJycXJPMjJRUmVkbXAvdjBBYk52c001R00xSXVJd2pCMzRUUUFTZEVIcVpEY0c4QU1YZnlLN3BxaUx2NlRBQzVRMVY0aHVTeUFLUzRZMWN5dVA1M2tEMFVrOWlhemNBS2dLcC9KUDNrdWdQOUNrb0NwRmtqZDF6TUJoNHBJV2FPVlZRQm5JVWsyc1lrNXRmbFlFY0RQU1o0cElyR0lVTTFNY1FUQUJVTkdBN2dWd0RITzFwY0t1dkRtblZ3akl2ZVRIS3FxZjNNQUIrdnpSUzFLT3NVQVRpSjVFOGxScWcxS2hSQUF0ZmRWa21zQnVBL0FybTd5aXJ6ckl3QnpBRXpRSFJucis2VnVIcVZGYXhJQm1BL2dtd0R1STdtbXptbGZyZ1hBZ2IxeEFQNEVZRU5kL0tKSHdteDMvMWpUdjBNMGp2RWZTRkxRbFRab3RpRTY3amdBRDVCY1grZTJMNWNDNEJaL0d3RDNBMWpWMmZ1aUwzNGZrdnovVDBrT0FWQW0rV2tBWjZpNkxyWFJTNnNDV0EzQS9TUzNhYlVRUkcxWS9Oc0JqQ3lvaTRjNkhJR3FBcjlxa3VXVkdNQTVBSlozY1lGMlhTWDkrOHNCdUlYa1pxMFVncWhGZ0s5Q2NuMEZmRXUzZVZkMDhyTG4rS21JUEt3K2Z6L0o3WkdrcURzbDVDWUV5d0s0bGVTNk91ZWxyZ3FBUS91ZkIzQW5FbVpPTlVmcDJtWVhYd0M4Q1dDaVRuWlZ3NzZYZHVGK1RBaFdBbkNYQTRhbHJnaUFROExMQTdqRjJmeGUyUGtlK1o4Z0luTUJXQUxyY0FEcnR3bjREVllJVmxWTk1NcDVJNTBUQUkxT0dSdm5CaVRNMjBvUExiNEo4bjBBcm5YQTd6TUFmdHhsRTFmU3VWNWY1MTRBU05hSVlWYkpzUWpZWlVnU091VWVRUHNoOENzalNmWFNBYi96QVN6VEFlQTNHTytnZ29RWWU0bXVSYWtqQXVBUS84SHFCMWZVWjBXUDdmN3pSZVJKQi95K0N1QmJPVEp6ZlNxa2gyanVJSk5uRUdYSVZGVkliZ3pna2g2eitSNzF2d0RnREFWWUZaSWpBRXpMd2M2dkZ5ZTRoT1NHdWpaUld3VEE3TDd5M3E1MXUxNTZUQUFFd0xFaThvRUN2eXFBQ1FBK3E1OUhPU1QxRGdkd25Yb29EZUdCS0lQZFB4dUxRN3lsSGxQOWZRQ21pOGp2RmZqMWsxd0h3QWtaM1Z0MkVCU09BM0JxbzNnZ2FqRFlzeDJBbzNva3ZsOXJvUllBT05TMG5RTEFjd0VNeTZEdE9wbjVOQ0dZUUhLclJvSkUwU0JWUDBrT1I4TG1RWThFZW1yWi9yTkU1RGtBUXhYNDdRbmc2eG13anJuSkgzYlFGRmlCek04Y1IxRmFvUUdNbW5RY2dNKzU0b3hlV3Z3SVNWM2ZPWTdsczR5NmZZMENQek1WVHdQNG95NUN0VVA4emdxQURRQWNwYVlnYWtvQVhMUnZUUVZDY1kvWmZVL3lQRlNyZUF6clRFSlNWcDdGOWd1QUkwVGtROTFBN0tBcGlBR2Nva0dyQWFPRUF6MlkyY0V6QVN6VkRPY3Q1ejcvYjBSa3VtUDViSXdrNU51bzZyZmZ2MTVFN3JaY1NZZTlnaGhKUW02eUJiRXlDWUJMOUd3SzROOTE0TDRlM1BuMTZOMk51cmsyM3JzQWpnN0dRNGREeFRHQWZVbHVwRnFnMUF3R09FMGZqT2l0eTFUN0pCR1pyU3lmTXNuOWtkQzdHM1Z6RFV1Y0xDSnZPT3pVamRpQWJkWXpCekkvMFFDN2YwdEZ3WEdQK3Z5UEE3allBYi9SV0V6dmpqS28va2VSc0laS0hRSitTSWtReGdDK1RuS3pOQzBRRGVBWFQzRFMzWXZYZUUzeFJvN2V2WExHaUIrUkpJOWlCVThrdVhRT29wb1QwN1JBVkNmZUg2djkrSVlyMitvMTRIZVZpUHhaZ1Y4L3lTOGhTVzQxeW1Pc3VQRWUxUEdxSkhkRGtqenFWbTJnYVlGZGxVRlVyZVVSUkNsQ2NiQktVQlc5Qi96bUFqalJnSnFxeDJrWmRyMXBpcmNEdXJnQXVBQ3RiMVNWUlF2MDZWcldYTzhvalBwcEdIRVVnRzg3Vk5scndPOFVSKzh1Njg3Zk5JUGJad0l3UVVUZWRuVHgvMFRTb200dThsSDgreDJTeStqYVNwb0dzSWZmRThBS09pSFNZOEJ2Qm9ETEhjdG5SU3ltZDBjWnh2dVRpRnpweGx0Tng4dERGVlNrOTdreWdOMXJiZWlvaGtRRHdQZDd6TzN6OU83eEFjdm5YQ1NVYXpibzg5dDRoN3VnV2F5cWYzU2JPcFUxOC93SDFnTDBVUTN3OTNrQVcvYVkramZWZnBtSVBPcUEzNDRBOW1zaTRuZXBpRHp1eHR0WmdWOC84dGNEWW11U1k2M3F1SllHV0dRdkhOTUVQWlRzZWNQUnUyUE5tRjJjSWRsak1aRlhhb3gzVVE0MXB3SDVvVWhhN2kyeDdsRWcxVUJTa05oTFRCODZvRGJQMGJ1UEFMQmVobVNQK2RmSGljaDdicnlqQWF5YjA3b0lXOHM5UWpNUU9mVlBrbU1CYk5Sa25Yc2VWZis5SW5LTlkvbDhCc0RFREJGT0EzNTNpTWl2M0hoak1vN1hTVE5BQUp0b1Fja2lNeEFGbW1BSFRZTDBBdm8zVmR3UDRMQWd1M2tlR3FkMzIzanpBUndlc0lZdVFaSXRaVTduemN6QU1BQmY5bXNlQlErM2M0L1N1NTl5OU82dmFZd2pLL0NiR3JDR2RrYzIxbEMzcnAzOW1rY2EvS2txMjNlTEhrSC9udDQ5V1VPeFZhVjNOd1A4WmdHWUVyQ0dMc3J4enEvbERXeGhUVHdROU4wZGk2UU9uVDJpL2dVSk5lb2oxM244UkgzT1JvR2FIMisrWXcyZGpIVFdFSE1vQUdzQUdHUFl6M2ZhM3FnVlBlNXlwUHIvSUNJM3EzdldyL0dORTVwUS9iOFhrVnNjYTJoZFpValhHeStQU1RRRHNSdWJVSGdCMkRTSFVwdDE1ODhIY0tReG1oV29YYUMrY0JhV3ovc0Fqckx4OUxOcEtlTlpGSEJlVG9IeFpuYWZrZlAveC9XQS8yK3ErRXdSbWFsQXJVeHlMeVM5L0xQcy9nakE2U0x5a2h0dlh5enVjbHFxb3pFZUJuQ2JsZFBsTEI2d29XRWJDLzhPUVZMNlZHUUJzSWwvQnNDNUFWQzdzQW5nOTdSakRaV1ZOWFJlSFlJczNmdmhJdEtmcy9tMGUxbmJXRitSYTA2NGFnOW9BS05qTDNRc244a0tidU9Nd004VzBqaCtrM1crYW8xblFuaUZpUHlsQzZ6Z3dRckFhZ0ErN1pIaDZob2tLS29IWUJOL2c0amM1Wkl6WHdCd2FBYlViK1A5U3M4QXN2RTJBZkNqT3FyZkJPSk5KRTBlbzV6bUJRaGdoQXJCb2tuNVRJRzVmNTdlZld5ZDd0MVpnTjljZkp6ZW5UYWVoYytQRlpFNUx2eWF4eGdKUWdGWXBjQWVnTzI4VXdONjkvY0FiTk1FeStja0VYbmRqWGNRZ0swSEFINzNpOGd2clpnMnB3ZEgwYSs1Q2NES0JRZCtUd0M0MEFHLzVRRDhKRU1sazQzM0NJQXJIUEJiQ1Fsak9BMzRlWEtJSFk2eHdtQ0xOTHR3cmV3RllLV0MrLzZIV0RHazYySFFLTDJiTmVqZEJ2eW1JS0hJc1E2THFnVGdJaEY1UW5NT1ZTVDVoajJSMzlENkVpQndhSUYzLzlVQnZYc3JKRWZPTlVydnR2R3VWQVJ2NDIwTllQOEJnTjlzQUpPQ1hvTG41bnorbHZVQ01McGdMcUFCdGJCN2QwbUJtbVRFRVc4Qk9DR2dpMStTTWg2ZDYvbUJJNGNjcXlCckh2S05uUllKd0tjS0d2R2JJQ0p2T1RyMndVaEMybzNXOVhuVzBEdU9MbjRZa21OcUt5bkE3MVp0S1dNNWg3RklrazZGS0tpSkNvaitQYjM3RjQ2T3ZaSUdhYkxXOWQwaklsY0ZUU0ZQcThQeThUbUhJNEtjd3pRazVkbDVZZ1YzLzlTd050QzdEd25vM2VkaE1iMDdhcEkxWlBUdWtYV0NZNmFCZmlJaUw3Z2N3YmNCL0N1QWhVV1owS2hndHQ5MjR6UVIrV3RBNzk2bmlWVHZKU0x5ZE5BVWNxOFU0RmNDTUJOTHRwUlpXb1d3VU5IVXlIWEhLaEs5ZTFJTmVqZWFvSGRQRGhCOFdtOGdEL3c4T2VRVUpCSFZ1RWlhMVc3MG5RSmdBUXZDSEIvUXU0OUVRdSt1WktSM0h4T01keHpxMDd0Tkk5d29JcmM1Y3NqNlNHamhSV3FWdndRcGRINUJnTjg5SW5LZEEycXJvemw2OXg5RjVBYUg0RCtMaE9hVkJ2emVVN0tKai9WZlZzRE9xZTk2QVhpckFNQnZJWkxNSG9MdTNVczNRZTgrTEVEd0Z5UEpsS1VCdjlORTVCV1hJemdBd0hZRjdKejZ0aGVBTndzUThUdFBSSjV4UUcyM0ZLQTJtUEdtMUdBTjdacVM3T2tEOEpRMlp2WTVoeWxGcy90NnZRRVhxSGcxcCtyTDA3SFBjTW1aNGVxbWxYVzNzc0h4WmdLWTZzWWJBV0JxeW5qMnZjTlZXTXo3T0JWSlRMMC9JTlJXY295cGJJMWY5d0x3U2s3akF1YlRIeTBpODdWMm9ZcUVpeisyaVhHUDB2R0c2bmdYUTZuU0tkZTFJbktQVy95ZFhPeGdHR29meWowc3g4Qi90ci9SMTlURzVva1Y1RU90TjJzeHcwSmR0SWVRcEd3bFEvN2dYUkc1VlF0aStuVzhCM1ZNcEtSN2J3emF2bHJvT2E2VElZeVFISjZaSjZJTlhRL2pWeGM5cktyQzUzUVg1TUdlVWUrakgwbTl3aXk5cDBVZHVKbzkxVnlMWVNYTGVQYjlOcDI2T2czQStEWjFaTGUxblFsZ0hSR3BSbzYyUEN0SGRzdDJ2OUc3SXdDeGlEREx4Sk1za2V6VFY4a1dQMjA4a2tKeWlQdWVOQ0l3K3Z0UlRqMnFtWGJrWEo4REwwOEEyQ2tIQXVEcDJGTTFRa2RkdE5FWlZkNTcxaURKTHo3SlpldW9mQUd3UUNOOW9kWllacEE3c3lJaTcrZFVBQjR6UE5EbmZ2aG9UandCQTM1SEJJajdUQ1RkdHhyeHR5M2E5eGkwS3RaMVFUMGJpL3NDMWdyNmxFbnVySlhGNXZOdkRlQzNLZ0RSQUgrM1N2SzdJbkp2anVqaEVxdzF2UUQ4TFFlaFRGdU1YMnUzYlUvdlBxblpxSmVHZTh0Szc1NHd3SGZtQUpqakRzd1lBdUJ5Tk1hZkhBUGczaHk1MTNheXlKTytNc2drOHprQUw3dG13OTFDcU84RE9NNnhja1JaT1lhOE9jaFhWVi92dUdOZzdBeUV0UEhLK3RtaEl2S2FCb29zNTdCaEVDdW85N0xmNmM4aEhmd2xKR1h6RUpFNGNtcXhqSVJrMFMyM3BXYjNiaVI4dksxZE5FNEcrYkkrZmRZVWNxaU9keENBcmVxTUYydE0veTRSdWQ2MWdGbERENUNJRzd3SHlhRUF6UEJuQ29WOGdPbGRUdlk4NWtLdFphVlZUODFJNys1RFVxQjVoVXNlcll5QjZkM1c4TW0zbExrQUNXMnVGM29uM09IWFBBcWs0eDRYMXV5VU4rRHAyTDU3ZDZ5THRXTEdwbFZXb0JtNzVORVVKS3lodExxK0MydWNHTHBId1EvSk5IN2lBc1VrUzVKQ3JXdVVpTHdJNEs4ZHhnSFZHdDIyalk1OVVCUEpucDhGOU81dEFleXRFVS9xVHJlWFZmSE9CbkNhT3pGMEtRRG5xRTJ2QnQ4WnpDdHY2djlSRVhuWm1vSWk4R2N0MG5ZamdDOTFTQVBZVHB5RGozZnZ2cmdKMHNoYkFFNDJ1cmgrZHJZK2I1b1BmNlNJZktDN2Z5SEpBNUdjd29VTXJkcnpsRnV4dGJ3cFdPc2xKc01tNm1hZHJGS0hicXdFNEVRUmVjdE4vSGdBbTJUWS9UYmVjU0l5SnppNTQyd0E2OVJ3ZFJjVmc0ckk3OVJiS0R0N2VVekcwdklJd0oxQkU4NXVMWDVKTmQ5dlUwRytoUzVKM2s4eUpsbGgreTRiKzgvNk40ZG9QZDBxSk9lUXJPbzlORHJlUFM3OEt6NkVPOGhETXRISWQxcVpDOUQzYWZvYzVSYk9jMHh5dWwvalVGV0ZadUFxSkFjbmRZVGU3VmsrSk05RlVxbFV6VWp2SHUvT3ZHT3RCYTdSSHQ5K3Z4SW1lcG9RQk1zYnhEbUpBRjRkcXY5YUFtQ3E2bmZxZnEzUUp0Zkg0djBYYUxkdFUvMDdLVkNyWnVUNG5hK3NJU040UW9GY3ZVTVJQNnFUSlZ5cUZjK29CMUhtSWEveXBwcjJqNW1qdm1CQ3FKTTNqK1FOdWp1ckxVNUxtajE5TlNpb0hLNFJ1cXk5Zkdaak1iMGJTaDY1WGUxK2FNTmpQV2I5Y1N3K0Y4a095SjZFSk0vZmpOc1hJNkdzN3kwaUQzUXhGMkRQZmIySXZPODN4a0RIeFlMa0Jtby9xaTIyL1diYjluRUxCWkluWmJSOVp2djNETWFiT0lqdi9zN1N2dnFkY1EzaWpvR3VBd2Q3YUZTYk1FQk1jcUgyU01TZzA5TnVGOTNjQmtCQ2tuYzc0Q2NrVnlmNVhoUEE3N1pndkxFa1A5TDd0akZqL1hkRmZ6Nlg1Q3IyUFgyL3p6MXYzTVNyWC8vV1BsMFVBUHYrYi8yYW9zSGF3Tk5iMkRwK0NYcDMwRzM3SW1UcjNpMEJ2UnV1ZS9lSTRGaDFjYy9ScDJmcnZxNzRvNnk3ZFR2SHhKRW1YMUdYdzhaV3R6QWxEY2hHZGNCUlZlM1dJd0QrNEk0bWJ3VWdPVjlFL3U2NmJYOHpZNmcxZGdXYXN4eTkrOThBZkhXQVhqNGh2WHQ1MTFLbUY4NUpzQ3FwVzBYa1lkYzVwV0VhbFpEOGdxcVRTaFAyMGRUd1RKSkw2ZGdsa2t1VGZNR3A1MGJIZTU3a0NLTjZrVnlHNU95VThjeGtiSy9QT0ZUZkx3cytieFhPMmJjTEpzQ2V2YXc0VGpJZEh1MTY3andHNEw5MTUxUmIxTDI3enhWVWptbWllL2VSUVlIbVJDUUZtbWwxZlZlTHlIMHVSL0JGQUQrb2t5Tm85c1V1cHRXdkZwR25NdTMrb05PVmdiVDNNNEEwdjZ0dXNWMm5ZNjZyQ0xXU0VmamRHT3ppRFZMR3ErcnJiWktmMXVleUhmZHdHNk9kMysrd0JyRGRQNC9rcW9NaHBxYmVtRWJtU2lJeW0rUlVCWVdOMEpWOUhkNlJIcWlSdkVpYlUxVXpBTC8zNERwellNbnUzYlhHTXlMSHlTTHl0aDBnb1o5ZGlZU0gwRXI3YjR5ayt6dE1zTEdZelZraThscEw0ZzltUTBnT0kvbVUyMUdON05ZVEF4LzlXeGx0cnYzKzBjRjRCNlRzR3Z2T0RQY3N1U04xdEVBRDJKbzhxVnEyZGMvcDRnTGJObkJ6TnZGUE9YNTlpZVFva3E5a0FINFY5NEIrdk9WSXZ1blVmSzN2VlVsdVlSUHRUSnR4Lzl2eEdwb0d2bG9zQUphNHE1RGNQTTN2YjRXRVRobmtEZHFDZlNXdzFkT2FqUGp0VUFmQmwxUFErS1ZkUE1hOUV3Smd2M3Rtbzg4cGpaZ0N0WkVsSkhWMDQxSjhkMC92L203UWJmc2g1NEZJQTM1dEg0QmZpc2grYnJ4TmRUeldHQzkyWmREckkyRWIyOSs5RHNuWk9lM3krMk45SGFsSDFVWURaUVdiS0EzejdXMjN0TEs2dHZRcGRubUNEVW5PcjRPNFRiWFBKYm1hcWxzTHRUNlF3ZmFiYXY4bnlSVnRQSDEvTUdVOCs5bmVBVjQ0bHAyNzJwMExNTlgvSWNuMUdvcjN0MEJWL1ZCdm9yK09PanE4RGxDclpBeXFIQnlNOTZOQkFMODdBOWR6RE1rUDlEdGxaemRiL1ZxZzcrM09CZGpjNzk4V3V6K0ltNzAwdUJHYitFY1ZiTmxPWFlIa1d5bEFiU0M3UHlQWStXbXNJZHNWQ3pYV0lBNHYzTnppaUY4M0k0SDIrWVVkeHpmT25ZcEkzdW1Fd0JEM2x3S2c5b3NNRSsrUjdhYkJlTmNNUXZWUENUVEdyaTNPYkhaVEFNcEJGclN2NDY2dGM2VkdrM3pHM2R3VndjUnYwNlRxdnpSWS9HMVR4ak9OOEtMbUdTem5NSUxrY3hsY3p6d0tRTm01d3lPN1dvYnU0Z05yS1VqN3dJZGFkZklmYndMNHZhRitmc21abEwrbEJLUHNiK3dlQ09Ha0R1NytkZ3FBUGQ5c2txdTFBdlExWlRkYzJ2Z0Y3ZHExcG9aYXpVMGJyKzVpbzkwdUxIUjdyTks3alRONERKSUN6YlJVNzAwaWNsTndZdWlFSEIvdDNtakJ5MnNBZGhHUlYzTlRkdTZsMEdtRlZkVVZ6TXJ5bVI2d2ZOWklTVWlaYXY5UXRaR25lZDNWSWVEWFRnMWc5LzZxSGxuYk1zVGZFdHRocFdWdThTTWtCWlhMWm16aTJPK1NQYjVBYytrR3UzZC9GOENPQmEvcnE3aWR2NU9JL04yZi9wMmJkdkVhNllwZGRHMWNoa3hZN0FvMG4zR3NvZDFTV0VQMm5lZXhaUGZ1a1ZyWFYrU0tYak9kTHdXTFg4bmxlUUV1L0ZoRlFzdDZBa205ZmFVQml0ZHNKRTBoalM0K1lvQ2pYKzNuaHlrUFB5U0hGSlhtVmRiRmZ3VEFOcnI0cFZhZlE5enlpVEVoRUpGL0FOZ2VTVUdDNWQ4NVNKYlArNjU3OS9GSXpqVk9ZL244V2tUdWNOMjd4d0U0b21EZHU4TTh3Z2drQlRvN2lNZ3JPVHlHdGlGZ2VGWU5RRk1MK04wYUFML1BLYjA3TGVmd3JnTE95SDN2ZjdzQS9Gb0ZBcS9RNzA2cU5aZUZ1bnlRZ3VRZUdpdnd2UHN3b1JFaStOdFRGdEltK2FqQTUvOUJseGMvcXdBWWdKN3NZdnRSVGcrZHpKdzdXSXZrOUdEbjIyUk5EQmJ5T3dORS9LaEJvVDVIOGxoK0FISkliZ1dnUnNhMWhGNjYvQU9SUEY1VnUxM1BreHdlMEx0ZkhnUzllOXNnVEh4NWh5TitMUmVBbmx6OE1IL2dXTHkzYStwMGwyQWh6eGxFT1BUSzREdGJ1Tkt2dU1nQzBQT1hueEJ0d2VadDRIb3VuMTRQK0wydEtXYWZjM2drQjdhL2NBTFFGWFNwMUtkSTYvRmZDdWpkbHlOcFcxK3BjM0JEQk9BRUVmbW5PekYwUExLZEdQci8vdXFhZXlFaXNkWUhSQlk3VUVHNERjQmNGWUxJZGZ3MG4zOEdnS3RjTDhGVmtOUXI1Q25adzBIRVBUNDVPZFMzVUhIdlU1Q2NFVEFSU1F2N2tudkZXSHhpcUJFdHB3SVlsWU9RcjUxeFVISGsyYUdmNkpqbXZJV2xTTzVOOGc2bGVGMFlBTC90T3RETWFqQ3NwUkNzTGlSNUc1TStCWkxuUUk3a05ZQmtMVnZjejhab25zQ1NTME1CUElPa3VMVGNnVDY5WVVQb3FFYmJtUmxJZXZIZEpDTFBGbUhENVJLZHFvcXZ1Rm9FYWhkVDM3V0xPdUVqQVN5Zm9wSzlzRXVLOExQR1lpT29ZUWkvOHc2U1pNMTBBSGRvTmE0UDZMQXQvUHhlMXdBcEVUTFdhUDIySEpMVTg1Wklta3V1QitCZmtEUjNidVgxSVpKMitzOGdhVUw5RUlBblJHUk9xTG0wTUNNdXdyeEswUU5MNFVTcmQ3QUdnTFdSSEMwM1JsK3JJdWsvT0ZyTngwajMvRVJTY2R5dnUzb2VFZ0xHaTBoNEJyT1E5TmgvS1V6SHFtQkdSVnAwZi8wZmM2Zkx5SlV5U2NvQUFBQUFTVVZPUks1Q1lJST0iIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4Ii8+PC9tYXNrPgo8cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgbWFzaz0idXJsKCNtKSIvPgo8L3N2Zz4=">
 <link rel="apple-touch-icon" sizes="180x180" href="https://aaastudio.ai/apple-touch-icon-2026-10.png">
@@ -431,7 +482,7 @@ section[id]{scroll-margin-top:92px}
     <h2>Start with the one that speaks to you.</h2>
     <p class="intro">Here is what we set up with you.</p>
     <div class="origine" data-bloc="tuiles"></div>
-    <p class="film-lien"><button type="button" id="voirFilm"><span class="tri"></span>Watch our three offers (2 min)</button></p>
+    <p class="film-lien"><button type="button" id="voirFilm" class="film-carte" aria-label="Watch our three offers (2 min)"><span class="fc-image"><img src="images/film-affiche-en_v5h.webp" alt="" width="720" height="1280" loading="lazy" decoding="async"><span class="fc-lecture" aria-hidden="true"></span></span><span class="fc-texte"><span class="fc-titre">Watch our three&nbsp;offers</span><span class="fc-duree">2 min</span></span></button></p>
     <article class="offre large">
       <h3 class="offre-t" aria-label="A custom portal: your whole business at a glance"><span class="o-num" aria-hidden="true">1</span><span class="o-nom" aria-hidden="true">A custom portal</span><span class="o-reste" aria-hidden="true">your whole business at a glance</span></h3>
       <div class="anim portail" data-src="sections/portail-en.html"></div>
@@ -1247,16 +1298,20 @@ window.ORIGINE = {"css": "\n/* mention « demo » sous le titre du portail anime
    La zone de défilement (.fix-defile) coupe ce qui dépasse, pour ne jamais passer sur les sections voisines.
    Essai et planche : controle/fix-filigrane_2026-11-21/ ; logo : images/rond-logo-fond-fix_2026-11-21.svg (#7F9FD6). */
 (function () {
-  var css = "@media (min-width:761px){.fix{overflow:visible}.fix>.wrap{z-index:1}.fix::before{content:'';position:absolute;z-index:0;translate:0 var(--fil-y,0px);width:max(min(52vw,1080px),min(95vh,1000px));aspect-ratio:1114/1137;right:calc(max(min(52vw,1080px),min(95vh,1000px)) * -0.228);bottom:calc(max(min(52vw,1080px),min(95vh,1000px)) * -0.1);background:url(\"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1114 1137%22%3E%3Cpath fill=%22%237F9FD6%22 fill-rule=%22evenodd%22 d=%22M532.5 1136.4 C488.7 1133.4 459.3 1129.0 424.5 1120.4 C409.5 1116.6 406.6 1115.0 406.7 1110.3 C406.7 1108.5 412.5 1098.0 423.5 1080.0 C432.7 1064.9 445.3 1044.2 451.5 1034.0 C457.7 1023.8 470.3 1003.1 479.5 988.0 C488.7 972.9 501.3 952.2 507.5 942.0 C527.6 908.8 532.2 901.5 533.8 900.2 C535.0 899.3 559.5 899.0 648.2 899.0 C759.7 899.0 761.0 899.0 763.0 901.0 C765.0 903.0 765.0 904.3 765.0 998.1 C765.0 1059.2 764.6 1093.8 764.0 1095.0 C762.2 1098.3 724.9 1111.4 695.9 1118.9 C667.0 1126.4 631.1 1132.7 607.0 1134.5 C602.3 1134.9 596.9 1135.4 595.0 1135.6 C590.4 1136.2 539.0 1136.8 532.5 1136.4 Z M352.5 1097.2 C333.0 1089.1 315.2 1081.0 312.7 1079.0 C308.3 1075.4 309.6 1072.3 327.5 1043.0 C336.7 1027.9 348.7 1008.3 354.0 999.5 C359.3 990.7 373.7 967.1 386.0 947.0 C398.3 926.9 413.3 902.2 419.5 892.0 C425.6 881.8 433.1 869.5 436.2 864.5 C439.2 859.5 450.0 842.0 460.0 825.5 C470.0 809.0 479.2 794.5 480.3 793.2 L482.3 791.0 L517.1 791.0 C565.3 791.0 563.7 788.6 540.7 826.5 C524.5 853.3 513.4 871.5 478.0 929.5 C467.9 946.0 454.7 967.8 448.5 978.0 C442.3 988.2 429.1 1010.0 419.0 1026.5 C408.9 1043.0 394.9 1066.2 387.7 1078.0 C380.6 1089.8 374.2 1100.1 373.6 1100.7 C370.9 1103.7 366.7 1103.0 352.5 1097.2 Z M271.5 1056.6 C238.3 1034.9 223.7 1024.4 203.5 1007.5 C187.1 993.9 185.0 991.7 185.0 988.5 C185.0 986.8 190.2 977.3 199.4 962.2 C218.6 930.5 240.9 893.9 263.0 857.5 C273.1 841.0 287.5 817.4 295.0 805.0 C302.5 792.6 316.9 769.0 327.0 752.5 C337.1 736.0 350.0 714.7 355.8 705.1 C361.6 695.5 367.1 686.9 368.2 685.8 C369.9 684.1 373.1 684.0 434.5 684.0 C497.7 684.0 499.0 684.0 501.0 686.0 C504.4 689.4 503.5 693.4 497.6 702.9 C494.6 707.6 485.9 721.9 478.3 734.5 C470.6 747.1 456.1 771.0 446.0 787.5 C435.9 804.0 422.6 825.8 416.5 836.0 C410.3 846.2 397.9 866.6 388.8 881.5 C330.0 977.9 306.4 1016.8 294.7 1036.0 C281.0 1058.7 281.6 1058.0 277.2 1057.9 C275.2 1057.9 272.6 1057.3 271.5 1056.6 Z M881.0 568.5 C881.0 128.3 881.1 106.0 882.8 106.9 C885.9 108.7 905.5 124.3 918.6 135.5 C942.5 155.8 976.7 192.2 997.0 218.7 C1046.5 283.5 1083.6 362.9 1100.4 440.2 C1105.1 461.6 1108.5 481.6 1111.1 502.5 C1114.1 526.8 1114.9 593.5 1112.5 619.0 C1101.3 739.2 1057.2 846.2 981.6 937.0 C966.4 955.3 936.5 985.8 919.0 1000.9 C907.3 1011.0 886.0 1028.1 882.2 1030.4 C881.3 1031.0 881.0 938.3 881.0 568.5 Z M149.3 955.7 C88.2 888.0 44.6 808.8 20.6 722.0 C12.0 690.9 5.6 654.7 1.8 615.5 C-0.1 595.7 0.2 536.6 2.4 515.5 C12.5 416.3 43.2 328.9 95.7 250.2 C144.0 177.7 203.1 121.4 278.5 76.2 C296.0 65.7 333.9 47.0 353.0 39.5 C403.5 19.5 458.0 6.6 511.5 1.9 C527.5 0.5 576.7 0.1 594.5 1.3 C635.4 4.0 680.0 12.2 719.7 24.6 L730.9 28.0 L726.6 35.3 C724.3 39.2 718.6 48.6 714.0 56.0 C709.4 63.4 700.6 77.8 694.5 88.0 C688.3 98.2 675.1 120.0 665.0 136.5 C631.8 191.0 618.9 212.2 605.0 235.0 C597.5 247.4 584.9 268.1 577.0 281.0 C569.1 293.9 553.9 318.9 543.2 336.5 C510.3 390.5 497.1 412.3 478.0 443.5 C467.9 460.0 454.7 481.8 448.5 492.0 C442.3 502.2 429.1 524.0 419.0 540.5 C408.9 557.0 394.5 580.6 387.0 593.0 C379.5 605.4 365.1 629.0 355.0 645.5 C345.0 662.0 331.7 683.8 325.5 694.0 C319.3 704.2 306.1 726.0 296.0 742.5 C285.9 759.0 271.5 782.6 264.0 795.0 C256.5 807.4 243.3 829.0 234.8 843.0 C226.2 857.0 211.0 882.0 201.0 898.5 C190.9 915.0 177.6 936.8 171.5 947.0 C165.3 957.1 159.9 965.5 159.4 965.6 C158.9 965.7 154.4 961.3 149.3 955.7 Z M561.0 865.0 C558.1 862.1 558.5 858.3 562.4 852.0 C564.2 849.0 572.8 834.8 581.5 820.5 C590.1 806.2 598.1 793.7 599.2 792.8 C601.1 791.1 606.5 791.0 680.9 791.0 L760.7 791.0 L762.8 793.3 C765.0 795.6 765.0 796.1 765.0 829.3 C765.0 861.7 764.9 863.1 763.0 865.0 C761.0 867.0 759.7 867.0 662.0 867.0 C564.3 867.0 563.0 867.0 561.0 865.0 Z M509.6 758.5 C506.3 756.9 505.3 752.6 507.3 748.6 C510.6 741.5 543.4 688.4 545.7 686.2 C548.1 684.0 548.2 684.0 582.6 684.0 L617.1 684.0 L619.7 686.6 C623.2 690.1 622.6 692.2 613.2 707.6 C608.8 714.7 600.2 728.9 593.9 739.3 C587.6 749.6 581.8 758.2 580.9 758.5 C577.6 759.6 511.7 759.5 509.6 758.5 Z M628.1 758.6 C625.6 757.5 623.7 753.0 624.7 750.4 C626.8 745.4 662.7 686.8 664.8 685.2 C666.0 684.3 677.2 684.0 713.1 684.0 C758.8 684.0 759.8 684.0 762.4 686.1 L765.0 688.1 L765.0 721.5 C765.0 751.7 764.8 755.0 763.2 756.9 L761.5 759.0 L695.8 759.3 C659.6 759.4 629.2 759.1 628.1 758.6 Z M388.5 652.1 C388.3 651.9 391.8 645.9 396.2 638.6 C404.7 624.9 433.4 577.8 450.0 550.5 C462.4 530.1 494.9 476.7 511.5 449.5 C525.5 426.6 557.6 373.8 573.0 348.5 C578.3 339.7 590.9 319.0 601.0 302.5 C611.1 286.0 626.1 261.2 634.5 247.5 C642.9 233.8 657.9 209.0 668.0 192.5 C702.6 135.7 714.3 116.5 725.5 98.0 C742.3 70.2 750.0 57.9 752.7 54.2 C755.6 50.3 759.6 49.9 762.8 53.3 L765.0 55.6 L765.0 159.6 L765.0 263.6 L754.4 281.0 C748.5 290.6 738.0 307.9 731.0 319.5 C724.0 331.1 710.1 354.0 700.0 370.5 C662.8 431.4 645.4 460.0 634.5 478.0 C628.3 488.2 615.0 510.0 605.0 526.5 C587.3 555.5 576.4 573.4 543.9 626.7 L528.6 652.0 L458.7 652.2 C420.3 652.4 388.7 652.3 388.5 652.1 Z M566.0 651.9 C566.0 651.6 571.5 642.4 578.2 631.4 C584.8 620.5 596.5 601.4 604.0 589.0 C611.5 576.6 625.9 553.0 636.0 536.5 C646.1 520.0 659.3 498.2 665.5 488.0 C671.7 477.8 684.9 456.0 695.0 439.5 C717.6 402.4 746.8 354.6 756.9 338.0 L764.5 325.5 L764.8 391.8 L765.0 458.2 L757.7 470.3 C753.6 477.0 742.1 496.0 732.0 512.5 C713.1 543.4 688.3 584.2 662.3 627.0 L647.4 651.5 L606.7 652.0 C584.3 652.3 566.0 652.3 566.0 651.9 Z M685.3 650.7 C685.6 649.9 692.2 638.8 700.1 625.9 C707.9 613.0 719.3 594.2 725.5 584.0 C739.9 560.3 764.1 520.6 764.6 520.1 C764.8 519.9 765.0 549.4 765.0 585.8 L765.0 652.0 L724.9 652.0 C691.9 652.0 684.9 651.8 685.3 650.7 Z%22/%3E%3C/svg%3E\") no-repeat center/contain;opacity:.37;filter:blur(8px);pointer-events:none}}";
+  var css = "@media (min-width:761px){.fix{overflow:visible}.fix>.wrap{z-index:1}.fix::before{content:'';position:absolute;z-index:0;translate:0 var(--fil-y,0px);width:max(min(52vw,1080px),min(95vh,1000px));aspect-ratio:1114/1137;right:calc(max(min(52vw,1080px),min(95vh,1000px)) * -0.228);bottom:calc(max(min(52vw,1080px),min(95vh,1000px)) * -0.1);background:url(\"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1114 1137%22%3E%3Cpath fill=%22%237F9FD6%22 fill-rule=%22evenodd%22 d=%22M532.5 1136.4 C488.7 1133.4 459.3 1129.0 424.5 1120.4 C409.5 1116.6 406.6 1115.0 406.7 1110.3 C406.7 1108.5 412.5 1098.0 423.5 1080.0 C432.7 1064.9 445.3 1044.2 451.5 1034.0 C457.7 1023.8 470.3 1003.1 479.5 988.0 C488.7 972.9 501.3 952.2 507.5 942.0 C527.6 908.8 532.2 901.5 533.8 900.2 C535.0 899.3 559.5 899.0 648.2 899.0 C759.7 899.0 761.0 899.0 763.0 901.0 C765.0 903.0 765.0 904.3 765.0 998.1 C765.0 1059.2 764.6 1093.8 764.0 1095.0 C762.2 1098.3 724.9 1111.4 695.9 1118.9 C667.0 1126.4 631.1 1132.7 607.0 1134.5 C602.3 1134.9 596.9 1135.4 595.0 1135.6 C590.4 1136.2 539.0 1136.8 532.5 1136.4 Z M352.5 1097.2 C333.0 1089.1 315.2 1081.0 312.7 1079.0 C308.3 1075.4 309.6 1072.3 327.5 1043.0 C336.7 1027.9 348.7 1008.3 354.0 999.5 C359.3 990.7 373.7 967.1 386.0 947.0 C398.3 926.9 413.3 902.2 419.5 892.0 C425.6 881.8 433.1 869.5 436.2 864.5 C439.2 859.5 450.0 842.0 460.0 825.5 C470.0 809.0 479.2 794.5 480.3 793.2 L482.3 791.0 L517.1 791.0 C565.3 791.0 563.7 788.6 540.7 826.5 C524.5 853.3 513.4 871.5 478.0 929.5 C467.9 946.0 454.7 967.8 448.5 978.0 C442.3 988.2 429.1 1010.0 419.0 1026.5 C408.9 1043.0 394.9 1066.2 387.7 1078.0 C380.6 1089.8 374.2 1100.1 373.6 1100.7 C370.9 1103.7 366.7 1103.0 352.5 1097.2 Z M271.5 1056.6 C238.3 1034.9 223.7 1024.4 203.5 1007.5 C187.1 993.9 185.0 991.7 185.0 988.5 C185.0 986.8 190.2 977.3 199.4 962.2 C218.6 930.5 240.9 893.9 263.0 857.5 C273.1 841.0 287.5 817.4 295.0 805.0 C302.5 792.6 316.9 769.0 327.0 752.5 C337.1 736.0 350.0 714.7 355.8 705.1 C361.6 695.5 367.1 686.9 368.2 685.8 C369.9 684.1 373.1 684.0 434.5 684.0 C497.7 684.0 499.0 684.0 501.0 686.0 C504.4 689.4 503.5 693.4 497.6 702.9 C494.6 707.6 485.9 721.9 478.3 734.5 C470.6 747.1 456.1 771.0 446.0 787.5 C435.9 804.0 422.6 825.8 416.5 836.0 C410.3 846.2 397.9 866.6 388.8 881.5 C330.0 977.9 306.4 1016.8 294.7 1036.0 C281.0 1058.7 281.6 1058.0 277.2 1057.9 C275.2 1057.9 272.6 1057.3 271.5 1056.6 Z M881.0 568.5 C881.0 128.3 881.1 106.0 882.8 106.9 C885.9 108.7 905.5 124.3 918.6 135.5 C942.5 155.8 976.7 192.2 997.0 218.7 C1046.5 283.5 1083.6 362.9 1100.4 440.2 C1105.1 461.6 1108.5 481.6 1111.1 502.5 C1114.1 526.8 1114.9 593.5 1112.5 619.0 C1101.3 739.2 1057.2 846.2 981.6 937.0 C966.4 955.3 936.5 985.8 919.0 1000.9 C907.3 1011.0 886.0 1028.1 882.2 1030.4 C881.3 1031.0 881.0 938.3 881.0 568.5 Z M149.3 955.7 C88.2 888.0 44.6 808.8 20.6 722.0 C12.0 690.9 5.6 654.7 1.8 615.5 C-0.1 595.7 0.2 536.6 2.4 515.5 C12.5 416.3 43.2 328.9 95.7 250.2 C144.0 177.7 203.1 121.4 278.5 76.2 C296.0 65.7 333.9 47.0 353.0 39.5 C403.5 19.5 458.0 6.6 511.5 1.9 C527.5 0.5 576.7 0.1 594.5 1.3 C635.4 4.0 680.0 12.2 719.7 24.6 L730.9 28.0 L726.6 35.3 C724.3 39.2 718.6 48.6 714.0 56.0 C709.4 63.4 700.6 77.8 694.5 88.0 C688.3 98.2 675.1 120.0 665.0 136.5 C631.8 191.0 618.9 212.2 605.0 235.0 C597.5 247.4 584.9 268.1 577.0 281.0 C569.1 293.9 553.9 318.9 543.2 336.5 C510.3 390.5 497.1 412.3 478.0 443.5 C467.9 460.0 454.7 481.8 448.5 492.0 C442.3 502.2 429.1 524.0 419.0 540.5 C408.9 557.0 394.5 580.6 387.0 593.0 C379.5 605.4 365.1 629.0 355.0 645.5 C345.0 662.0 331.7 683.8 325.5 694.0 C319.3 704.2 306.1 726.0 296.0 742.5 C285.9 759.0 271.5 782.6 264.0 795.0 C256.5 807.4 243.3 829.0 234.8 843.0 C226.2 857.0 211.0 882.0 201.0 898.5 C190.9 915.0 177.6 936.8 171.5 947.0 C165.3 957.1 159.9 965.5 159.4 965.6 C158.9 965.7 154.4 961.3 149.3 955.7 Z M561.0 865.0 C558.1 862.1 558.5 858.3 562.4 852.0 C564.2 849.0 572.8 834.8 581.5 820.5 C590.1 806.2 598.1 793.7 599.2 792.8 C601.1 791.1 606.5 791.0 680.9 791.0 L760.7 791.0 L762.8 793.3 C765.0 795.6 765.0 796.1 765.0 829.3 C765.0 861.7 764.9 863.1 763.0 865.0 C761.0 867.0 759.7 867.0 662.0 867.0 C564.3 867.0 563.0 867.0 561.0 865.0 Z M509.6 758.5 C506.3 756.9 505.3 752.6 507.3 748.6 C510.6 741.5 543.4 688.4 545.7 686.2 C548.1 684.0 548.2 684.0 582.6 684.0 L617.1 684.0 L619.7 686.6 C623.2 690.1 622.6 692.2 613.2 707.6 C608.8 714.7 600.2 728.9 593.9 739.3 C587.6 749.6 581.8 758.2 580.9 758.5 C577.6 759.6 511.7 759.5 509.6 758.5 Z M628.1 758.6 C625.6 757.5 623.7 753.0 624.7 750.4 C626.8 745.4 662.7 686.8 664.8 685.2 C666.0 684.3 677.2 684.0 713.1 684.0 C758.8 684.0 759.8 684.0 762.4 686.1 L765.0 688.1 L765.0 721.5 C765.0 751.7 764.8 755.0 763.2 756.9 L761.5 759.0 L695.8 759.3 C659.6 759.4 629.2 759.1 628.1 758.6 Z M388.5 652.1 C388.3 651.9 391.8 645.9 396.2 638.6 C404.7 624.9 433.4 577.8 450.0 550.5 C462.4 530.1 494.9 476.7 511.5 449.5 C525.5 426.6 557.6 373.8 573.0 348.5 C578.3 339.7 590.9 319.0 601.0 302.5 C611.1 286.0 626.1 261.2 634.5 247.5 C642.9 233.8 657.9 209.0 668.0 192.5 C702.6 135.7 714.3 116.5 725.5 98.0 C742.3 70.2 750.0 57.9 752.7 54.2 C755.6 50.3 759.6 49.9 762.8 53.3 L765.0 55.6 L765.0 159.6 L765.0 263.6 L754.4 281.0 C748.5 290.6 738.0 307.9 731.0 319.5 C724.0 331.1 710.1 354.0 700.0 370.5 C662.8 431.4 645.4 460.0 634.5 478.0 C628.3 488.2 615.0 510.0 605.0 526.5 C587.3 555.5 576.4 573.4 543.9 626.7 L528.6 652.0 L458.7 652.2 C420.3 652.4 388.7 652.3 388.5 652.1 Z M566.0 651.9 C566.0 651.6 571.5 642.4 578.2 631.4 C584.8 620.5 596.5 601.4 604.0 589.0 C611.5 576.6 625.9 553.0 636.0 536.5 C646.1 520.0 659.3 498.2 665.5 488.0 C671.7 477.8 684.9 456.0 695.0 439.5 C717.6 402.4 746.8 354.6 756.9 338.0 L764.5 325.5 L764.8 391.8 L765.0 458.2 L757.7 470.3 C753.6 477.0 742.1 496.0 732.0 512.5 C713.1 543.4 688.3 584.2 662.3 627.0 L647.4 651.5 L606.7 652.0 C584.3 652.3 566.0 652.3 566.0 651.9 Z M685.3 650.7 C685.6 649.9 692.2 638.8 700.1 625.9 C707.9 613.0 719.3 594.2 725.5 584.0 C739.9 560.3 764.1 520.6 764.6 520.1 C764.8 519.9 765.0 549.4 765.0 585.8 L765.0 652.0 L724.9 652.0 C691.9 652.0 684.9 651.8 685.3 650.7 Z%22/%3E%3C/svg%3E\") no-repeat center/contain;opacity:.33;filter:blur(8px);pointer-events:none}}";   /* 25/11 (Anthony : « 10 % plus blanc », moins de contraste) : opacité .37 -> .33, ordinateur, iPad et téléphone */
+  /* 25/11 (Anthony, validé sur planche controle/logo-what-we-fix-tel_2026-11-25/, proposition C) : le même logo AU TÉLÉPHONE (760 px et moins) :
+     rond de la largeur de l'écran (--fil-t, posé plus bas), accroché en HAUT à droite derrière le titre, bord droit dans la fente comme à l'ordinateur. */
+  var cssTel = css.replace('@media (min-width:761px)', '@media (max-width:760px)').split('max(min(52vw,1080px),min(95vh,1000px))').join('var(--fil-t,100vw)')
+    .replace('.fix{overflow:visible}', '.fix{overflow:visible;position:relative}').replace('bottom:calc(var(--fil-t,100vw) * -0.1)', 'top:calc(var(--fil-t,100vw) * 0.1);bottom:auto');
   var g = document.createElement('style');
-  g.textContent = '@media (min-width:761px){.fix-defile{overflow:clip}}';
+  g.textContent = '@media (min-width:761px){.fix-defile{overflow:clip}}@media (max-width:760px){[data-fix-defilement],.fix-defile{overflow:clip}}';   // 25/11 : au téléphone aussi, le logo ne passe jamais sur les sections voisines
   document.head.appendChild(g);
   function poser() {
     var h = document.getElementById('fix');
     if (!h || !h.shadowRoot || !h.shadowRoot.querySelector('.fix')) return setTimeout(poser, 100);
     var sr = h.shadowRoot;
     if (!sr.getElementById('fix-filigrane')) {
-      var s = document.createElement('style'); s.id = 'fix-filigrane'; s.textContent = css; sr.appendChild(s);
+      var s = document.createElement('style'); s.id = 'fix-filigrane'; s.textContent = css + cssTel; sr.appendChild(s);
     }
     if (!poser.obs) {
       poser.obs = new MutationObserver(function () { if (!sr.getElementById('fix-filigrane')) poser(); });
@@ -1269,16 +1324,18 @@ window.ORIGINE = {"css": "\n/* mention « demo » sous le titre du portail anime
 /* 22/11, 23 h 55 (Anthony) : le logo de fond descend petit à petit pendant qu'on fait défiler les cas de « What we fix ».
    De 10 % de sa taille AU-DESSUS de la place validée (premier cas) à 10 % EN DESSOUS (dernier cas). Essai page 27. */
 (function () {
-  var AMPL = 0.10, att = false;
+  var AMPL = 0.10, att = false, hMin = innerHeight;
   function maj() {
     att = false;
     var env = document.querySelector('[data-fix-defilement]'), h = document.getElementById('fix');
     if (!env || !h || !h.shadowRoot) return;
     var f = h.shadowRoot.querySelector('.fix'); if (!f) return;
-    if (innerWidth <= 760) { f.style.removeProperty('--fil-y'); return; }
     var r = env.getBoundingClientRect(), course = Math.max(1, r.height - innerHeight);
     var p = Math.min(1, Math.max(0, -r.top / course));
     var taille = Math.max(Math.min(0.52 * innerWidth, 1080), Math.min(0.95 * innerHeight, 1000));
+    if (innerWidth <= 760) {   // 25/11 : téléphone, rond de la largeur de l'écran (au plus 95 % de la plus petite hauteur vue), même descente
+      hMin = Math.min(hMin, innerHeight); taille = Math.min(innerWidth, 0.95 * hMin, 1000); f.style.setProperty('--fil-t', taille.toFixed(1) + 'px');
+    } else f.style.removeProperty('--fil-t');
     f.style.setProperty('--fil-y', ((p - 0.5) * 2 * AMPL * taille).toFixed(1) + 'px');
   }
   function demande() { if (!att) { att = true; requestAnimationFrame(maj); } }
@@ -1398,7 +1455,738 @@ window.ORIGINE = {"css": "\n/* mention « demo » sous le titre du portail anime
 
 <video id="v" muted playsinline loop preload="auto"></video>
 
-<script>window.SEQUENCE = {"source": "passe 18e (2026-11-23) : raccord trajet VIDE1_f1 + approche (temps_flux10.json)", "nombre": 376, "largeur": 1600, "hauteur": 900, "dossier": "https://aaastudio.ai/films/approche-18e-2026-11-23", "ext": "webp", "fin": {"image": "images/fin/fin-logo-2026-11-23.webp", "largeur": 2720, "hauteur": 1536, "zone": [1158, 730, 1032, 304], "video": ["https://aaastudio.ai/films/accueil-2026-11-19/ecran.webm", "https://aaastudio.ai/films/accueil-2026-11-19/ecran.mp4"], "masque": "images/fin/masque.png", "cale": [0.589443, 1.794, -3.914]}, "ecran": "concu", "geometries": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, {"quad": [[561.72, 362.87], [890.26, 372.8], [890.74, 463.92], [561.41, 470.65]], "bombe": [0, 0]}, {"quad": [[560.36, 362.68], [891.69, 372.59], [891.73, 464.14], [560.4, 470.91]], "bombe": [0, 0]}, {"quad": [[559.34, 362.52], [893.22, 372.44], [892.96, 464.43], [559.6, 471.19]], "bombe": [0, 0]}, {"quad": [[558.4, 362.63], [894.7, 372.51], [894.24, 464.98], [558.88, 471.72]], "bombe": [0, 0]}, {"quad": [[557.72, 362.76], [896.24, 372.54], [895.7, 465.5], [558.33, 472.28]], "bombe": [0, 0]}, {"quad": [[557.05, 362.97], [897.69, 372.67], [897.17, 466.09], [557.76, 472.89]], "bombe": [0, 0]}, {"quad": [[556.53, 363.2], [899.28, 372.83], [898.67, 466.7], [557.31, 473.53]], "bombe": [0, 0]}, {"quad": [[556.28, 363.48], [901.0, 372.96], [900.34, 467.29], [556.95, 474.21]], "bombe": [0, 0]}, {"quad": [[556.14, 363.78], [902.72, 373.13], [902.04, 467.86], [556.73, 474.88]], "bombe": [0, 0]}, {"quad": [[556.01, 364.27], [904.51, 373.51], [903.81, 468.63], [556.68, 475.72]], "bombe": [0, 0]}, {"quad": [[555.96, 364.74], [906.35, 373.8], [905.65, 469.38], [556.68, 476.56]], "bombe": [0, 0]}, {"quad": [[556.01, 365.25], [908.25, 374.16], [907.57, 470.14], [556.76, 477.4]], "bombe": [0, 0]}, {"quad": [[556.21, 365.75], [910.14, 374.53], [909.48, 470.88], [556.87, 478.21]], "bombe": [0, 0]}, {"quad": [[556.62, 366.33], [912.22, 374.89], [911.6, 471.72], [557.22, 479.12]], "bombe": [0, 0]}, {"quad": [[557.1, 366.94], [914.29, 375.33], [913.78, 472.54], [557.72, 480.01]], "bombe": [0, 0]}, {"quad": [[557.56, 367.44], [916.37, 375.66], [915.92, 473.26], [558.22, 480.8]], "bombe": [0, 0]}, {"quad": [[558.12, 367.91], [918.52, 375.93], [918.12, 473.95], [558.76, 481.55]], "bombe": [0, 0]}, {"quad": [[558.74, 368.42], [920.68, 376.28], [920.36, 474.64], [559.33, 482.32]], "bombe": [0, 0]}, {"quad": [[559.37, 368.92], [922.8, 376.61], [922.64, 475.33], [559.93, 483.05]], "bombe": [0, 0]}, {"quad": [[560.15, 369.52], [925.12, 377.04], [924.96, 476.12], [560.66, 483.88]], "bombe": [0, 0]}, {"quad": [[560.93, 370.12], [927.45, 377.5], [927.27, 476.94], [561.42, 484.7]], "bombe": [0, 0]}, {"quad": [[561.66, 370.63], [929.79, 377.84], [929.56, 477.71], [562.24, 485.45]], "bombe": [0, 0]}, {"quad": [[562.55, 371.14], [932.14, 378.2], [931.83, 478.44], [563.05, 486.17]], "bombe": [0, 0]}, {"quad": [[563.4, 371.65], [934.48, 378.58], [934.17, 479.15], [563.89, 486.89]], "bombe": [0, 0]}, {"quad": [[564.2, 372.15], [936.76, 378.94], [936.55, 479.89], [564.84, 487.59]], "bombe": [0, 0]}, {"quad": [[565.1, 372.67], [939.13, 379.33], [938.91, 480.66], [565.81, 488.31]], "bombe": [0, 0]}, {"quad": [[565.96, 373.16], [941.51, 379.69], [941.26, 481.38], [566.78, 489.02]], "bombe": [0, 0]}, {"quad": [[566.72, 373.59], [943.73, 380.01], [943.51, 482.0], [567.55, 489.64]], "bombe": [0, 0]}, {"quad": [[567.52, 374.0], [945.92, 380.28], [945.77, 482.61], [568.36, 490.25]], "bombe": [0, 0]}, {"quad": [[568.32, 374.47], [948.17, 380.64], [948.01, 483.3], [569.15, 490.89]], "bombe": [0, 0]}, {"quad": [[569.22, 374.92], [950.52, 380.98], [950.21, 483.95], [569.91, 491.55]], "bombe": [0, 0]}, {"quad": [[570.19, 375.39], [952.89, 381.3], [952.56, 484.58], [570.82, 492.2]], "bombe": [0, 0]}, {"quad": [[571.13, 375.86], [955.22, 381.73], [954.92, 485.24], [571.85, 492.83]], "bombe": [0, 0]}, {"quad": [[572.77, 376.75], [959.85, 382.36], [959.45, 486.52], [573.59, 494.08]], "bombe": [0, 0]}, {"quad": [[573.67, 377.24], [962.14, 382.78], [961.73, 487.18], [574.44, 494.72]], "bombe": [0, 0]}, {"quad": [[574.59, 377.71], [964.43, 383.18], [963.99, 487.85], [575.29, 495.35]], "bombe": [0, 0]}, {"quad": [[575.47, 378.14], [966.73, 383.46], [966.31, 488.48], [576.22, 495.94]], "bombe": [0, 0]}, {"quad": [[576.37, 378.59], [968.99, 383.83], [968.63, 489.11], [577.14, 496.51]], "bombe": [0, 0]}, {"quad": [[578.11, 379.48], [973.53, 384.47], [973.12, 490.4], [578.87, 497.66]], "bombe": [0, 0]}, {"quad": [[579.87, 380.3], [977.91, 385.12], [977.52, 491.64], [580.44, 498.74]], "bombe": [0, 0]}, {"quad": [[581.76, 381.18], [982.46, 385.8], [981.91, 492.92], [582.07, 499.84]], "bombe": [0, 0]}, {"quad": [[583.52, 381.98], [986.82, 386.36], [986.22, 494.17], [583.84, 500.89]], "bombe": [0, 0]}, {"quad": [[585.34, 382.77], [991.32, 386.93], [990.7, 495.44], [585.92, 501.97]], "bombe": [0, 0]}, {"quad": [[587.16, 383.6], [995.86, 387.6], [994.94, 496.7], [587.74, 503.09]], "bombe": [0, 0]}, {"quad": [[588.88, 384.27], [1000.28, 388.15], [998.92, 497.88], [589.36, 504.09]], "bombe": [0, 0]}, {"quad": [[591.0, 385.29], [1005.4, 388.53], [1003.62, 499.08], [591.0, 505.07]], "bombe": [1.92, -5.11]}, {"quad": [[593.0, 386.23], [1010.0, 389.69], [1010.0, 500.63], [593.0, 506.41]], "bombe": [1.71, -5.44]}, {"quad": [[594.0, 386.68], [1012.58, 389.5], [1011.68, 501.24], [594.0, 507.07]], "bombe": [1.81, -5.7]}, {"quad": [[596.0, 387.53], [1018.35, 390.63], [1016.56, 502.8], [596.0, 508.16]], "bombe": [1.69, -5.52]}, {"quad": [[597.0, 388.19], [1020.0, 390.54], [1020.0, 503.65], [597.0, 509.17]], "bombe": [1.59, -6.06]}, {"quad": [[599.0, 388.97], [1025.65, 391.58], [1024.65, 504.87], [599.0, 509.97]], "bombe": [1.62, -5.47]}, {"quad": [[601.0, 389.79], [1031.43, 392.23], [1029.85, 506.62], [601.0, 511.42]], "bombe": [1.78, -5.94]}, {"quad": [[602.0, 390.45], [1034.36, 392.56], [1032.55, 507.25], [602.0, 511.81]], "bombe": [1.47, -5.64]}, {"quad": [[604.0, 391.29], [1039.0, 393.31], [1039.0, 509.02], [604.0, 513.2]], "bombe": [1.66, -6.05]}, {"quad": [[605.0, 391.52], [1042.13, 393.53], [1041.76, 509.75], [605.0, 513.74]], "bombe": [1.94, -5.84]}, {"quad": [[607.0, 392.78], [1047.93, 394.35], [1046.53, 511.38], [607.0, 515.11]], "bombe": [1.5, -6.22]}, {"quad": [[609.0, 393.74], [1053.0, 395.07], [1053.0, 512.96], [609.0, 516.18]], "bombe": [1.69, -5.91]}, {"quad": [[610.0, 394.02], [1056.0, 395.58], [1056.0, 513.96], [610.0, 517.07]], "bombe": [1.96, -6.44]}, {"quad": [[611.56, 395.25], [1062.43, 396.45], [1060.6, 515.44], [613.45, 518.12]], "bombe": [1.65, -6.05]}, {"quad": [[614.0, 395.72], [1065.15, 396.7], [1063.49, 516.6], [614.0, 519.21]], "bombe": [1.84, -6.66]}, {"quad": [[616.0, 396.53], [1070.68, 397.51], [1069.63, 518.35], [616.0, 520.46]], "bombe": [1.99, -6.64]}, {"quad": [[618.0, 397.93], [1077.27, 398.47], [1075.59, 520.43], [618.0, 522.1]], "bombe": [1.77, -7.1]}, {"quad": [[618.54, 398.54], [1080.46, 399.0], [1078.67, 521.29], [620.38, 522.61]], "bombe": [1.36, -7.01]}, {"quad": [[622.0, 399.49], [1086.1, 399.73], [1085.81, 523.14], [622.0, 523.88]], "bombe": [1.53, -6.98]}, {"quad": [[623.0, 400.27], [1089.2, 400.23], [1088.59, 524.13], [623.0, 524.71]], "bombe": [1.47, -7.23]}, {"quad": [[625.7, 401.38], [1095.0, 401.0], [1095.0, 525.79], [626.19, 525.87]], "bombe": [1.34, -7.03]}, {"quad": [[628.0, 402.41], [1102.43, 401.92], [1100.55, 527.72], [628.0, 527.3]], "bombe": [1.27, -7.24]}, {"quad": [[628.57, 402.55], [1105.45, 402.3], [1103.64, 528.76], [630.41, 527.98]], "bombe": [1.67, -7.33]}, {"quad": [[632.0, 403.93], [1111.79, 403.25], [1110.56, 530.72], [632.0, 529.37]], "bombe": [1.51, -7.3]}, {"quad": [[633.55, 405.46], [1118.0, 404.43], [1118.0, 533.19], [635.14, 531.07]], "bombe": [1.12, -7.96]}, {"quad": [[636.0, 405.25], [1122.23, 404.48], [1120.43, 534.1], [636.0, 531.77]], "bombe": [1.82, -7.97]}, {"quad": [[638.0, 406.46], [1128.49, 405.34], [1127.7, 536.3], [638.0, 533.25]], "bombe": [1.99, -7.95]}, {"quad": [[640.0, 407.7], [1132.12, 406.51], [1131.76, 537.62], [640.0, 534.12]], "bombe": [0.93, -8.38]}, {"quad": [[642.0, 408.69], [1139.35, 407.58], [1137.45, 539.9], [642.0, 535.71]], "bombe": [0.91, -8.63]}, {"quad": [[645.0, 409.64], [1146.44, 408.61], [1144.57, 541.95], [645.0, 537.04]], "bombe": [0.96, -8.43]}, {"quad": [[646.0, 410.66], [1149.0, 408.69], [1149.0, 543.06], [646.0, 537.76]], "bombe": [1.27, -8.46]}, {"quad": [[647.69, 411.66], [1156.0, 409.78], [1156.0, 545.73], [649.39, 539.32]], "bombe": [1.23, -8.86]}, {"quad": [[650.0, 411.62], [1159.04, 410.01], [1158.97, 546.9], [650.0, 540.1]], "bombe": [1.93, -9.02]}, {"quad": [[652.0, 413.04], [1166.0, 411.05], [1166.0, 549.29], [652.0, 541.58]], "bombe": [1.74, -9.08]}, {"quad": [[655.0, 414.74], [1173.38, 412.33], [1172.14, 551.52], [655.0, 543.04]], "bombe": [1.28, -9.0]}, {"quad": [[656.0, 414.6], [1176.0, 412.92], [1176.0, 552.86], [656.0, 543.84]], "bombe": [1.26, -9.29]}, {"quad": [[658.0, 415.59], [1183.0, 413.84], [1183.0, 555.4], [658.0, 545.51]], "bombe": [1.46, -9.51]}, {"quad": [[659.35, 416.66], [1186.73, 414.36], [1185.54, 556.51], [660.18, 546.21]], "bombe": [1.38, -9.51]}, {"quad": [[662.0, 417.64], [1193.36, 415.46], [1192.76, 558.95], [662.0, 547.94]], "bombe": [1.38, -9.72]}, {"quad": [[664.0, 418.64], [1200.0, 416.6], [1200.0, 561.39], [664.0, 549.49]], "bombe": [1.32, -9.74]}, {"quad": [[665.0, 419.86], [1204.36, 417.17], [1202.39, 562.57], [665.0, 550.2]], "bombe": [1.17, -9.91]}, {"quad": [[668.0, 420.81], [1210.0, 418.29], [1210.0, 565.29], [668.0, 551.67]], "bombe": [1.2, -10.16]}, {"quad": [[669.0, 420.74], [1213.53, 418.72], [1212.64, 566.41], [669.0, 552.34]], "bombe": [1.41, -10.16]}, {"quad": [[671.0, 422.49], [1220.0, 419.89], [1220.0, 568.79], [671.0, 553.89]], "bombe": [1.13, -10.21]}, {"quad": [[672.85, 424.12], [1226.0, 421.15], [1226.0, 571.32], [673.09, 555.23]], "bombe": [0.68, -10.54]}, {"quad": [[674.0, 423.78], [1229.0, 421.42], [1229.0, 572.35], [674.0, 555.89]], "bombe": [1.19, -10.52]}, {"quad": [[675.4, 424.83], [1235.08, 422.47], [1234.94, 574.87], [674.8, 557.41]], "bombe": [1.09, -10.85]}, {"quad": [[677.0, 425.87], [1241.42, 423.34], [1239.41, 576.88], [677.0, 558.79]], "bombe": [1.09, -10.95]}, {"quad": [[678.0, 425.74], [1244.47, 423.99], [1242.6, 578.09], [678.0, 559.62]], "bombe": [1.07, -11.04]}, {"quad": [[679.28, 426.76], [1249.0, 424.9], [1249.0, 580.53], [678.97, 560.88]], "bombe": [1.06, -11.35]}, {"quad": [[680.0, 428.2], [1252.34, 425.47], [1251.17, 581.42], [680.0, 561.61]], "bombe": [0.47, -11.35]}, {"quad": [[682.23, 428.42], [1257.0, 426.71], [1257.0, 583.75], [681.54, 562.75]], "bombe": [0.31, -11.55]}, {"quad": [[683.06, 428.78], [1262.0, 426.99], [1262.0, 585.7], [682.89, 563.87]], "bombe": [1.0, -11.64]}, {"quad": [[683.0, 430.26], [1264.0, 427.67], [1264.0, 586.69], [683.0, 564.44]], "bombe": [0.2, -11.69]}, {"quad": [[684.0, 430.48], [1269.1, 428.7], [1268.77, 588.62], [684.0, 565.46]], "bombe": [0.26, -11.74]}, {"quad": [[685.0, 430.99], [1271.0, 428.37], [1271.0, 589.52], [685.0, 566.02]], "bombe": [0.89, -11.8]}, {"quad": [[686.0, 431.74], [1275.0, 429.8], [1275.0, 591.38], [686.0, 567.02]], "bombe": [0.11, -11.92]}, {"quad": [[686.83, 431.86], [1279.0, 429.99], [1279.0, 592.99], [685.65, 567.95]], "bombe": [0.89, -12.09]}, {"quad": [[687.0, 432.42], [1281.47, 430.69], [1279.61, 593.63], [687.0, 568.36]], "bombe": [0.31, -12.02]}, {"quad": [[688.25, 432.92], [1284.0, 430.67], [1284.0, 595.3], [687.5, 569.15]], "bombe": [0.89, -12.22]}, {"quad": [[688.0, 432.91], [1286.41, 431.34], [1284.9, 595.77], [688.0, 569.67]], "bombe": [0.71, -12.21]}, {"quad": [[688.0, 434.22], [1289.42, 431.77], [1287.36, 596.93], [688.0, 570.4]], "bombe": [0.24, -12.32]}, {"quad": [[689.0, 433.88], [1291.0, 431.81], [1291.0, 598.09], [689.0, 570.75]], "bombe": [0.91, -12.39]}, {"quad": [[689.0, 433.86], [1292.22, 432.26], [1291.83, 598.51], [689.0, 571.12]], "bombe": [0.8, -12.43]}, {"quad": [[690.42, 434.56], [1295.14, 432.79], [1293.29, 599.31], [688.74, 571.67]], "bombe": [0.23, -12.5]}, {"quad": [[690.21, 435.16], [1296.41, 432.88], [1294.34, 599.64], [689.61, 571.69]], "bombe": [0.05, -12.41]}, {"quad": [[690.0, 435.02], [1298.03, 432.59], [1296.32, 600.42], [690.0, 572.45]], "bombe": [0.75, -12.61]}, {"quad": [[690.0, 434.9], [1299.45, 432.56], [1297.39, 600.86], [690.0, 572.56]], "bombe": [0.96, -12.6]}], "raccord": {"trajet": 264, "approche_recalculee": 44, "page_depuis": 53, "K0": 87, "intervalles": 194.0}, "positions": [0.0, 0.0051546, 0.0103093, 0.0154639, 0.0206186, 0.0257732, 0.0309278, 0.0360825, 0.0412371, 0.0463918, 0.0515464, 0.056701, 0.0618557, 0.0670103, 0.0721649, 0.0773196, 0.0824742, 0.0850515, 0.0876289, 0.0902062, 0.0927835, 0.0953608, 0.0979381, 0.1005155, 0.1030928, 0.1056701, 0.1082474, 0.1108247, 0.1134021, 0.1159794, 0.1185567, 0.121134, 0.1237113, 0.1262887, 0.128866, 0.1314433, 0.1340206, 0.1365979, 0.1391753, 0.1417526, 0.1443299, 0.1469072, 0.1494845, 0.1520619, 0.1546392, 0.1563574, 0.1580756, 0.1597938, 0.161512, 0.1632302, 0.1649485, 0.1675258, 0.1701031, 0.1726804, 0.1752577, 0.1778351, 0.1804124, 0.1829897, 0.185567, 0.1881443, 0.1907216, 0.193299, 0.1958763, 0.1984536, 0.2010309, 0.2036082, 0.2061856, 0.2079038, 0.209622, 0.2113402, 0.2139175, 0.2164948, 0.2190722, 0.2216495, 0.2242268, 0.2268041, 0.2293814, 0.2319588, 0.2345361, 0.2371134, 0.2396907, 0.242268, 0.2448454, 0.2474227, 0.25, 0.2525773, 0.2551546, 0.257732, 0.2603093, 0.2628866, 0.2654639, 0.2680412, 0.2697595, 0.2714777, 0.2731959, 0.2757732, 0.2783505, 0.2809278, 0.2835052, 0.2860825, 0.2886598, 0.2912371, 0.2938144, 0.2963918, 0.2989691, 0.3015464, 0.3041237, 0.306701, 0.3092784, 0.3118557, 0.314433, 0.3170103, 0.3195876, 0.3221649, 0.3247423, 0.3273196, 0.3298969, 0.3324742, 0.3350515, 0.3376289, 0.3402062, 0.3427835, 0.3453608, 0.3479381, 0.3505155, 0.3522337, 0.3539519, 0.3556701, 0.3573883, 0.3591065, 0.3608247, 0.362543, 0.3642612, 0.3659794, 0.3676976, 0.3694158, 0.371134, 0.3728522, 0.3745704, 0.3762887, 0.3780069, 0.3797251, 0.3814433, 0.3831615, 0.3848797, 0.3865979, 0.3883162, 0.3900344, 0.3917526, 0.3930412, 0.3943299, 0.3956186, 0.3969072, 0.3986254, 0.4003436, 0.4020619, 0.4037801, 0.4054983, 0.4072165, 0.4089347, 0.4106529, 0.4123711, 0.4140893, 0.4158076, 0.4175258, 0.419244, 0.4209622, 0.4226804, 0.4243986, 0.4261168, 0.4278351, 0.4291237, 0.4304124, 0.431701, 0.4329897, 0.4340206, 0.4350515, 0.4360825, 0.4371134, 0.4381443, 0.4391753, 0.4402062, 0.4412371, 0.442268, 0.443299, 0.4441581, 0.4450172, 0.4458763, 0.4467354, 0.4475945, 0.4484536, 0.4493127, 0.4501718, 0.4510309, 0.45189, 0.4527491, 0.4536082, 0.4544674, 0.4553265, 0.4561856, 0.4570447, 0.4579038, 0.4587629, 0.459622, 0.4604811, 0.4613402, 0.4621993, 0.4630584, 0.4639175, 0.4647766, 0.4656357, 0.4664948, 0.467354, 0.4682131, 0.4690722, 0.4699313, 0.4707904, 0.4716495, 0.4725086, 0.4733677, 0.4742268, 0.4750859, 0.475945, 0.4768041, 0.4776632, 0.4785223, 0.4793814, 0.4802405, 0.4810997, 0.4819588, 0.4828179, 0.483677, 0.4845361, 0.485567, 0.4865979, 0.4876289, 0.4886598, 0.4896907, 0.4909794, 0.492268, 0.4935567, 0.4948454, 0.4958763, 0.4969072, 0.4979381, 0.4989691, 0.5, 0.5010309, 0.5020619, 0.5030928, 0.5041237, 0.5051546, 0.5060137, 0.5068729, 0.507732, 0.5085911, 0.5094502, 0.5103093, 0.5111684, 0.5120275, 0.5128866, 0.5137457, 0.5146048, 0.5154639, 0.5180412, 0.5206186, 0.5231959, 0.5257732, 0.5283505, 0.5309278, 0.5335052, 0.5360825, 0.5386598, 0.5412371, 0.5438144, 0.5463918, 0.5489691, 0.5515464, 0.5541237, 0.556701, 0.5592784, 0.5618557, 0.564433, 0.5670103, 0.5695876, 0.5721649, 0.5747423, 0.5773196, 0.5798969, 0.5824742, 0.5850515, 0.5876289, 0.5902062, 0.5927835, 0.5953608, 0.5979381, 0.6030928, 0.6056701, 0.6082474, 0.6108247, 0.6134021, 0.6185567, 0.6237113, 0.628866, 0.6340206, 0.6391753, 0.6443299, 0.6494845, 0.6546392, 0.6597938, 0.6649485, 0.6701031, 0.6752577, 0.6804124, 0.685567, 0.6907216, 0.6958763, 0.7010309, 0.7061856, 0.7113402, 0.7164948, 0.7216495, 0.7268041, 0.7319588, 0.7371134, 0.742268, 0.7474227, 0.7525773, 0.757732, 0.7628866, 0.7680412, 0.7731959, 0.7783505, 0.7835052, 0.7886598, 0.7938144, 0.7989691, 0.8041237, 0.8092784, 0.814433, 0.8195876, 0.8247423, 0.8298969, 0.8350515, 0.8402062, 0.8453608, 0.8505155, 0.8556701, 0.8608247, 0.8659794, 0.871134, 0.8762887, 0.8814433, 0.8865979, 0.8917526, 0.8969072, 0.9020619, 0.9072165, 0.9123711, 0.9175258, 0.9226804, 0.9278351, 0.9329897, 0.9381443, 0.943299, 0.9484536, 0.9536082, 0.9587629, 0.9639175, 0.9690722, 0.9742268, 0.9793814, 0.9845361, 0.9896907, 0.9948454, 1.0], "tel": {"dossier": "https://aaastudio.ai/films/approche-18e-tel-2026-11-25", "largeur": 672, "x0": [528, 528, 528, 528, 528, 528, 528, 528, 528, 528, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 528, 528, 528, 528, 528, 528, 528, 528, 528, 512, 512, 512, 512, 512, 512, 512, 512, 512, 496, 496, 496, 496, 496, 496, 496, 496, 496, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464], "vc": [400, 640]}};
+<script>window.SEQUENCE = {"source": "passe 18e (2026-11-23) : raccord trajet VIDE1_f1 + approche (temps_flux10.json)", "nombre": 376, "largeur": 1600, "hauteur": 900, "dossier": "https://aaastudio.ai/films/approche-18e-2026-11-23", "ext": "webp", "fin": {"image": "images/fin/fin-logo-2026-11-23.webp", "largeur": 2720, "hauteur": 1536, "zone": [1158, 730, 1032, 304], "video": ["https://aaastudio.ai/films/accueil-2026-11-19/ecran.mp4", "https://aaastudio.ai/films/accueil-2026-11-19/ecran.webm"], "masque": "images/fin/masque.png", "cale": [0.589443, 1.794, -3.914]}, "ecran": "concu", "geometries": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, {"quad": [[561.72, 362.87], [890.26, 372.8], [890.74, 463.92], [561.41, 470.65]], "bombe": [0, 0]}, {"quad": [[560.36, 362.68], [891.69, 372.59], [891.73, 464.14], [560.4, 470.91]], "bombe": [0, 0]}, {"quad": [[559.34, 362.52], [893.22, 372.44], [892.96, 464.43], [559.6, 471.19]], "bombe": [0, 0]}, {"quad": [[558.4, 362.63], [894.7, 372.51], [894.24, 464.98], [558.88, 471.72]], "bombe": [0, 0]}, {"quad": [[557.72, 362.76], [896.24, 372.54], [895.7, 465.5], [558.33, 472.28]], "bombe": [0, 0]}, {"quad": [[557.05, 362.97], [897.69, 372.67], [897.17, 466.09], [557.76, 472.89]], "bombe": [0, 0]}, {"quad": [[556.53, 363.2], [899.28, 372.83], [898.67, 466.7], [557.31, 473.53]], "bombe": [0, 0]}, {"quad": [[556.28, 363.48], [901.0, 372.96], [900.34, 467.29], [556.95, 474.21]], "bombe": [0, 0]}, {"quad": [[556.14, 363.78], [902.72, 373.13], [902.04, 467.86], [556.73, 474.88]], "bombe": [0, 0]}, {"quad": [[556.01, 364.27], [904.51, 373.51], [903.81, 468.63], [556.68, 475.72]], "bombe": [0, 0]}, {"quad": [[555.96, 364.74], [906.35, 373.8], [905.65, 469.38], [556.68, 476.56]], "bombe": [0, 0]}, {"quad": [[556.01, 365.25], [908.25, 374.16], [907.57, 470.14], [556.76, 477.4]], "bombe": [0, 0]}, {"quad": [[556.21, 365.75], [910.14, 374.53], [909.48, 470.88], [556.87, 478.21]], "bombe": [0, 0]}, {"quad": [[556.62, 366.33], [912.22, 374.89], [911.6, 471.72], [557.22, 479.12]], "bombe": [0, 0]}, {"quad": [[557.1, 366.94], [914.29, 375.33], [913.78, 472.54], [557.72, 480.01]], "bombe": [0, 0]}, {"quad": [[557.56, 367.44], [916.37, 375.66], [915.92, 473.26], [558.22, 480.8]], "bombe": [0, 0]}, {"quad": [[558.12, 367.91], [918.52, 375.93], [918.12, 473.95], [558.76, 481.55]], "bombe": [0, 0]}, {"quad": [[558.74, 368.42], [920.68, 376.28], [920.36, 474.64], [559.33, 482.32]], "bombe": [0, 0]}, {"quad": [[559.37, 368.92], [922.8, 376.61], [922.64, 475.33], [559.93, 483.05]], "bombe": [0, 0]}, {"quad": [[560.15, 369.52], [925.12, 377.04], [924.96, 476.12], [560.66, 483.88]], "bombe": [0, 0]}, {"quad": [[560.93, 370.12], [927.45, 377.5], [927.27, 476.94], [561.42, 484.7]], "bombe": [0, 0]}, {"quad": [[561.66, 370.63], [929.79, 377.84], [929.56, 477.71], [562.24, 485.45]], "bombe": [0, 0]}, {"quad": [[562.55, 371.14], [932.14, 378.2], [931.83, 478.44], [563.05, 486.17]], "bombe": [0, 0]}, {"quad": [[563.4, 371.65], [934.48, 378.58], [934.17, 479.15], [563.89, 486.89]], "bombe": [0, 0]}, {"quad": [[564.2, 372.15], [936.76, 378.94], [936.55, 479.89], [564.84, 487.59]], "bombe": [0, 0]}, {"quad": [[565.1, 372.67], [939.13, 379.33], [938.91, 480.66], [565.81, 488.31]], "bombe": [0, 0]}, {"quad": [[565.96, 373.16], [941.51, 379.69], [941.26, 481.38], [566.78, 489.02]], "bombe": [0, 0]}, {"quad": [[566.72, 373.59], [943.73, 380.01], [943.51, 482.0], [567.55, 489.64]], "bombe": [0, 0]}, {"quad": [[567.52, 374.0], [945.92, 380.28], [945.77, 482.61], [568.36, 490.25]], "bombe": [0, 0]}, {"quad": [[568.32, 374.47], [948.17, 380.64], [948.01, 483.3], [569.15, 490.89]], "bombe": [0, 0]}, {"quad": [[569.22, 374.92], [950.52, 380.98], [950.21, 483.95], [569.91, 491.55]], "bombe": [0, 0]}, {"quad": [[570.19, 375.39], [952.89, 381.3], [952.56, 484.58], [570.82, 492.2]], "bombe": [0, 0]}, {"quad": [[571.13, 375.86], [955.22, 381.73], [954.92, 485.24], [571.85, 492.83]], "bombe": [0, 0]}, {"quad": [[572.77, 376.75], [959.85, 382.36], [959.45, 486.52], [573.59, 494.08]], "bombe": [0, 0]}, {"quad": [[573.67, 377.24], [962.14, 382.78], [961.73, 487.18], [574.44, 494.72]], "bombe": [0, 0]}, {"quad": [[574.59, 377.71], [964.43, 383.18], [963.99, 487.85], [575.29, 495.35]], "bombe": [0, 0]}, {"quad": [[575.47, 378.14], [966.73, 383.46], [966.31, 488.48], [576.22, 495.94]], "bombe": [0, 0]}, {"quad": [[576.37, 378.59], [968.99, 383.83], [968.63, 489.11], [577.14, 496.51]], "bombe": [0, 0]}, {"quad": [[578.11, 379.48], [973.53, 384.47], [973.12, 490.4], [578.87, 497.66]], "bombe": [0, 0]}, {"quad": [[579.87, 380.3], [977.91, 385.12], [977.52, 491.64], [580.44, 498.74]], "bombe": [0, 0]}, {"quad": [[581.76, 381.18], [982.46, 385.8], [981.91, 492.92], [582.07, 499.84]], "bombe": [0, 0]}, {"quad": [[583.52, 381.98], [986.82, 386.36], [986.22, 494.17], [583.84, 500.89]], "bombe": [0, 0]}, {"quad": [[585.34, 382.77], [991.32, 386.93], [990.7, 495.44], [585.92, 501.97]], "bombe": [0, 0]}, {"quad": [[587.16, 383.6], [995.86, 387.6], [994.94, 496.7], [587.74, 503.09]], "bombe": [0, 0]}, {"quad": [[588.88, 384.27], [1000.28, 388.15], [998.92, 497.88], [589.36, 504.09]], "bombe": [0, 0]}, {"quad": [[591.0, 385.29], [1005.4, 388.53], [1003.62, 499.08], [591.0, 505.07]], "bombe": [1.92, -5.11]}, {"quad": [[593.0, 386.23], [1010.0, 389.69], [1010.0, 500.63], [593.0, 506.41]], "bombe": [1.71, -5.44]}, {"quad": [[594.0, 386.68], [1012.58, 389.5], [1011.68, 501.24], [594.0, 507.07]], "bombe": [1.81, -5.7]}, {"quad": [[596.0, 387.53], [1018.35, 390.63], [1016.56, 502.8], [596.0, 508.16]], "bombe": [1.69, -5.52]}, {"quad": [[597.0, 388.19], [1020.0, 390.54], [1020.0, 503.65], [597.0, 509.17]], "bombe": [1.59, -6.06]}, {"quad": [[599.0, 388.97], [1025.65, 391.58], [1024.65, 504.87], [599.0, 509.97]], "bombe": [1.62, -5.47]}, {"quad": [[601.0, 389.79], [1031.43, 392.23], [1029.85, 506.62], [601.0, 511.42]], "bombe": [1.78, -5.94]}, {"quad": [[602.0, 390.45], [1034.36, 392.56], [1032.55, 507.25], [602.0, 511.81]], "bombe": [1.47, -5.64]}, {"quad": [[604.0, 391.29], [1039.0, 393.31], [1039.0, 509.02], [604.0, 513.2]], "bombe": [1.66, -6.05]}, {"quad": [[605.0, 391.52], [1042.13, 393.53], [1041.76, 509.75], [605.0, 513.74]], "bombe": [1.94, -5.84]}, {"quad": [[607.0, 392.78], [1047.93, 394.35], [1046.53, 511.38], [607.0, 515.11]], "bombe": [1.5, -6.22]}, {"quad": [[609.0, 393.74], [1053.0, 395.07], [1053.0, 512.96], [609.0, 516.18]], "bombe": [1.69, -5.91]}, {"quad": [[610.0, 394.02], [1056.0, 395.58], [1056.0, 513.96], [610.0, 517.07]], "bombe": [1.96, -6.44]}, {"quad": [[611.56, 395.25], [1062.43, 396.45], [1060.6, 515.44], [613.45, 518.12]], "bombe": [1.65, -6.05]}, {"quad": [[614.0, 395.72], [1065.15, 396.7], [1063.49, 516.6], [614.0, 519.21]], "bombe": [1.84, -6.66]}, {"quad": [[616.0, 396.53], [1070.68, 397.51], [1069.63, 518.35], [616.0, 520.46]], "bombe": [1.99, -6.64]}, {"quad": [[618.0, 397.93], [1077.27, 398.47], [1075.59, 520.43], [618.0, 522.1]], "bombe": [1.77, -7.1]}, {"quad": [[618.54, 398.54], [1080.46, 399.0], [1078.67, 521.29], [620.38, 522.61]], "bombe": [1.36, -7.01]}, {"quad": [[622.0, 399.49], [1086.1, 399.73], [1085.81, 523.14], [622.0, 523.88]], "bombe": [1.53, -6.98]}, {"quad": [[623.0, 400.27], [1089.2, 400.23], [1088.59, 524.13], [623.0, 524.71]], "bombe": [1.47, -7.23]}, {"quad": [[625.7, 401.38], [1095.0, 401.0], [1095.0, 525.79], [626.19, 525.87]], "bombe": [1.34, -7.03]}, {"quad": [[628.0, 402.41], [1102.43, 401.92], [1100.55, 527.72], [628.0, 527.3]], "bombe": [1.27, -7.24]}, {"quad": [[628.57, 402.55], [1105.45, 402.3], [1103.64, 528.76], [630.41, 527.98]], "bombe": [1.67, -7.33]}, {"quad": [[632.0, 403.93], [1111.79, 403.25], [1110.56, 530.72], [632.0, 529.37]], "bombe": [1.51, -7.3]}, {"quad": [[633.55, 405.46], [1118.0, 404.43], [1118.0, 533.19], [635.14, 531.07]], "bombe": [1.12, -7.96]}, {"quad": [[636.0, 405.25], [1122.23, 404.48], [1120.43, 534.1], [636.0, 531.77]], "bombe": [1.82, -7.97]}, {"quad": [[638.0, 406.46], [1128.49, 405.34], [1127.7, 536.3], [638.0, 533.25]], "bombe": [1.99, -7.95]}, {"quad": [[640.0, 407.7], [1132.12, 406.51], [1131.76, 537.62], [640.0, 534.12]], "bombe": [0.93, -8.38]}, {"quad": [[642.0, 408.69], [1139.35, 407.58], [1137.45, 539.9], [642.0, 535.71]], "bombe": [0.91, -8.63]}, {"quad": [[645.0, 409.64], [1146.44, 408.61], [1144.57, 541.95], [645.0, 537.04]], "bombe": [0.96, -8.43]}, {"quad": [[646.0, 410.66], [1149.0, 408.69], [1149.0, 543.06], [646.0, 537.76]], "bombe": [1.27, -8.46]}, {"quad": [[647.69, 411.66], [1156.0, 409.78], [1156.0, 545.73], [649.39, 539.32]], "bombe": [1.23, -8.86]}, {"quad": [[650.0, 411.62], [1159.04, 410.01], [1158.97, 546.9], [650.0, 540.1]], "bombe": [1.93, -9.02]}, {"quad": [[652.0, 413.04], [1166.0, 411.05], [1166.0, 549.29], [652.0, 541.58]], "bombe": [1.74, -9.08]}, {"quad": [[655.0, 414.74], [1173.38, 412.33], [1172.14, 551.52], [655.0, 543.04]], "bombe": [1.28, -9.0]}, {"quad": [[656.0, 414.6], [1176.0, 412.92], [1176.0, 552.86], [656.0, 543.84]], "bombe": [1.26, -9.29]}, {"quad": [[658.0, 415.59], [1183.0, 413.84], [1183.0, 555.4], [658.0, 545.51]], "bombe": [1.46, -9.51]}, {"quad": [[659.35, 416.66], [1186.73, 414.36], [1185.54, 556.51], [660.18, 546.21]], "bombe": [1.38, -9.51]}, {"quad": [[662.0, 417.64], [1193.36, 415.46], [1192.76, 558.95], [662.0, 547.94]], "bombe": [1.38, -9.72]}, {"quad": [[664.0, 418.64], [1200.0, 416.6], [1200.0, 561.39], [664.0, 549.49]], "bombe": [1.32, -9.74]}, {"quad": [[665.0, 419.86], [1204.36, 417.17], [1202.39, 562.57], [665.0, 550.2]], "bombe": [1.17, -9.91]}, {"quad": [[668.0, 420.81], [1210.0, 418.29], [1210.0, 565.29], [668.0, 551.67]], "bombe": [1.2, -10.16]}, {"quad": [[669.0, 420.74], [1213.53, 418.72], [1212.64, 566.41], [669.0, 552.34]], "bombe": [1.41, -10.16]}, {"quad": [[671.0, 422.49], [1220.0, 419.89], [1220.0, 568.79], [671.0, 553.89]], "bombe": [1.13, -10.21]}, {"quad": [[672.85, 424.12], [1226.0, 421.15], [1226.0, 571.32], [673.09, 555.23]], "bombe": [0.68, -10.54]}, {"quad": [[674.0, 423.78], [1229.0, 421.42], [1229.0, 572.35], [674.0, 555.89]], "bombe": [1.19, -10.52]}, {"quad": [[675.4, 424.83], [1235.08, 422.47], [1234.94, 574.87], [674.8, 557.41]], "bombe": [1.09, -10.85]}, {"quad": [[677.0, 425.87], [1241.42, 423.34], [1239.41, 576.88], [677.0, 558.79]], "bombe": [1.09, -10.95]}, {"quad": [[678.0, 425.74], [1244.47, 423.99], [1242.6, 578.09], [678.0, 559.62]], "bombe": [1.07, -11.04]}, {"quad": [[679.28, 426.76], [1249.0, 424.9], [1249.0, 580.53], [678.97, 560.88]], "bombe": [1.06, -11.35]}, {"quad": [[680.0, 428.2], [1252.34, 425.47], [1251.17, 581.42], [680.0, 561.61]], "bombe": [0.47, -11.35]}, {"quad": [[682.23, 428.42], [1257.0, 426.71], [1257.0, 583.75], [681.54, 562.75]], "bombe": [0.31, -11.55]}, {"quad": [[683.06, 428.78], [1262.0, 426.99], [1262.0, 585.7], [682.89, 563.87]], "bombe": [1.0, -11.64]}, {"quad": [[683.0, 430.26], [1264.0, 427.67], [1264.0, 586.69], [683.0, 564.44]], "bombe": [0.2, -11.69]}, {"quad": [[684.0, 430.48], [1269.1, 428.7], [1268.77, 588.62], [684.0, 565.46]], "bombe": [0.26, -11.74]}, {"quad": [[685.0, 430.99], [1271.0, 428.37], [1271.0, 589.52], [685.0, 566.02]], "bombe": [0.89, -11.8]}, {"quad": [[686.0, 431.74], [1275.0, 429.8], [1275.0, 591.38], [686.0, 567.02]], "bombe": [0.11, -11.92]}, {"quad": [[686.83, 431.86], [1279.0, 429.99], [1279.0, 592.99], [685.65, 567.95]], "bombe": [0.89, -12.09]}, {"quad": [[687.0, 432.42], [1281.47, 430.69], [1279.61, 593.63], [687.0, 568.36]], "bombe": [0.31, -12.02]}, {"quad": [[688.25, 432.92], [1284.0, 430.67], [1284.0, 595.3], [687.5, 569.15]], "bombe": [0.89, -12.22]}, {"quad": [[688.0, 432.91], [1286.41, 431.34], [1284.9, 595.77], [688.0, 569.67]], "bombe": [0.71, -12.21]}, {"quad": [[688.0, 434.22], [1289.42, 431.77], [1287.36, 596.93], [688.0, 570.4]], "bombe": [0.24, -12.32]}, {"quad": [[689.0, 433.88], [1291.0, 431.81], [1291.0, 598.09], [689.0, 570.75]], "bombe": [0.91, -12.39]}, {"quad": [[689.0, 433.86], [1292.22, 432.26], [1291.83, 598.51], [689.0, 571.12]], "bombe": [0.8, -12.43]}, {"quad": [[690.42, 434.56], [1295.14, 432.79], [1293.29, 599.31], [688.74, 571.67]], "bombe": [0.23, -12.5]}, {"quad": [[690.21, 435.16], [1296.41, 432.88], [1294.34, 599.64], [689.61, 571.69]], "bombe": [0.05, -12.41]}, {"quad": [[690.0, 435.02], [1298.03, 432.59], [1296.32, 600.42], [690.0, 572.45]], "bombe": [0.75, -12.61]}, {"quad": [[690.0, 434.9], [1299.45, 432.56], [1297.39, 600.86], [690.0, 572.56]], "bombe": [0.96, -12.6]}], "raccord": {"trajet": 264, "approche_recalculee": 44, "page_depuis": 53, "K0": 87, "intervalles": 194.0}, "positions": [0.0, 0.0051546, 0.0103093, 0.0154639, 0.0206186, 0.0257732, 0.0309278, 0.0360825, 0.0412371, 0.0463918, 0.0515464, 0.056701, 0.0618557, 0.0670103, 0.0721649, 0.0773196, 0.0824742, 0.0850515, 0.0876289, 0.0902062, 0.0927835, 0.0953608, 0.0979381, 0.1005155, 0.1030928, 0.1056701, 0.1082474, 0.1108247, 0.1134021, 0.1159794, 0.1185567, 0.121134, 0.1237113, 0.1262887, 0.128866, 0.1314433, 0.1340206, 0.1365979, 0.1391753, 0.1417526, 0.1443299, 0.1469072, 0.1494845, 0.1520619, 0.1546392, 0.1563574, 0.1580756, 0.1597938, 0.161512, 0.1632302, 0.1649485, 0.1675258, 0.1701031, 0.1726804, 0.1752577, 0.1778351, 0.1804124, 0.1829897, 0.185567, 0.1881443, 0.1907216, 0.193299, 0.1958763, 0.1984536, 0.2010309, 0.2036082, 0.2061856, 0.2079038, 0.209622, 0.2113402, 0.2139175, 0.2164948, 0.2190722, 0.2216495, 0.2242268, 0.2268041, 0.2293814, 0.2319588, 0.2345361, 0.2371134, 0.2396907, 0.242268, 0.2448454, 0.2474227, 0.25, 0.2525773, 0.2551546, 0.257732, 0.2603093, 0.2628866, 0.2654639, 0.2680412, 0.2697595, 0.2714777, 0.2731959, 0.2757732, 0.2783505, 0.2809278, 0.2835052, 0.2860825, 0.2886598, 0.2912371, 0.2938144, 0.2963918, 0.2989691, 0.3015464, 0.3041237, 0.306701, 0.3092784, 0.3118557, 0.314433, 0.3170103, 0.3195876, 0.3221649, 0.3247423, 0.3273196, 0.3298969, 0.3324742, 0.3350515, 0.3376289, 0.3402062, 0.3427835, 0.3453608, 0.3479381, 0.3505155, 0.3522337, 0.3539519, 0.3556701, 0.3573883, 0.3591065, 0.3608247, 0.362543, 0.3642612, 0.3659794, 0.3676976, 0.3694158, 0.371134, 0.3728522, 0.3745704, 0.3762887, 0.3780069, 0.3797251, 0.3814433, 0.3831615, 0.3848797, 0.3865979, 0.3883162, 0.3900344, 0.3917526, 0.3930412, 0.3943299, 0.3956186, 0.3969072, 0.3986254, 0.4003436, 0.4020619, 0.4037801, 0.4054983, 0.4072165, 0.4089347, 0.4106529, 0.4123711, 0.4140893, 0.4158076, 0.4175258, 0.419244, 0.4209622, 0.4226804, 0.4243986, 0.4261168, 0.4278351, 0.4291237, 0.4304124, 0.431701, 0.4329897, 0.4340206, 0.4350515, 0.4360825, 0.4371134, 0.4381443, 0.4391753, 0.4402062, 0.4412371, 0.442268, 0.443299, 0.4441581, 0.4450172, 0.4458763, 0.4467354, 0.4475945, 0.4484536, 0.4493127, 0.4501718, 0.4510309, 0.45189, 0.4527491, 0.4536082, 0.4544674, 0.4553265, 0.4561856, 0.4570447, 0.4579038, 0.4587629, 0.459622, 0.4604811, 0.4613402, 0.4621993, 0.4630584, 0.4639175, 0.4647766, 0.4656357, 0.4664948, 0.467354, 0.4682131, 0.4690722, 0.4699313, 0.4707904, 0.4716495, 0.4725086, 0.4733677, 0.4742268, 0.4750859, 0.475945, 0.4768041, 0.4776632, 0.4785223, 0.4793814, 0.4802405, 0.4810997, 0.4819588, 0.4828179, 0.483677, 0.4845361, 0.485567, 0.4865979, 0.4876289, 0.4886598, 0.4896907, 0.4909794, 0.492268, 0.4935567, 0.4948454, 0.4958763, 0.4969072, 0.4979381, 0.4989691, 0.5, 0.5010309, 0.5020619, 0.5030928, 0.5041237, 0.5051546, 0.5060137, 0.5068729, 0.507732, 0.5085911, 0.5094502, 0.5103093, 0.5111684, 0.5120275, 0.5128866, 0.5137457, 0.5146048, 0.5154639, 0.5180412, 0.5206186, 0.5231959, 0.5257732, 0.5283505, 0.5309278, 0.5335052, 0.5360825, 0.5386598, 0.5412371, 0.5438144, 0.5463918, 0.5489691, 0.5515464, 0.5541237, 0.556701, 0.5592784, 0.5618557, 0.564433, 0.5670103, 0.5695876, 0.5721649, 0.5747423, 0.5773196, 0.5798969, 0.5824742, 0.5850515, 0.5876289, 0.5902062, 0.5927835, 0.5953608, 0.5979381, 0.6030928, 0.6056701, 0.6082474, 0.6108247, 0.6134021, 0.6185567, 0.6237113, 0.628866, 0.6340206, 0.6391753, 0.6443299, 0.6494845, 0.6546392, 0.6597938, 0.6649485, 0.6701031, 0.6752577, 0.6804124, 0.685567, 0.6907216, 0.6958763, 0.7010309, 0.7061856, 0.7113402, 0.7164948, 0.7216495, 0.7268041, 0.7319588, 0.7371134, 0.742268, 0.7474227, 0.7525773, 0.757732, 0.7628866, 0.7680412, 0.7731959, 0.7783505, 0.7835052, 0.7886598, 0.7938144, 0.7989691, 0.8041237, 0.8092784, 0.814433, 0.8195876, 0.8247423, 0.8298969, 0.8350515, 0.8402062, 0.8453608, 0.8505155, 0.8556701, 0.8608247, 0.8659794, 0.871134, 0.8762887, 0.8814433, 0.8865979, 0.8917526, 0.8969072, 0.9020619, 0.9072165, 0.9123711, 0.9175258, 0.9226804, 0.9278351, 0.9329897, 0.9381443, 0.943299, 0.9484536, 0.9536082, 0.9587629, 0.9639175, 0.9690722, 0.9742268, 0.9793814, 0.9845361, 0.9896907, 0.9948454, 1.0], "tel": {"dossier": "https://aaastudio.ai/films/approche-18e-tel-2026-11-25", "largeur": 672, "x0": [528, 528, 528, 528, 528, 528, 528, 528, 528, 528, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 576, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 560, 544, 544, 544, 544, 544, 544, 544, 544, 544, 544, 528, 528, 528, 528, 528, 528, 528, 528, 528, 512, 512, 512, 512, 512, 512, 512, 512, 512, 496, 496, 496, 496, 496, 496, 496, 496, 496, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 480, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464, 464], "vc": [400, 640]}};
+</script>
+<script>/* écrit par outils/premiere-visite_2026-11-27/piste-B/encoder_B.py */
+window.SEQUENCE_B = {"source":"piste B 2026-11-27 : AVIF q58 (aom, tune ssim, couleur compens\u00e9e), \u00e9tages au seuil de 3.5 px","dossier":"https://aaastudio.ai/films/ouverture-2026-11-29","ext":"avif","plein":[0,2,4,6,8,10,12,14,15,16,18,20,22,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,136,138,140,142,144,146,148,150,152,154,156,158,160,162,164,166,168,170,172,174,176,178,180,182,184,186,188,190,192,194,196,198,200,202,204,206,208,210,212,214,216,218,220,222,224,226,228,230,232,234,236,238,240,242,244,246,248,250,252,254,256,258,260,262,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,362,364,366,368,370,372,374,375],"complement":[1,3,5,7,9,11,13,17,19,21,23,135,137,139,141,143,145,147,149,151,153,155,157,159,161,163,165,167,169,171,173,175,177,179,181,183,185,187,189,191,193,195,197,199,201,203,205,207,209,211,213,215,217,219,221,223,225,227,229,231,233,235,237,239,241,243,245,247,249,251,253,255,257,259,261,263,361,363,365,367,369,371,373],"poids":{"tel":{"plein":7272964,"complement":2209478,"leger":1241397},"complete":{"plein":14482384,"complement":4042119,"leger":1522749}},"leger":{"tel":"https://aaastudio.ai/films/ouverture-2026-11-29/leger-tel.bin","complete":"https://aaastudio.ai/films/ouverture-2026-11-29/leger-complete.bin"}};
+</script>
+<script>/* écrit par outils/premiere-visite_2026-11-27/piste-C/decouper_C.py table */
+window.SEQUENCE_C = {"source":"piste C 2026-11-28 : flux H.264 High pleine définition (x264 preset slow, BT.601 plage tv dans le VUI, sans image B)","dossier":"https://aaastudio.ai/films/ouverture-2026-11-29","flux":{"tel":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-tel.bin","codec":"avc1.64001f","largeur":784,"hauteur":900,"x0":464,"gop":8,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":1834228,"crf":29.4,"psnr":37.71},"complete":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-complete.bin","codec":"avc1.640028","largeur":1600,"hauteur":900,"x0":0,"gop":8,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":2366142,"crf":32.3,"psnr":37.2}},"flux_g16":{"tel":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-tel-g16.bin","codec":"avc1.64001f","largeur":784,"hauteur":900,"x0":464,"gop":16,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":1520861,"crf":29.0,"psnr":37.66},"complete":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-complete-g16.bin","codec":"avc1.640028","largeur":1600,"hauteur":900,"x0":0,"gop":16,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":2018242,"crf":31.5,"psnr":37.33}},"flux_g16h":{"tel":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-tel-g16h.bin","codec":"avc1.64001f","largeur":784,"hauteur":900,"x0":464,"gop":16,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":2015788,"crf":27.0,"psnr":38.65},"complete":{"url":"https://aaastudio.ai/films/ouverture-2026-11-29/flux-complete-g16h.bin","codec":"avc1.640028","largeur":1600,"hauteur":900,"x0":0,"gop":16,"couleur":{"matrix":"smpte170m","primaries":"bt709","transfer":"iec61966-2-1","fullRange":false},"poids":2535803,"crf":29.5,"psnr":38.16}}};
+</script>
+<script>/* Chargeur d'une séquence d'images pilotée par le défilement : PISTE C (2026-11-28), copie modifiée du chargeur de la piste B
+   (essai-ouverture-B_2026-11-27/chargeur-sequence.js, 27/11). Autonome : il ne connaît ni le canvas, ni le cadrage, ni la page ;
+   il télécharge, décode et dit ce qui est dessinable.
+
+   SEUL CHANGEMENT DE LA PISTE C : le premier étage. Quand le navigateur le permet (VideoDecoder présent, configuration acceptée par
+   VideoDecoder.isConfigSupported), la passe légère AVIF est remplacée par un FLUX H.264 des 376 images en PLEINE définition :
+     - un fichier .bin lu en flux (fetch + ReadableStream) : en-tête JSON (codec, largeur, hauteur, x0 de la bande, tailles, images
+       clés), puis les images à la suite (une unité d'accès Annex B par image, SPS et PPS devant chaque image clé) ;
+     - décodé par WebCodecs (VideoDecoder, format Annex B : pas de « description ») dans une file par groupes de 8 images (un groupe
+       = une image clé et ses 7 suivantes) autour de la caméra, devant d'abord ; au front du flux, le décodeur reprend là où il
+       s'est arrêté (pas de retour à l'image clé) ;
+     - chaque VideoFrame devient une ImageBitmap (createImageBitmap(frame), puis frame.close() ; repli par copie sur une toile si
+       createImageBitmap(VideoFrame) échoue), rangée là où la piste B range ses images légères, libérée hors de la fenêtre pareil ;
+     - les images du flux ont leur PROPRE géométrie (série tel : bande fixe x0 464, largeur 784 ; les AVIF tel ont un x0 par image,
+       largeur 672) : info() la donne (geo, sousGeo), la page la pose avec.
+   Pas de VideoDecoder, configuration refusée, erreur du décodeur, flux absent : passe légère AVIF de la piste B (repli), jamais
+   d'image fixe. Codec repris par le navigateur (QuotaExceededError, onglet inactif) : le décodeur est recréé, ce n'est pas une panne.
+   PLEINE QUALITÉ À L'ARRÊT SEULEMENT (demande de la conversation principale du 28/11). Sa mesure (vrai Safari, ordinateur, 20 Mbit/s,
+   essai B, un seul passage) : 40 images d'écran par seconde (p95 54 ms) quand les AVIF 1600 x 900 arrivent pendant l'avancée, contre 58
+   avec le premier étage seul ; mais la page actuelle (WebP, sans AVIF) dessine aussi à 40 dans ce passage. Hypothèse : le décodage
+   d'images de 1600 x 900 pendant l'avancée coûte des images d'écran dans Safari à l'ordinateur ; cause non établie. Le choix tient :
+   quand le premier étage servi est le flux (et seulement dans ce cas) :
+     - caméra en mouvement : on n'affiche et on ne décode QUE les images du flux ; les AVIF se téléchargent (file de B), sans décodage ;
+     - caméra à l'arrêt (ou arrivée) : l'image EXACTE la plus proche (round(g)) passe en tête de la file réseau, se décode et se fond
+       (260 ms) sur l'image du flux, comme dans B ; l'image du flux reste gardée (elle resservira dès que la caméra repart) ;
+     - option `pleinMouvement` (?plein=mouvement dans la page) : comportement de B (AVIF décodés en mouvement), pour comparer.
+   L'arrêt est dit par la page (3e argument de position()) ; sans lui, il est déduit de la vitesse de la caméra.
+   Repli sur la passe légère AVIF : comportement de B inchangé.
+   Le reste est celui de la piste B, inchangé : image 0 par un <img>, file AVIF pleine qualité triée sur la caméra (« plein », puis
+   « complément »), fenêtre de décodage, voies blob / img-bitmap / img / worker, repli WebP sans AVIF.
+
+   Étages (piste B) :
+   1. passe LÉGÈRE de tout le trajet (une image sur deux, définition réduite) en UN fichier lu en flux : fetch + ReadableStream,
+      chaque image découpée en Blob dès qu'elle est arrivée ; les images arrivent dans l'ordre du trajet, plus vite que le défilement ;
+      PISTE C : remplacée par le flux H.264 quand c'est possible (voir plus haut) ;
+   2. images PLEINE qualité, par une file côté client triée sur la position de la caméra (et un peu devant, selon sa vitesse) :
+      d'abord l'étage « plein » (une image sur deux là où le fondu entre voisines reste propre, toutes ailleurs), puis le
+      « complément » (les images sautées), pour retrouver ensuite le rendu exact image par image.
+   Décodage d'avance dans une fenêtre autour de la caméra (ImageBitmap ; libérées au-delà de « garde »). Voies de décodage :
+     'blob'       createImageBitmap(blob)                              Chromium, Firefox (décodé hors du fil principal)
+     'img-bitmap' img.decode() puis createImageBitmap(img)             WebKit, série recadrée (mesuré le 25/11)
+     'worker'     createImageBitmap(blob) dans un worker, transféré    WebKit, à mesurer (code de WebKit lu le 27/11)
+     'img'        img.decode(), l'image elle-même est dessinée          WebKit, série complète (mesuré le 25/11)
+   Repli : si le navigateur ne décode pas l'AVIF (petite image d'essai), série de repli (WebP actuelle), sans premier étage.
+
+   Options : { nombre, plein:[indices], complement:[indices], url:(i, format) => adresse, leger: adresse | null,
+     flux: { url, codec, largeur, hauteur, x0 } | null (PISTE C), casserFlux: n (essai : échec simulé du décodeur après n images),
+     fluxCopie: booléen (essai : force la copie par une toile au lieu de createImageBitmap(VideoFrame)),
+     pleinMouvement: booléen (PISTE C : AVIF décodés aussi en mouvement, comme B, même avec le flux),
+     premier: adresse de l'image 0 (déjà préchargée par <link rel=preload as=image> : prise par un élément <img>, sans double
+     téléchargement), repli: { url:(i) => adresse } | null, parallele (téléchargements simultanés), fenetre: { av, ar, garde },
+     voie: 'auto' | voie, serie: 'tel' | 'complete' (choix de la voie auto), actif: () => booléen (sinon un seul téléchargement),
+     retenue: () => booléen (vrai : un seul téléchargement, la page charge plus pressé),
+     change: () => {} (quelque chose de neuf est dessinable), apresLeger: () => {} (premier étage reçu : le reste peut charger) }
+
+   Interface : demarrer(), position(g, vitesse, repos), choisir(x), couverture(g), plusProcheNette(x), etat(), detruire(). */
+(function () {
+  'use strict';
+  const AVIF_TEST = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADrbWV0YQAAAAAAAAAhaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAAAAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAETAAAAJQAAAChpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABqaXBycAAAAEtpcGNvAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAQcGl4aQAAAAADCAgIAAAADGF2MUOBAAwAAAAAE2NvbHJuY2x4AAEADQAGgAAAABdpcG1hAAAAAAAAAAEAAQQBAoMEAAAALW1kYXQSAAoIGAA2iAhoNCAyFxlHh4Yhh5555oAAAJBAyRjbu51tkhGY';
+  const WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
+  const BITMAP = typeof createImageBitmap === 'function';
+  const CHROMIUM = !WEBKIT && !!(navigator.userAgentData || window.chrome);   // flux réservé à Chromium (28/11, 12 h 45)
+  // PISTE C : réglages du premier étage « flux » par moteur (voie de décodage, flush à chaque groupe de 8, optimizeForLatency).
+  // autres (Chromium) : mesuré le 28/11 vers 12 h 10, première visite 4G, téléphone bridé x4 : 58 images d'écran par seconde, p95 16,8 ms.
+  // webkit : flux COUPÉ (actif: false), passe légère AVIF de B. Mesuré le 28/11 de 12 h 17 à 12 h 23 dans le vrai Safari 26 du Mac
+  // (4G, téléphone 520 x 978 et ordinateur 1440 x 938), aucune voie n'est à la fois fluide et assez rapide :
+  //   worker + flush par groupe : 59 / 46 images d'écran par s, mais 270 / 410 à 770 ms par groupe de 8 (décodeur du worker lent),
+  //     caméra en retard de 142 / 171 images en moyenne ;
+  //   frame (VideoFrame dessinée) : décodage rapide (17 à 22 ms par groupe), mais 17 / 13 images d'écran par s ;
+  //   bitmap ou toile sur le fil principal : blocages de 400 à 560 ms, 7 à 9 images d'écran par s (processus GPU à 100 %) ;
+  //   relais (décodage principal, ImageBitmap dans un worker) : fluide (60 / 42), mais 1 à 1,5 s par image dans le worker.
+  // ?flux=1 force le flux dans WebKit, avec la voie la plus fluide (worker + flush), pour comparer.
+  // 28/11, 12 h 45 : la permission ne dépend plus de « actif » : flux réservé à Chromium (CHROMIUM plus bas), ?flux=1 le force ailleurs.
+  // 28/11, 23 h 40 (reprise) : webkit = voie 'copie', flux OUVERT à WebKit. Banc isolé dans le vrai Safari 26.5 du Mac
+  // (banc-safari.html, contrôle piste-C/banc-safari/safari.jsonl) : VideoFrame.copyTo() vers un tampon YUV (NV12) ne bloque pas
+  // (2 ms en médiane) ; la conversion en RGBA et l'ImageBitmap se font dans 3 workers (une écriture 32 bits par pixel, tampons
+  // réutilisés) : 58,9 images d'écran par s au téléphone (784 x 900, retard médian 48 ms), 58,6 à l'ordinateur (1600 x 900,
+  // retard médian 141 ms). 4 workers : moins bien (51). Le dessin WebGL direct ferait mieux (59-60, retard 13 à 32 ms) mais
+  // demande de refaire le dessin de la page ; WebGL hors écran puis ImageBitmap : 23 à 48 images d'écran par s, écarté.
+  // Firefox : jamais essayé, flux toujours coupé (?flux=1 le force).
+  const REGLAGE_FLUX = { autres: { actif: true, voie: 'bitmap', vidange: true, latence: true }, webkit: { actif: true, voie: 'copie', vidange: false, latence: true } };
+  let avifPromesse = null;
+  function avifOk() {
+    if (!avifPromesse) avifPromesse = new Promise(res => { const im = new Image(); im.onload = () => res(im.width > 0); im.onerror = () => res(false); im.src = AVIF_TEST; });
+    return avifPromesse;
+  }
+  // worker partagé (voie 'worker') : createImageBitmap(blob) hors du fil principal, ImageBitmap transférée
+  let travailleur = null, travId = 0; const travAttente = new Map();
+  function worker() {
+    if (travailleur) return travailleur;
+    const code = 'onmessage=async e=>{const d=e.data;try{const b=await createImageBitmap(d.blob);postMessage({id:d.id,b},[b]);}catch(x){postMessage({id:d.id,err:String(x)});}};';
+    travailleur = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+    travailleur.onmessage = e => { const p = travAttente.get(e.data.id); if (!p) return; travAttente.delete(e.data.id); if (e.data.b) p.res(e.data.b); else p.rej(new Error(e.data.err)); };
+    return travailleur;
+  }
+  function decoderBlob(blob, voie) {
+    if (voie === 'blob') return createImageBitmap(blob);
+    if (voie === 'worker') return new Promise((res, rej) => { const id = ++travId; travAttente.set(id, { res, rej }); worker().postMessage({ id, blob }); });
+    const u = URL.createObjectURL(blob), im = new Image(); im.decoding = 'async'; im.src = u;
+    const dec = im.decode ? im.decode() : new Promise((r, j) => { im.onload = r; im.onerror = j; });
+    if (voie === 'img') return dec.then(() => { im._url = u; return im; }, e => { URL.revokeObjectURL(u); throw e; });
+    return dec.then(() => createImageBitmap(im)).then(b => { URL.revokeObjectURL(u); return b; }, e => { URL.revokeObjectURL(u); throw e; });
+  }
+  function liberer(x) { if (!x) return; if (x.close) x.close(); else if (x._url) { URL.revokeObjectURL(x._url); x._url = null; } }
+  const texte = e => String(e && (e.name ? e.name + ' : ' : '') + (e && e.message || e)).slice(0, 160);
+
+  function ChargeurSequence(o) {
+    const N = o.nombre, FEN = o.fenetre || { av: 40, ar: 12, garde: 52 }, PAR = o.parallele || 3, DEC = o.decodages || 4;
+    const voie = o.voie && o.voie !== 'auto' ? o.voie : (!BITMAP ? 'img' : !WEBKIT ? 'blob' : (o.serie === 'tel' ? 'img-bitmap' : 'img'));
+    const etage = new Int8Array(N);            // 1 = plein (d'abord), 2 = complément (ensuite), 0 = absent
+    o.plein.forEach(i => { etage[i] = 1; }); (o.complement || []).forEach(i => { etage[i] = 2; });
+    const blobP = new Array(N), blobL = new Array(N), dP = new Array(N), dL = new Array(N), tP = new Float64Array(N);
+    const reseau = new Int8Array(N);           // 0 rien, 1 en cours, 2 reçu, 3 échec (une reprise)
+    const enDec = new Set(); let enVol = 0, detruit = false, version = 0, format = 'avif', urlImage = o.url;
+    let g = 0, vit = 0, sens = 1, legerFini = !(o.leger || o.flux), legerRecues = 0, legerTotal = 0, chargees = 0, complementCharge = 0, fileOuverte = false;
+    const totalPlein = o.plein.length, totalComp = (o.complement || []).length;
+    let premierImg = null;
+    const neuf = () => { version++; if (o.change) o.change(); };
+    const compte = new Int8Array(N);   // chaque image pleine comptée une seule fois (l'image 0 peut arriver par le préchargement ET par la file)
+    function compter(i) { if (compte[i]) return; compte[i] = 1; if (reseau[i] !== 1) reseau[i] = 2; if (etage[i] === 1) chargees++; else if (etage[i] === 2) complementCharge++; }
+
+    // --- PISTE C : état du premier étage « flux »
+    const fluxL = new Int8Array(N);         // 1 : l'image légère dL[i] vient du flux (pleine définition, géométrie du flux)
+    const fluxEnCours = new Int8Array(N);   // 1 : donnée au décodeur ; 2 : sortie du décodeur, conversion en ImageBitmap en cours
+    let premierEtage = o.flux ? 'flux' : 'leger', raisonRepli = o.flux ? null : (o.fluxRaison || 'flux non demandé');
+    const FX = { actif: false, mort: false, confirme: false, fini: false, tete: null, buf: null, off: null, recues: 0, total: 0, geo: null,
+      dec: null, cleRequise: true, dernier: -1, lot: null, sorties: 0, decodees: 0, lots: 0, reprises: 0, vidanges: 0, attentes: 0, recrees: 0,
+      voie: o.fluxCopie ? 'toile' : (o.fluxVoie || (WEBKIT ? REGLAGE_FLUX.webkit.voie : REGLAGE_FLUX.autres.voie)), voieRaison: o.fluxCopie ? 'forcée (?fluxcopie=1)' : o.fluxVoie ? 'demandée' : null, toile: null, tctx: null,
+      arret: null, erreur: null, t0: 0, tTete: null, tPremiere: null, tFin: null, groupes: [], parImage: [], garde: 'ok', enConv: 0 };
+    const lotDe = new Array(N);   // lot (groupe) auquel appartient l'image donnée au décodeur, pour le temps du groupe
+    // PISTE C : « sobre » = premier étage servi par le flux, sans ?plein=mouvement : AVIF décodés à l'arrêt seulement
+    let repos = false, tRepos = 0, decodesRepos = 0;
+    const sobre = () => premierEtage === 'flux' && !FX.mort && !o.pleinMouvement;
+    // PISTE C, 28/11 : voie de décodage du flux et vidange par groupe, réglables (?fluxvoie=bitmap|toile|frame|worker, ?vidange=0|1,
+    // ?latence=0|1) ; valeurs par défaut par moteur (REGLAGE_FLUX en tête du fichier)
+    const RF = WEBKIT ? REGLAGE_FLUX.webkit : REGLAGE_FLUX.autres;
+    const VIDANGE = o.fluxVidange != null ? !!o.fluxVidange : RF.vidange, LATENCE = o.fluxLatence != null ? !!o.fluxLatence : RF.latence;
+    const cibleRepos = () => Math.max(0, Math.min(N - 1, Math.round(g)));
+    const tFondu = i => sobre() ? Math.max(tP[i], tRepos) : tP[i];   // sobre : chaque arrêt refait le fondu du flux vers la pleine qualité
+
+    // --- image 0 : déjà demandée par le préchargement de l'en-tête ; un <img> à la même adresse la reprend sans la retélécharger
+    function premiere() {
+      if (!o.premier) return;
+      const im = new Image(); im.decoding = 'async'; try { im.fetchPriority = 'high'; } catch (e) {}
+      im.src = o.premier;
+      (im.decode ? im.decode() : new Promise((r, j) => { im.onload = r; im.onerror = j; })).then(() => {
+        if (detruit) return; premierImg = im; if (!dP[0]) { dP[0] = im; tP[0] = performance.now(); }
+        compter(0);
+        neuf(); pompeDecodage();
+      }, () => {});
+    }
+
+    // PISTE C : le premier étage est demandé par l'EN-TÊTE de la page (fetch lancé dans un script, window.__premierEtage), pas par un
+    // <link rel=preload as=fetch> : constaté le 28/11 dans WebKit (Playwright), le préchargement n'est pas repris par fetch() et le
+    // fichier part deux fois (leger-tel.bin, flux-tel.bin). Le chargeur reprend cette réponse une seule fois ; sinon, fetch normal.
+    function prendre(url, signal) {
+      const PE = window.__premierEtage;
+      if (PE && PE.url === url && !PE.pris && PE.reponse) {
+        PE.pris = true; if (signal && PE.arret) signal.addEventListener('abort', () => PE.arret.abort());
+        return PE.reponse;
+      }
+      return fetch(url, signal ? { signal } : undefined);
+    }
+    function abandonnerEntete(garder) {   // fichier demandé par l'en-tête et que le chargeur ne prendra pas : téléchargement arrêté
+      const PE = window.__premierEtage;
+      if (PE && !PE.pris && PE.url !== garder && PE.arret) { PE.pris = true; try { PE.arret.abort(); } catch (e) {} }
+    }
+
+    // --- passe légère, lue en flux
+    async function lireLeger(url, signal) {
+      const r = await prendre(url, signal); if (!r.ok) throw new Error('leger ' + r.status);
+      let tete = null, buf = null, pos = 0, k = 0, off = null, attente = new Uint8Array(0);
+      const traiter = (ch) => {
+        if (format === 'repli') return;
+        if (!tete) {
+          const a = new Uint8Array(attente.length + ch.length); a.set(attente); a.set(ch, attente.length); attente = a;
+          if (attente.length < 8) return;
+          const n = attente[4] | (attente[5] << 8) | (attente[6] << 16) | (attente[7] << 24);
+          if (attente.length < 8 + n) return;
+          tete = JSON.parse(new TextDecoder().decode(attente.subarray(8, 8 + n)));
+          off = [0]; for (const t of tete.tailles) off.push(off[off.length - 1] + t);
+          buf = new Uint8Array(off[off.length - 1]); legerTotal = tete.indices.length;
+          const reste = attente.subarray(8 + n, 8 + n + buf.length); buf.set(reste, 0); pos = reste.length; attente = null;
+        } else { const m = Math.min(ch.length, buf.length - pos); buf.set(m < ch.length ? ch.subarray(0, m) : ch, pos); pos += m; }
+        let nouveau = false;
+        while (k < tete.indices.length && off[k + 1] <= pos) {
+          const i = tete.indices[k]; blobL[i] = new Blob([buf.slice(off[k], off[k + 1])], { type: tete.type }); k++; legerRecues++; nouveau = true;
+        }
+        if (nouveau) pompeDecodage();
+      };
+      const lect = r.body && r.body.getReader ? r.body.getReader() : null;
+      if (lect) { for (;;) { const { done, value } = await lect.read(); if (done || detruit) break; traiter(value); } }
+      else traiter(new Uint8Array(await r.arrayBuffer()));
+      buf = null;
+    }
+    function finLeger() { if (legerFini) return; legerFini = true; if (o.apresLeger) o.apresLeger(); ouvrirFile(); }
+
+    // --- PISTE C : premier étage « flux », lu en flux (même principe que lireLeger, mais les octets restent : un groupe peut être
+    // redécodé plus tard, quand la caméra revient sur des images libérées)
+    async function lireFlux(url, signal) {
+      FX.t0 = performance.now();
+      const r = await prendre(url, signal); if (!r.ok) throw new Error('flux ' + r.status);
+      let pos = 0, attente = new Uint8Array(0);
+      const traiter = (ch) => {
+        if (FX.mort || format === 'repli') return;
+        if (!FX.tete) {
+          const a = new Uint8Array(attente.length + ch.length); a.set(attente); a.set(ch, attente.length); attente = a;
+          if (attente.length < 8) return;
+          if (String.fromCharCode(attente[0], attente[1], attente[2], attente[3]) !== 'SEQV') throw new Error('flux : en-tête inconnu');
+          const n = attente[4] | (attente[5] << 8) | (attente[6] << 16) | (attente[7] << 24);
+          if (attente.length < 8 + n) return;
+          const tete = JSON.parse(new TextDecoder().decode(attente.subarray(8, 8 + n)));
+          if (tete.tailles.length !== N) throw new Error('flux : ' + tete.tailles.length + ' images au lieu de ' + N);
+          const off = [0]; for (const t of tete.tailles) off.push(off[off.length - 1] + t);
+          FX.off = off; FX.buf = new Uint8Array(off[N]); FX.total = N; FX.geo = { x0: tete.x0 || 0, largeur: tete.largeur };
+          const reste = attente.subarray(8 + n, 8 + n + FX.buf.length); FX.buf.set(reste, 0); pos = reste.length; attente = null;
+          FX.tete = tete; FX.tTete = performance.now();
+          if (FX.dec && tete.codec !== o.flux.codec) { try { FX.dec.close(); } catch (x) {} FX.dec = null; }   // codec différent de la table : décodeur neuf
+        } else { const m = Math.min(ch.length, FX.buf.length - pos); FX.buf.set(m < ch.length ? ch.subarray(0, m) : ch, pos); pos += m; }
+        let nouveau = false;
+        while (FX.recues < FX.total && FX.off[FX.recues + 1] <= pos) { FX.recues++; nouveau = true; }
+        if (nouveau) pompeFlux();
+      };
+      const lect = r.body && r.body.getReader ? r.body.getReader() : null;
+      if (lect) { for (;;) { const { done, value } = await lect.read(); if (done || detruit || FX.mort) break; traiter(value); } }
+      else traiter(new Uint8Array(await r.arrayBuffer()));
+      if (!FX.mort && FX.recues < N) throw new Error('flux incomplet : ' + FX.recues + ' images sur ' + N);
+      FX.tFin = performance.now();
+    }
+    function configFlux() {
+      const c = FX.tete || o.flux;   // avant l'en-tête du flux : la configuration de la table (même codec, même taille)
+      // couleur : constaté le 28/11, Chromium ignore le VUI (BT.601) et sort les images en bt709 (biais R +2,6, G +1,6, B -0,6 contre
+      // le WebP) ; colorSpace smpte170m dans la configuration ramène le biais sous 0,4 niveau (comme ffmpeg en BT.601)
+      const cfg = { codec: c.codec, codedWidth: c.largeur, codedHeight: c.hauteur };
+      if (LATENCE) cfg.optimizeForLatency = true;
+      if (c.couleur || o.flux.couleur) cfg.colorSpace = c.couleur || o.flux.couleur;
+      return cfg;
+    }
+    function nouveauDecodeur() {
+      try {
+        if (FX.voie === 'worker') FX.dec = nouveauTravail(configFlux());
+        else { const d = new VideoDecoder({ output: fr => sortieFlux(fr, d), error: e => { if (d === FX.dec) erreurFlux(e); } }); d.configure(configFlux()); FX.dec = d; }
+        FX.cleRequise = true; FX.dernier = -1; return true;
+      } catch (e) { erreurFlux(e); return false; }
+    }
+    // voie 'worker' : VideoDecoder ET createImageBitmap dans un worker ; le fil principal ne reçoit que des ImageBitmap transférées.
+    // Le mandataire imite ce que pompeFlux attend d'un VideoDecoder : decode (rassemblé par lot), flush, close, state.
+    const CODE_TRAVAIL = `let d = null, enCours = 0, attente = [];
+const err = (x) => postMessage({ t: 'err', n: (x && x.name) || 'Error', m: String((x && x.message) || x) });
+onmessage = async (e) => { const m = e.data;
+  try {
+    if (m.t === 'cfg') { d = new VideoDecoder({ output: (f) => { const i = Math.round(f.timestamp / 1000), a = performance.now();
+        const p = createImageBitmap(f).then(b => { f.close(); postMessage({ t: 'img', i, b, c: performance.now() - a }, [b]); }, x => { f.close(); err(x); });
+        attente.push(p); p.finally(() => { const k = attente.indexOf(p); if (k >= 0) attente.splice(k, 1); }); }, error: err }); d.configure(m.cfg); }
+    else if (m.t === 'dec') { for (const k of m.c) d.decode(new EncodedVideoChunk({ type: k.k ? 'key' : 'delta', timestamp: k.i * 1000, data: k.d })); }
+    else if (m.t === 'flush') { await d.flush(); await Promise.all(attente.slice()); postMessage({ t: 'flush', id: m.id }); }
+    else if (m.t === 'close') { if (d && d.state !== 'closed') d.close(); close(); }
+  } catch (x) { err(x); } };`;
+    function nouveauTravail(cfg) {
+      const w = new Worker(URL.createObjectURL(new Blob([CODE_TRAVAIL], { type: 'text/javascript' })));
+      const px = { state: 'configured', lotDonnees: null, attente: new Map(), id: 0,
+        decode(j, cle, data) { (px.lotDonnees || (px.lotDonnees = [])).push({ i: j, k: cle, d: data }); },
+        envoyer() { const c = px.lotDonnees; px.lotDonnees = null; if (c) w.postMessage({ t: 'dec', c }, c.map(x => x.d)); },
+        flush() { const id = ++px.id; return new Promise((res, rej) => { px.attente.set(id, { res, rej }); w.postMessage({ t: 'flush', id }); }); },
+        close() { px.state = 'closed'; try { w.postMessage({ t: 'close' }); } catch (e) {} px.attente.forEach(q => q.rej(Object.assign(new Error('fermé'), { name: 'AbortError' }))); px.attente.clear(); } };
+      w.onmessage = e => { const m = e.data;
+        if (m.t === 'img') sortieImage(m.i, m.b, px, m.c);
+        else if (m.t === 'flush') { const q = px.attente.get(m.id); if (q) { px.attente.delete(m.id); q.res(); } }
+        else if (m.t === 'err' && px === FX.dec) erreurFlux(Object.assign(new Error('worker : ' + m.m), { name: m.n })); };
+      w.onerror = e => { if (px === FX.dec) erreurFlux(new Error('worker : ' + (e.message || 'erreur'))); };
+      w.postMessage({ t: 'cfg', cfg });
+      return px;
+    }
+    // voie 'relais' (28/11, vrai Safari) : le décodeur reste sur le fil principal (il y rend ses images sans flush, en 17 à 25 ms par
+    // groupe de 8) ; chaque VideoFrame est transférée à un worker qui en fait une ImageBitmap et la renvoie. Mesuré : une ImageBitmap
+    // faite sur le fil principal depuis une VideoFrame bloque le dessin 400 à 500 ms par moments ; faite dans un worker, non.
+    const CODE_RELAIS = `onmessage = async (e) => { const { i, f, t0 } = e.data;
+  try { const b = await createImageBitmap(f); f.close(); postMessage({ i, b, t0 }, [b]); }
+  catch (x) { try { f.close(); } catch (y) {} postMessage({ i, err: String((x && x.message) || x), n: x && x.name }); } };`;
+    function relais() {
+      if (FX.relais) return FX.relais;
+      const w = FX.relais = new Worker(URL.createObjectURL(new Blob([CODE_RELAIS], { type: 'text/javascript' })));
+      w.onmessage = e => { const m = e.data;
+        if (m.err) { fluxEnCours[m.i] = 0; erreurFlux(Object.assign(new Error('relais : ' + m.err), { name: m.n || 'Error' })); return; }
+        chrono('conv', performance.now() - m.t0);
+        if (detruit) { m.b.close(); return; }
+        ranger(m.i, m.b); };
+      w.onerror = e => erreurFlux(new Error('relais : ' + (e.message || 'erreur du worker')));
+      return w;
+    }
+    // voie 'copie' (28/11, 23 h 40, vrai Safari) : le décodeur reste sur le fil principal ; chaque VideoFrame est copiée par copyTo()
+    // dans un tampon YUV (NV12 ou I420, sans passer par le processus GPU), fermée tout de suite, et le tampon part dans l'un des
+    // workers de conversion, qui font l'image RGBA (BT.601, plage tv, comme le VUI du flux) puis l'ImageBitmap, et rendent le tampon.
+    // 29/11, 0 h 20 : WebKit déclare ses VideoFrame en BT.709 pleine plage (fullRange: true) alors que le flux est encodé en BT.601 plage
+    // tv ; la conversion lit donc la plage et la matrice de chaque image (cs), ou celles forcées par ?yuv=601tv|601pc|709tv|709pc (essai).
+    const CODE_CONV = `const f = (a, k0) => { const t = new Int32Array(256); for (let k = 0; k < 256; k++) t[k] = Math.round(a * (k - k0) * 1024); return t; };
+const COEF = { '601tv': [1.164383, 16, 1.596027, 0.391762, 0.812968, 2.017232], '601pc': [1, 0, 1.402, 0.344136, 0.714136, 1.772],
+  '709tv': [1.164383, 16, 1.792741, 0.213249, 0.532909, 2.112402], '709pc': [1, 0, 1.5748, 0.187324, 0.468124, 1.8556] }, TAB = {};
+const tables = k => TAB[k] || (TAB[k] = (c => ({ yT: f(c[0], c[1]), rv: f(c[2], 128), gu: f(c[3], 128), gv: f(c[4], 128), bu: f(c[5], 128) }))(COEF[k] || COEF['601tv']));
+const cl = new Uint8Array(2048); for (let k = 0; k < 2048; k++) cl[k] = k < 768 ? 0 : k > 1023 ? 255 : k - 768;
+let file = [], occupe = false, sortie = null;
+async function suite() {
+  if (occupe) return; occupe = true;
+  while (file.length) { const { i, buf, lay, fmt, w, h, t0, ici, copie, cs } = file.shift();
+    try { const { yT, rv, gu, gv, bu } = tables(cs);
+      if (!sortie || sortie.length !== w * h) sortie = new Uint32Array(w * h);
+      const s = new Uint8Array(buf), o32 = sortie, nv = fmt === 'NV12';
+      const y0 = lay[0].offset, ys = lay[0].stride, u0 = lay[1].offset, us = lay[1].stride, v0 = nv ? 0 : lay[2].offset, vs = nv ? 0 : lay[2].stride;
+      // deux lignes à la fois : la chroma (une valeur pour 2 x 2 pixels) est lue et calculée une fois pour quatre pixels (28/11, 0 h 10)
+      for (let y = 0; y < h; y += 2) {
+        const r0 = y0 + y * ys, r1 = r0 + ys, ur = u0 + (y >> 1) * us, vr = nv ? 0 : v0 + (y >> 1) * vs, bas = y + 1 < h; let o0 = y * w, o1 = o0 + w;
+        for (let x = 0; x < w; x += 2) {
+          let U, V; if (nv) { U = s[ur + x]; V = s[ur + x + 1]; } else { U = s[ur + (x >> 1)]; V = s[vr + (x >> 1)]; }
+          const r = rv[V] + 786432, g = 786432 - gu[U] - gv[V], b = bu[U] + 786432, deux = x + 1 < w;
+          let Y = yT[s[r0 + x]]; o32[o0++] = 0xFF000000 | (cl[(Y + b) >> 10] << 16) | (cl[(Y + g) >> 10] << 8) | cl[(Y + r) >> 10];
+          if (deux) { Y = yT[s[r0 + x + 1]]; o32[o0++] = 0xFF000000 | (cl[(Y + b) >> 10] << 16) | (cl[(Y + g) >> 10] << 8) | cl[(Y + r) >> 10]; }
+          if (bas) { Y = yT[s[r1 + x]]; o32[o1++] = 0xFF000000 | (cl[(Y + b) >> 10] << 16) | (cl[(Y + g) >> 10] << 8) | cl[(Y + r) >> 10];
+            if (deux) { Y = yT[s[r1 + x + 1]]; o32[o1++] = 0xFF000000 | (cl[(Y + b) >> 10] << 16) | (cl[(Y + g) >> 10] << 8) | cl[(Y + r) >> 10]; } }
+        }
+      }
+      // sans conversion de couleur ni prémultiplication : les pixels sont déjà en sRGB, opaques
+      const bm = await createImageBitmap(new ImageData(new Uint8ClampedArray(o32.buffer), w, h), { premultiplyAlpha: 'none', colorSpaceConversion: 'none' });
+      if (ici) { if (libres.length < 6) libres.push(buf); postMessage({ i, b: bm, t0, copie }, [bm]); }
+      else postMessage({ i, b: bm, t0, buf }, [bm, buf]);
+    } catch (x) { if (ici) postMessage({ i, err: String((x && x.message) || x), n: x && x.name }); else postMessage({ i, err: String((x && x.message) || x), n: x && x.name, buf }, [buf]); }
+  }
+  occupe = false; }
+const libres = [];
+// matrice : BT.601 sauf si l'image dit bt709 ET pas pleine plage (WebKit écrit bt709 sur des images pleine plage décodées d'un flux BT.601)
+const cle = (fr) => { const c = fr.colorSpace || {}; return (c.fullRange ? '601' : (c.matrix === 'bt709' ? '709' : '601')) + (c.fullRange ? 'pc' : 'tv'); };
+onmessage = async (e) => { const m = e.data;
+  if (!m.f) { file.push(m); suite(); return; }
+  const f = m.f, a = performance.now();   // VideoFrame transférée : la copie se fait ici, pas sur le fil principal
+  try { const fmt = f.format, w = f.visibleRect.width, h = f.visibleRect.height, cs = m.cs || cle(f);   // lu avant close()
+    if (fmt !== 'NV12' && fmt !== 'I420') throw new Error('format ' + fmt + ' non pris');
+    const taille = f.allocationSize(), k = libres.findIndex(x => x.byteLength === taille), buf = k >= 0 ? libres.splice(k, 1)[0] : new ArrayBuffer(taille);
+    const lay = await f.copyTo(new Uint8Array(buf)); f.close();
+    file.push({ i: m.i, buf, lay: lay.map(x => ({ offset: x.offset, stride: x.stride })), fmt, w, h, t0: m.t0, ici: true, copie: performance.now() - a, cs }); suite();
+  } catch (x) { try { f.close(); } catch (y) {} postMessage({ i: m.i, err: String((x && x.message) || x), n: x && x.name }); } };`;
+    function convertisseurs() {
+      if (FX.conv) return FX.conv;
+      const n = Math.max(1, Math.min(3, (navigator.hardwareConcurrency || 4) - 1)), P = FX.conv = { w: [], tampons: [], tour: 0 };
+      for (let k = 0; k < n; k++) {
+        const w = new Worker(URL.createObjectURL(new Blob([CODE_CONV], { type: 'text/javascript' })));
+        w.onmessage = e => { const m = e.data;
+          if (m.buf && P.tampons.length < 8) P.tampons.push(m.buf);
+          if (FX.conv === P && FX.enConv > 0) FX.enConv--;
+          if (m.err) { fluxEnCours[m.i] = 0; erreurFlux(Object.assign(new Error('conversion : ' + m.err), { name: m.n || 'Error' })); return; }
+          chrono('conv', performance.now() - m.t0); if (m.copie != null) chrono('copie', m.copie);
+          if (detruit) { m.b.close(); return; }
+          ranger(m.i, m.b); pompeFlux(); };   // une place se libère dans la file de conversion : lot suivant
+        w.onerror = e => erreurFlux(new Error('conversion : ' + (e.message || 'erreur du worker')));
+        P.w.push(w);
+      }
+      return P;
+    }
+    function arreterConvertisseurs() { FX.enConv = 0; if (!FX.conv) return; FX.conv.w.forEach(w => { try { w.terminate(); } catch (e) {} }); FX.conv = null; }
+    // 28/11, 23 h 55 : par défaut la VideoFrame est TRANSFÉRÉE au worker, qui fait copyTo() lui-même. Banc du vrai Safari à la taille
+    // réelle de la toile de l'ordinateur (2880 x 1876) : copie sur le fil principal 56 images d'écran par s, p95 34 ms (la copie de
+    // 2,2 Mo y prend 5 à 6 ms) ; copie dans le worker 60, p95 18 ms (débit 57 à 62 images converties par s avec 3 workers ; 5 ou
+    // 6 workers n'aident pas, leurs copies se gênent). Téléphone : 60, p95 18 ms, retard médian 44 ms. ?copie=principal : l'ancienne voie.
+    function copier(i, frame) {
+      const t0 = performance.now(), fmt = frame.format; FX.enConv++;   // une image de plus dans la file de conversion (rendue par le worker)
+      if (!o.fluxCopiePrincipale) {
+        const P = convertisseurs();
+        try { P.w[P.tour++ % P.w.length].postMessage({ i, f: frame, t0, cs: o.fluxCouleur || null }, [frame]); } catch (e) { try { frame.close(); } catch (x) {} fluxEnCours[i] = 0; erreurFlux(e); }
+        return;
+      }
+      if (fmt !== 'NV12' && fmt !== 'I420') { frame.close(); fluxEnCours[i] = 0; erreurFlux(new Error('copie : format ' + fmt + ' non pris')); return; }
+      let taille; try { taille = frame.allocationSize(); } catch (e) { frame.close(); fluxEnCours[i] = 0; erreurFlux(e); return; }
+      const c = frame.colorSpace || {}, cs = o.fluxCouleur || ((c.fullRange ? '601' : (c.matrix === 'bt709' ? '709' : '601')) + (c.fullRange ? 'pc' : 'tv'));
+      const P = convertisseurs(), w = frame.visibleRect.width, h = frame.visibleRect.height, k = P.tampons.findIndex(x => x.byteLength === taille);
+      const b = k >= 0 ? new Uint8Array(P.tampons.splice(k, 1)[0]) : new Uint8Array(taille);
+      frame.copyTo(b).then(lay => { frame.close(); chrono('copie', performance.now() - t0);
+          if (detruit || !FX.conv) { fluxEnCours[i] = 0; if (FX.enConv > 0) FX.enConv--; return; }
+          const L = lay.map(x => ({ offset: x.offset, stride: x.stride }));
+          P.w[P.tour++ % P.w.length].postMessage({ i, buf: b.buffer, lay: L, fmt, w, h, t0, cs }, [b.buffer]); },
+        e => { try { frame.close(); } catch (x) {} fluxEnCours[i] = 0; erreurFlux(e); });
+    }
+    // chronos (ms), pour le bilan : temps passé dans la sortie du décodeur (fil principal), conversion en ImageBitmap, flush, lot entier
+    const CH = { sortie: [], conv: [], copie: [], vidange: [], lot: [], groupe: [] };
+    const chrono = (k, v) => { const a = CH[k]; a.push(v); if (a.length > 400) a.shift(); };
+    const resume = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return [+s[s.length >> 1].toFixed(1), +s[Math.floor(s.length * 0.95)].toFixed(1), +s[s.length - 1].toFixed(1)]; };
+    function besoinFlux(i) {   // position de la fenêtre sans image du flux, que le flux peut donner maintenant
+      if (i < 0 || i >= N || i >= FX.recues || dL[i] || fluxEnCours[i]) return false;
+      if (FX.allege && i % 2) return false;   // régime allégé : images paires seulement (la page fond les voisines)
+      return sobre() || (!dP[i] && !enDec.has('p' + i) && !(blobP[i] && etage[i] === 1));   // sobre : le flux sert en mouvement, même là où l'AVIF est décodé
+    }
+    function pompeFlux() {   // un lot à la fois : au plus un groupe de 8 images, d'une image clé (ou de la suite du décodeur) à la fin du groupe reçu
+      if (!FX.actif || !FX.confirme || FX.mort || detruit || FX.lot || !FX.tete) return;
+      // voie 'copie' (29/11, vers 0 h 15) : pas de lot neuf tant qu'un groupe entier attend encore sa conversion. Sans ce frein, la file des
+      // workers s'allongeait à l'ordinateur (images converties 0,5 à 1 s après leur décodage, souvent déjà loin de la caméra), la caméra
+      // attendait et la garde croyait le décodeur lent.
+      if (FX.voie === 'copie' && FX.enConv >= (FX.tete.gop || 8)) return;
+      const p0 = Math.floor(g); let i = -1;
+      for (let d = 0; d <= FEN.av && i < 0; d++) if (besoinFlux(p0 + sens * d)) i = p0 + sens * d;    // devant d'abord
+      for (let d = 1; d <= FEN.ar && i < 0; d++) if (besoinFlux(p0 - sens * d)) i = p0 - sens * d;    // puis derrière
+      if (i < 0) return;
+      if ((!FX.dec || FX.dec.state === 'closed') && !nouveauDecodeur()) return;
+      const G = FX.tete.gop || 8, k0 = i - i % G, kFin = Math.min(k0 + G, N, FX.recues) - 1;
+      const suite = !FX.cleRequise && FX.dernier >= k0 && FX.dernier < i;   // le décodeur est déjà dans ce groupe, juste avant i : il continue
+      const a = suite ? FX.dernier + 1 : k0, lot = FX.lot = { a, b: kFin, reste: kFin - a + 1, restants: kFin - a + 1, vidange: false, minuteur: 0, t0: performance.now() };
+      for (let j = a; j <= kFin; j++) lotDe[j] = lot;
+      FX.lots++; if (suite) FX.reprises++;
+      try {
+        for (let j = a; j <= kFin; j++) {
+          if (!fluxEnCours[j]) fluxEnCours[j] = 1;
+          const data = FX.buf.subarray(FX.off[j], FX.off[j + 1]);
+          if (FX.voie === 'worker') FX.dec.decode(j, j % G === 0, data.slice().buffer);
+          else FX.dec.decode(new EncodedVideoChunk({ type: j % G === 0 ? 'key' : 'delta', timestamp: j * 1000, data }));
+        }
+        if (FX.voie === 'worker') FX.dec.envoyer();
+      } catch (e) { erreurFlux(e); return; }
+      FX.dernier = kFin; FX.cleRequise = false;
+      // fin du groupe : flush si VIDANGE (la suite repart d'une image clé de toute façon) ; sinon le décodeur rend ses images au fil de
+      // l'eau et le lot finit quand elles sont toutes sorties (flush seulement en secours, après 150 ms, et à la toute dernière image)
+      if ((VIDANGE && kFin === k0 + G - 1) || kFin === N - 1) vidanger(lot);
+      lot.minuteur = setTimeout(() => surveiller(lot), 150);
+    }
+    function vidanger(lot) {
+      if (lot.vidange) return; lot.vidange = true; FX.cleRequise = true; FX.vidanges++;
+      const d = FX.dec, t = performance.now(); d.flush().then(() => { chrono('vidange', performance.now() - t); if (FX.lot === lot) finLot(lot); }, e => { if (d === FX.dec && !FX.mort && !detruit) erreurFlux(e); });
+    }
+    function surveiller(lot) {   // sortie en retard (150 ms) : le décodeur garde des images ; flush, puis panne s'il ne rend rien en 3 s de plus
+      if (FX.lot !== lot || FX.mort || detruit) return;
+      if (!lot.vidange) { FX.attentes++; vidanger(lot); }
+      else if (!lot.prolonge) FX.attentes++;
+      else { erreurFlux(new Error('décodeur bloqué (lot ' + lot.a + '-' + lot.b + ' sans fin en 3,15 s)')); return; }
+      lot.prolonge = true; lot.minuteur = setTimeout(() => surveiller(lot), 3000);
+    }
+    function finLot(lot) {
+      clearTimeout(lot.minuteur); if (FX.lot !== lot) return; FX.lot = null; chrono('lot', performance.now() - lot.t0);
+      for (let j = lot.a; j <= lot.b; j++) if (fluxEnCours[j] === 1) { fluxEnCours[j] = 0; solder(j); }   // donnée mais jamais sortie
+      pompeFlux();
+    }
+    const inutile = i => (dP[i] && !sobre()) || dL[i] || Math.abs(i - Math.floor(g)) > FEN.garde;
+    // GARDE « décodeur trop lent » (28/11, 12 h 45) : temps d'un groupe = de son decode() à sa dernière image rangée (ou jetée).
+    // Médiane des trois premiers groupes > 250 ms, ou un groupe > 1 500 ms : passe légère AVIF. ?casser=lent : 400 ms ajoutées à
+    // chaque image avant son rangement (essai de la garde).
+    // 28/11, 23 h 50 : seuils rapportés au nombre d'images du lot (250 et 1 500 ms valaient pour 8 images ; le GOP 16 par défaut
+    // double les groupes, et la garde se déclenchait à tort dans WebKit à l'ordinateur : 690, 377, 317 ms pour 16 images, puis 105 à
+    // 128). 29/11, vers 0 h 15 : seuils relevés à 50 ms par image en médiane (20 images par s) et 250 ms pour un lot (vrai Safari, Mac chargé un
+    // instant par un autre programme : la garde passait sur la passe FLOUE, refusée par Anthony ; une caméra un peu plus lente mais nette
+    // vaut mieux). Avant : médiane des lots 2 à 4 > 31,25 ms par image, ou un lot après le premier > 187,5 ms par image (lot compté pour 8 images
+    // au moins : 250 et 1 500 ms restent les seuils d'un petit lot). Le premier lot est
+    // écarté : il porte la mise en route du décodeur et des workers de conversion (250 à 700 ms, mesuré le 28/11).
+    function solder(i) {
+      const lot = lotDe[i]; if (!lot) return; lotDe[i] = null; if (--lot.restants > 0) return;
+      // n : 8 au moins (vrai Safari, 28/11 vers 23 h 55 : un lot d'UNE image attendait 200 ms derrière la file de conversion, la garde
+      // l'a pris pour 200 ms par image et a basculé à tort sur la passe légère)
+      const d = performance.now() - lot.t0, n = Math.max(8, lot.b - lot.a + 1); FX.groupes.push(Math.round(d)); FX.parImage.push(d / n); chrono('groupe', d);
+      if (FX.mort || detruit) return;
+      // 29/11, vers 0 h 47 : conversion lente -> d'abord le RÉGIME ALLÉGÉ (une image du flux sur deux, toujours en pleine définition ; la page
+      // fond les voisines comme elle le fait pour l'étage léger de B), jamais tout de suite la passe floue. Vrai Safari, ordinateur, Mac
+      // chargé par un enregistrement d'écran : 705 à 972 ms par lot de 16 (52 ms par image), la garde passait sur la passe légère
+      // FLOUE, refusée par Anthony. Passe légère seulement si le régime allégé reste au-dessus de 100 ms par image (médiane de 3 lots).
+      const pi = d / n;
+      if (!FX.allege) {
+        if (FX.parImage.length === 4) { const med = FX.parImage.slice(1).sort((x, y) => x - y)[1]; if (med > 50) { alleger(med); return; } }
+        if (FX.parImage.length > 1 && pi > 250) alleger(pi);
+      } else {
+        FX.apres.push(pi);
+        if (FX.apres.length === 4) { const med = FX.apres.slice(1).sort((x, y) => x - y)[1]; if (med > 100) trop(med * 8, med); }
+      }
+    }
+    function alleger(ms) { FX.allege = true; FX.apres = []; FX.garde = 'allégée'; FX.allegeRaison = 'conversion lente (' + ms.toFixed(1) + ' ms par image) : une image du flux sur deux, en pleine définition'; }
+    function trop(ms, parImage) { FX.garde = 'déclenchée'; const r = 'décodeur trop lent (' + Math.round(ms) + ' ms pour 8 images' + (parImage != null ? ', ' + parImage.toFixed(1) + ' ms par image' : '') + ')'; erreurFlux(new Error(r), r); }
+    function ranger(i, x) {   // image du flux prête (ImageBitmap, ou VideoFrame en voie 'frame') : rangée comme une image légère de B
+      if (o.casserLent && !FX.mort) { setTimeout(() => rangerVrai(i, x), 400); return; }
+      rangerVrai(i, x);
+    }
+    function rangerVrai(i, x) {
+      solder(i);
+      fluxEnCours[i] = 0;
+      if (detruit || inutile(i)) { liberer(x); return; }
+      dL[i] = x; fluxL[i] = 1; FX.decodees++; if (FX.tPremiere === null) FX.tPremiere = performance.now(); neuf(); pompeDecodage();
+    }
+    function compterSortie(i) {   // vrai : la sortie doit être rangée ; faux : panne simulée (?casser=flux)
+      const lot = FX.lot; if (lot && i >= lot.a && i <= lot.b) lot.reste--;
+      FX.sorties++;
+      if (o.casserFlux && FX.sorties >= o.casserFlux) { fluxEnCours[i] = 0; erreurFlux(new Error('échec simulé (?casser=flux) après ' + FX.sorties + ' images')); return false; }
+      return true;
+    }
+    function finSortie(lot) { if (lot && !lot.vidange && lot.reste <= 0 && FX.lot === lot) finLot(lot); }
+    function sortieImage(i, x, d, cout) {   // voie worker : ImageBitmap reçue du worker
+      if (d !== FX.dec || FX.mort || detruit) { liberer(x); return; }
+      const lot = FX.lot; if (cout != null) chrono('conv', cout);
+      if (!compterSortie(i)) { liberer(x); return; }
+      ranger(i, x); finSortie(lot);
+    }
+    function sortieFlux(frame, d) {
+      const i = Math.round(frame.timestamp / 1000), lot = FX.lot, t = performance.now();
+      if (d !== FX.dec || FX.mort || detruit) { frame.close(); return; }
+      if (!compterSortie(i)) { frame.close(); return; }
+      if (inutile(i) || (FX.allege && i % 2)) { frame.close(); fluxEnCours[i] = 0; solder(i); }
+      else if (FX.voie === 'frame') ranger(i, frame);   // la VideoFrame elle-même est dessinée, fermée à sa sortie de la fenêtre
+      else if (FX.voie === 'copie') { fluxEnCours[i] = 2; copier(i, frame); }   // copyTo() puis conversion dans un worker (voir copier())
+      else if (FX.voie === 'relais') {   // la VideoFrame part dans un worker, qui rend une ImageBitmap (voir relais())
+        fluxEnCours[i] = 2;
+        try { relais().postMessage({ i, f: frame, t0: performance.now() }, [frame]); } catch (e) { try { frame.close(); } catch (x) {} fluxEnCours[i] = 0; erreurFlux(e); }
+      }
+      else {
+        fluxEnCours[i] = 2;
+        versBitmap(frame).then(b => { chrono('conv', performance.now() - t); frame.close(); ranger(i, b); }, e => { frame.close(); fluxEnCours[i] = 0; erreurFlux(e); });
+      }
+      chrono('sortie', performance.now() - t);
+      finSortie(lot);
+    }
+    async function versBitmap(frame) {   // VideoFrame -> ImageBitmap (couleurs converties d'après le VUI du flux : BT.601, plage tv)
+      if (FX.voie === 'bitmap') {
+        try { return await createImageBitmap(frame); }
+        catch (e) { FX.voie = 'toile'; FX.voieRaison = 'createImageBitmap(VideoFrame) : ' + texte(e); }
+      }
+      const w = frame.displayWidth, h = frame.displayHeight, hors = typeof OffscreenCanvas === 'function';
+      if (!FX.toile || FX.toile.width !== w || FX.toile.height !== h) {
+        FX.toile = hors ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }); FX.tctx = FX.toile.getContext('2d');
+      }
+      FX.tctx.drawImage(frame, 0, 0, w, h);
+      return hors && FX.toile.transferToImageBitmap ? FX.toile.transferToImageBitmap() : createImageBitmap(FX.toile);
+    }
+    function erreurFlux(e, raison) {
+      if (FX.mort || detruit) return;
+      if (FX.lot) { clearTimeout(FX.lot.minuteur); FX.lot = null; }
+      fluxEnCours.fill(0);
+      // codec repris par le navigateur (onglet en arrière-plan, inactif) : pas une panne, un décodeur neuf au prochain besoin
+      if (e && e.name === 'QuotaExceededError' && FX.recrees < 3 && !o.casserFlux) { FX.recrees++; FX.dec = null; setTimeout(pompeFlux, 50); return; }
+      FX.mort = true; FX.actif = false; FX.erreur = raison || texte(e);
+      try { if (FX.dec && FX.dec.state !== 'closed') FX.dec.close(); } catch (x) {}
+      FX.dec = null; FX.buf = null; if (FX.relais) { try { FX.relais.terminate(); } catch (x) {} FX.relais = null; }
+      arreterConvertisseurs();
+      if (FX.arret) try { FX.arret.abort(); } catch (x) {}
+      premierEtage = 'leger'; raisonRepli = raison || ('flux : ' + FX.erreur);
+      basculerLeger();
+    }
+    function basculerLeger() {   // repli de la piste C : la passe légère AVIF de la piste B (les images du flux déjà rangées restent)
+      if (format === 'repli' || detruit) return;
+      abandonnerEntete(o.leger);
+      if (!o.leger) { finLeger(); return; }
+      lireLeger(o.leger).then(finLeger, () => finLeger());
+    }
+
+    // --- file pleine qualité, triée sur la position de la caméra (et devant elle, selon sa vitesse)
+    function ouvrirFile() { fileOuverte = true; pompeReseau(); }
+    function suivante() {
+      if (repos && sobre()) { const r = cibleRepos(); if (etage[r] && reseau[r] !== 1 && reseau[r] !== 2 && reseau[r] !== 4) return r; }   // PISTE C : l'image exacte de l'arrêt d'abord
+      const c = Math.max(0, Math.min(N - 1, g + vit * 0.35));
+      let meilleur = -1, score = Infinity;
+      for (const niv of [1, 2]) {
+        for (let i = 0; i < N; i++) {
+          if (etage[i] !== niv || reseau[i] === 1 || reseau[i] === 2 || reseau[i] === 4) continue;
+          const d = (i - c) * sens, s = d >= 0 ? d : -d * 2.5;
+          if (s < score) { score = s; meilleur = i; }
+        }
+        if (meilleur >= 0) return meilleur;
+      }
+      return -1;
+    }
+    function pompeReseau() {
+      if (!fileOuverte || detruit) return;
+      const lim = (o.actif && !o.actif()) || (o.retenue && o.retenue()) ? 1 : PAR;   // retenue : la page a plus pressé (image d'arrivée)
+      while (enVol < lim) {
+        const i = suivante(); if (i < 0) return;
+        reseau[i] = 1; enVol++;
+        fetch(urlImage(i, format)).then(r => r.ok ? r.blob() : Promise.reject(new Error(r.status))).then(b => {
+          enVol--; if (detruit) return; reseau[i] = 2; blobP[i] = b; compter(i);
+          pompeDecodage(); pompeReseau(); if (o.change) o.change();
+        }, () => { enVol--; if (detruit) return; reseau[i] = reseau[i] === 3 ? 4 : 3; setTimeout(pompeReseau, 500); });
+      }
+    }
+
+    // --- décodage d'avance dans la fenêtre de la caméra
+    function decoder(i, plein) {
+      const cle = (plein ? 'p' : 'l') + i; enDec.add(cle);
+      decoderBlob(plein ? blobP[i] : blobL[i], voie).then(x => {
+        enDec.delete(cle);
+        if (detruit || Math.abs(i - Math.floor(g)) > FEN.garde) { liberer(x); if (!detruit) pompeDecodage(); return; }
+        if (plein) { if (dP[i]) liberer(x); else { dP[i] = x; tP[i] = performance.now(); } }
+        else { if (dL[i] || dP[i]) liberer(x); else { dL[i] = x; fluxL[i] = 0; } }
+        neuf(); pompeDecodage();
+      }, () => { enDec.delete(cle); if (!detruit) pompeDecodage(); });
+    }
+    function pompeDecodage() {
+      if (detruit) return;
+      const p0 = Math.floor(g), maint = performance.now();
+      for (let i = 0; i < N; i++) {
+        if ((dP[i] || dL[i]) && Math.abs(i - p0) > FEN.garde) { if (dP[i] && dP[i] !== premierImg) { liberer(dP[i]); dP[i] = undefined; } liberer(dL[i]); dL[i] = undefined; fluxL[i] = 0; }
+        else if (dP[i] && dL[i] && maint - tP[i] > 400 && !sobre()) { liberer(dL[i]); dL[i] = undefined; fluxL[i] = 0; }   // la pleine qualité a fini d'apparaître
+      }
+      if (sobre()) {   // PISTE C : aucun décodage AVIF en mouvement ; à l'arrêt, l'image exacte seule
+        const r = cibleRepos();
+        if (repos && !dP[r] && blobP[r] && !enDec.has('p' + r) && enDec.size < DEC) { decodesRepos++; decoder(r, true); }
+        pompeFlux(); return;
+      }
+      const ordre = [];
+      for (let d = 0; d <= FEN.av; d++) { ordre.push(p0 + sens * d); if (d && d <= FEN.ar) ordre.push(p0 - sens * d); }
+      remplir: for (const passe of [1, 2]) for (const i of ordre) {
+        if (enDec.size >= DEC) break remplir;
+        if (i < 0 || i >= N || enDec.has('p' + i) || enDec.has('l' + i)) continue;
+        if (passe === 1) {   // couverture : une image dessinable à chaque position utile (pleine si elle est là, sinon légère ; le flux à part)
+          if (dP[i] || dL[i]) continue;
+          if (blobP[i] && etage[i] === 1) decoder(i, true); else if (blobL[i]) decoder(i, false);
+        } else if (!dP[i] && blobP[i]) decoder(i, true);   // montée en qualité, puis complément
+      }
+      pompeFlux();   // PISTE C : les positions sans image, le flux les donne (sa propre file, par groupes de 8)
+    }
+
+    // --- interface
+    const dessinable = i => i >= 0 && i < N && !!(dP[i] || dL[i]);
+    function couverture(x) {   // intervalle [L, R] que la caméra peut parcourir sans trou (deux images dessinables à 2 au plus)
+      const a0 = Math.floor(x); let a = -1, b = -1;
+      for (let d = 0; d <= 2; d++) { if (a < 0 && dessinable(a0 - d) && x - (a0 - d) <= 2) a = a0 - d; }
+      for (let d = 0; d <= 2; d++) { const j = Math.ceil(x) + d; if (b < 0 && dessinable(j) && j - x <= 2) b = j; }
+      if (a < 0 || b < 0 || b - a > 2) { if (a >= 0 && Math.abs(x - a) < 1e-6) b = a; else if (b >= 0 && Math.abs(x - b) < 1e-6) a = b; else return null; }
+      let R = b; for (let n = 0; n < 120; n++) { const s = dessinable(R + 1) ? R + 1 : dessinable(R + 2) ? R + 2 : -1; if (s < 0) break; R = s; }
+      let L = a; for (let n = 0; n < 120; n++) { const s = dessinable(L - 1) ? L - 1 : dessinable(L - 2) ? L - 2 : -1; if (s < 0) break; L = s; }
+      return [L, R];
+    }
+    // PISTE C : q 'flux' et géométrie propre (geo) pour une image du flux ; geo null = géométrie de la série (la page la connaît)
+    const qL = i => fluxL[i] ? 'flux' : 'leger', geoL = i => fluxL[i] ? FX.geo : null;
+    function info(i) {
+      if (dL[i] && fluxL[i] && !repos && sobre()) return { i, src: dL[i], q: 'flux', geo: FX.geo, fondu: 1, sous: null, sousQ: null, sousGeo: null };   // en mouvement : le flux seul
+      if (dP[i]) { const f = Math.min(1, (performance.now() - tFondu(i)) / 260), s = dL[i] && f < 1;
+        return { i, src: dP[i], q: 'plein', geo: null, fondu: s ? f : 1, sous: s ? dL[i] : null, sousQ: s ? qL(i) : null, sousGeo: s ? geoL(i) : null }; }
+      if (dL[i]) return { i, src: dL[i], q: qL(i), geo: geoL(i), fondu: 1, sous: null, sousQ: null, sousGeo: null };
+      return null;
+    }
+    function choisir(x) {   // images à dessiner à la position x : a seule, ou fondu de a vers b (voisines dessinables, écart 2 au plus)
+      const a0 = Math.floor(x + 1e-6);
+      let a = -1, b = -1;
+      for (let d = 0; d <= 2 && a < 0; d++) if (dessinable(a0 - d)) a = a0 - d;
+      for (let d = 1; d <= 2 && b < 0; d++) if (dessinable(a0 + d)) b = a0 + d;
+      if (a >= 0 && Math.abs(x - a) < 0.02) return { a: info(a), b: null, w: 0, j: a };
+      if (a >= 0 && b >= 0 && b - a <= 2) { const w = (x - a) / (b - a); return { a: info(a), b: info(b), w, j: a + w * (b - a) }; }
+      if (a >= 0) return { a: info(a), b: null, w: 0, j: a };
+      if (b >= 0) return { a: info(b), b: null, w: 0, j: b };
+      return null;
+    }
+    function plusProcheNette(x) {   // à l'arrêt : l'image entière la plus proche, pleine qualité de préférence
+      const r = Math.round(x);
+      if (sobre() && dessinable(r)) return r;   // PISTE C : l'image EXACTE (le flux la donne) ; sa pleine qualité se charge et se fond par-dessus
+      for (let d = 0; d <= 2; d++) { if (dP[r - d] && Math.abs(r - d - x) <= 1.5) return r - d; if (dP[r + d] && Math.abs(r + d - x) <= 1.5) return r + d; }
+      for (let d = 0; d <= 2; d++) { if (dessinable(r - d)) return r - d; if (dessinable(r + d)) return r + d; }
+      return r;
+    }
+    function position(x, v, rep) {
+      const p = Math.floor(g), r0 = cibleRepos(); g = Math.max(0, Math.min(N - 1, x)); vit = v || 0;
+      if (vit > 1) sens = 1; else if (vit < -1) sens = -1;
+      const r = rep === undefined ? Math.abs(vit) < 0.5 : !!rep;   // PISTE C : arrêt dit par la page, sinon déduit de la vitesse de la caméra
+      if (r !== repos) { repos = r; tRepos = performance.now(); neuf(); pompeDecodage(); if (repos) pompeReseau(); }
+      else if (Math.floor(g) !== p) { pompeDecodage(); }
+      else if (repos && cibleRepos() !== r0) { pompeDecodage(); pompeReseau(); }
+    }
+    function etat() {
+      let fadeEnCours = false; const m = performance.now();
+      for (let i = Math.max(0, Math.floor(g) - 3); i <= Math.min(N - 1, Math.floor(g) + 3); i++) if (dP[i] && dL[i] && m - tFondu(i) < 260 && (repos || !sobre())) fadeEnCours = true;
+      const ms = t => t === null ? null : Math.round(t - FX.t0);
+      return { chargees, total: totalPlein, pret: chargees === totalPlein, leger: { recues: legerRecues, total: legerTotal, fini: legerFini },
+        complement: { chargees: complementCharge, total: totalComp }, format, voie, version, fadeEnCours, enVol, decodages: enDec.size,
+        premier: premierEtage, raison: raisonRepli, plein: sobre() ? 'arret' : 'mouvement', repos, decodesRepos,
+        flux: o.flux ? { recues: FX.recues, total: FX.total, confirme: FX.confirme, fini: FX.fini, decodees: FX.decodees, sorties: FX.sorties, lots: FX.lots,
+          reprises: FX.reprises, vidanges: FX.vidanges, attentes: FX.attentes, recrees: FX.recrees, voie: FX.voie, voieRaison: FX.voieRaison, codec: FX.tete ? FX.tete.codec : o.flux.codec,
+          erreur: FX.erreur, tete_ms: ms(FX.tTete), premiere_ms: ms(FX.tPremiere), fin_ms: ms(FX.tFin), vidange: VIDANGE, latence: LATENCE,
+          chrono: { sortie: resume(CH.sortie), conv: resume(CH.conv), copie: resume(CH.copie), vidange: resume(CH.vidange), lot: resume(CH.lot), groupe: resume(CH.groupe) },
+          groupes: FX.groupes.slice(0, 8), garde: FX.garde, allege: !!FX.allege, allegeRaison: FX.allegeRaison || null } : null };
+    }
+    async function demarrer() {
+      premiere();
+      // PISTE C : flux lancé TOUT DE SUITE (préchargé dans l'en-tête), la configuration est vérifiée pendant ce temps
+      // 28/11, 12 h 45 (conversation principale) : flux réservé à Chromium (seul moteur mesuré fluide) ; ailleurs (WebKit, Firefox, autres),
+      // passe légère AVIF, sauf ?flux=1. Même règle dans l'en-tête de la page.
+      // 28/11, 23 h 40 : flux ouvert à WebKit (voie 'copie') ; Firefox et les autres restent sur la passe légère (jamais essayés).
+      const permis = !!o.fluxForce || CHROMIUM || WEBKIT;
+      const fluxPossible = !!o.flux && !o.forcerRepli && permis && typeof VideoDecoder === 'function' && typeof EncodedVideoChunk === 'function';
+      if (o.flux && !fluxPossible) { premierEtage = 'leger'; raisonRepli = o.forcerRepli ? 'repli forcé (?avif=0)' : !permis ? 'navigateur hors Chromium et WebKit : passe légère AVIF (flux jamais essayé ici ; ?flux=1 le force)' : 'pas de VideoDecoder'; }
+      let lectureFlux = null, configOk = null;
+      if (fluxPossible) {
+        FX.arret = typeof AbortController === 'function' ? new AbortController() : null; FX.actif = true;
+        lectureFlux = lireFlux(o.flux.url, FX.arret && FX.arret.signal); lectureFlux.catch(() => {});
+        configOk = VideoDecoder.isConfigSupported(Object.assign({ codec: o.flux.codec, codedWidth: o.flux.largeur, codedHeight: o.flux.hauteur, optimizeForLatency: true }, o.flux.couleur ? { colorSpace: o.flux.couleur } : {}))
+          .then(r => !!(r && r.supported), () => false);
+      }
+      // passe légère lancée TOUT DE SUITE (97 % des navigateurs lisent l'AVIF), sans attendre l'essai de décodage ; annulée sinon
+      let arret = null, lecture = null;
+      if (!fluxPossible && o.leger && !o.forcerRepli) { arret = typeof AbortController === 'function' ? new AbortController() : null; lecture = lireLeger(o.leger, arret && arret.signal); lecture.catch(() => {}); }
+      abandonnerEntete(fluxPossible ? o.flux.url : lecture ? o.leger : null);
+      const ok = o.forcerRepli ? false : o.repli ? await avifOk() : true;
+      if (detruit) return;
+      if (!ok) {   // pas d'AVIF : série de repli, sans premier étage
+        if (arret) arret.abort();
+        if (fluxPossible) { FX.mort = true; FX.actif = false; if (FX.arret) FX.arret.abort(); }
+        premierEtage = 'aucun'; raisonRepli = o.forcerRepli ? 'repli forcé (?avif=0) : série WebP' : 'pas d’AVIF : série WebP';
+        format = 'repli'; urlImage = (i) => o.repli.url(i); legerFini = true; legerTotal = 0;
+        if (premierImg === null && o.repli.premier) { o.premier = o.repli.premier; premiere(); }
+        if (o.apresLeger) o.apresLeger(); ouvrirFile(); return;
+      }
+      if (fluxPossible) {
+        const sup = await configOk; if (detruit) return;
+        if (!sup) {
+          FX.mort = true; FX.actif = false; if (FX.arret) FX.arret.abort(); FX.buf = null;
+          premierEtage = 'leger'; raisonRepli = 'configuration refusée (isConfigSupported ' + o.flux.codec + ')'; basculerLeger(); return;
+        }
+        // décodeur créé dès la configuration acceptée : sa mise en route (0,5 s environ dans Chromium, mesuré le 28/11) se fait pendant
+        // que l'en-tête et les premières images arrivent
+        FX.confirme = true; if (!FX.dec) nouveauDecodeur(); pompeFlux();
+        lectureFlux.then(() => { if (FX.mort) return; FX.fini = true; finLeger(); }, e => { if (!FX.mort) erreurFlux(e); });
+        return;
+      }
+      if (lecture) lecture.then(finLeger, () => finLeger());
+      else ouvrirFile();
+    }
+    function detruire() {
+      detruit = true;
+      if (FX.lot) clearTimeout(FX.lot.minuteur);
+      try { if (FX.dec && FX.dec.state !== 'closed') FX.dec.close(); } catch (e) {}
+      if (FX.arret) try { FX.arret.abort(); } catch (e) {}
+      FX.dec = null; FX.buf = null; if (FX.relais) { try { FX.relais.terminate(); } catch (e) {} FX.relais = null; }
+      arreterConvertisseurs();
+      for (let i = 0; i < N; i++) { liberer(dP[i]); liberer(dL[i]); dP[i] = dL[i] = blobP[i] = blobL[i] = undefined; }
+    }
+    return { demarrer, relancer: pompeReseau, position, choisir, couverture, plusProcheNette, etat, detruire, dessinable, get version() { return version; }, get voie() { return voie; } };
+  }
+  ChargeurSequence.avifOk = avifOk;
+  window.ChargeurSequence = ChargeurSequence;
+})();
 </script>
 <script>
 /* 23/11 (Anthony, iPhone : « en revenant en arrière après avoir zoomé ») : pendant un zoom à deux doigts, innerWidth et innerHeight
@@ -1408,43 +2196,21 @@ let vpLarg = innerWidth, vpHaut = innerHeight;
 function vpMaj() { const vv = window.visualViewport; if (!vv || vv.scale < 1.02) { vpLarg = innerWidth; vpHaut = innerHeight; } }
 function vpL() { vpMaj(); return vpLarg; }
 function vpH() { vpMaj(); return vpHaut; }
-/* 23/11 (Anthony, téléphone : « on perd un peu de branding », puis 12 h 30 : « il faut un entre deux (...) pour l'alignement à droite
-   utilise le screenshot (...) pour la partie de gauche élargis un peu ») : au départ, le téléphone montre 478 px de l'image au lieu
-   des 416 que permet le plein écran ; 12 h 45, Anthony : « le logo AAA Studio presque collé sur la droite » : bord droit à x 1185 (fin de l enseigne : 1167). L'image est alors un
-   peu moins haute que l'écran : calée en haut, la bande du bas reçoit son reflet, fondu dans le sombre. Retour au cadrage normal
-   (plein écran, centré) entre les images 40 et 170, bien avant l'arrivée. Un écran plus large que 478 px d'image : pas de bande. */
-/* 23/11, 14 h 55 : bord droit de l'arrivée au téléphone, en px de l'approche (1 600 de large). 15 h 20 (Anthony : « trop d'espace
-   entre le mug et la bordure droite (...) on peut couper l'écran un peu sur la droite, et il faudrait qu'on ait un peu d'espace à
-   gauche à l'extérieur de l'écran ») : x 1893 de l'image d'arrivée, 22 px après la poignée de la tasse (1871) ; à 428 x 847, bord
-   gauche à x 1121, du mur avant le grand écran (bord gauche 1158).
-   17 h 30 (Anthony : « Fais ce que je te dis ») : le mur à gauche vaut pour TOUS les téléphones. Un écran plus haut que 428 x 847
-   (390 x 844, 428 x 926 en plein écran) recule un peu à l'arrivée pour montrer au moins x 663 à 1118 de l'approche (1121 à 1893 de
-   l'arrivée) : l'image est alors moins haute que l'écran, calée en haut, bande sombre dessous, fondu court qui ne touche pas la chaise.
-   (Tasse 1760-1871 ; dossier de la chaise 1280-1874, « AAA Studio » 1570-1810 x 1405-1465 ; ordinateur portable 1272-1592.) */
+/* 23/11 : cadrage du téléphone (départ élargi, enseigne au bord droit, arrivée calée sur le mur à gauche) : inchangé, voir la page
+   en ligne pour l'historique des réglages d'Anthony (12 h 30, 12 h 45, 13 h, 14 h 55, 15 h 20, 17 h 30). */
 const ARRIVEE_TEL_DROITE = 1118, ARRIVEE_TEL_GAUCHE = 663;
 function cadrageTel(f) {
   const s0 = Math.max(c.width / S.largeur, c.height / S.hauteur), Vc = c.width / s0, V0 = Math.max(Vc, 478);
-  // 12 h 45 (Anthony) : enseigne presque collée au bord droit. 23/11, 13 h : le bord droit SUIT l'enseigne, qui glisse vers la droite
-  // pendant l'avancée (fin des lettres mesurée image par image : x 1167 à l'image 1, 1217 à la 53, 1337 à la 130) : bord = fin + 18 px.
-  // Image 1 : bord à x 1185, comme avant. Elle reste entière jusqu'à l'image 62 environ, puis sort pendant le retour vers le bureau.
-  // 23/11, 14 h 55 (Anthony) : à l'arrivée on doit voir la tasse et le dossier de la chaise avec « AAA Studio » en entier, l'ordinateur
-  // plus à gauche : l'avancée reste centrée (x 800) tant que la cloison en bois passe à droite, puis le cadre glisse vers un bord
-  // droit à x ARRIVEE_TEL_DROITE entre les images 320 et 352 (défilement 0,50 à 0,61), derrière la cloison qui sort (voir calerFin).
   const R = Math.min(S.largeur, 1185 + 0.688683 * f + 0.00478341 * f * f);
   const u0 = Math.min(1, Math.max(0, (f - 40) / 130)), u = u0 * u0 * (3 - 2 * u0);
   const w0 = Math.min(1, Math.max(0, (f - 320) / 32)), w = w0 * w0 * (3 - 2 * w0);
-  const Va = Math.max(Vc, ARRIVEE_TEL_DROITE - ARRIVEE_TEL_GAUCHE);   // 17 h 30 : largeur montrée à l'arrivée (mur à gauche partout)
+  const Va = Math.max(Vc, ARRIVEE_TEL_DROITE - ARRIVEE_TEL_GAUCHE);
   const V = V0 + (Vc - V0) * u + (Va - Vc) * w, s = c.width / V, C = (1 - w) * S.largeur / 2 + w * (ARRIVEE_TEL_DROITE - V / 2);
   const cx = (1 - u) * (R - V / 2) + u * C;
   return { s, x: c.width / 2 - cx * s, y: Math.min(0, (c.height - S.hauteur * s) / 2), w };
 }
-function refletTel(k) {   // bande sous l'image (téléphone, départ) : le bas de l'image se fond dans le sombre, bande sombre dessous
-  // 23/11, 14 h 35 (Anthony, captures iPhone) : le reflet en miroir du parquet « c'est absolument pas bon » (tapis et montant
-  // repliés en V). Plus de miroir : rien n'est inventé sous l'image. Le fondu commence au-dessus de la jonction et atteint le
-  // sombre plein SUR la jonction (pixel entier) : ni ligne, ni pli.
-  bandeTel(Math.floor(k.y + S.hauteur * k.s), k.w || 0);
-}
-function bandeTel(y0, w) {   // 17 h 30 : fondu de 1,1 bande au départ, 0,3 bande à l'arrivée (« AAA Studio » de la chaise intact)
+function refletTel(k) { bandeTel(Math.floor(k.y + S.hauteur * k.s), k.w || 0); }
+function bandeTel(y0, w) {   // couleurs-hors-charte : brun sombre de la page en ligne, repris tel quel (fond sous l'image du studio). 17 h 30 : fondu de 1,1 bande au départ, 0,3 bande à l'arrivée (« AAA Studio » de la chaise intact)
   const b = c.height - y0;
   if (b < 1) return;
   const yh = Math.max(0, y0 - (1.1 - 0.8 * w) * b);
@@ -1456,98 +2222,119 @@ function bandeTel(y0, w) {   // 17 h 30 : fondu de 1,1 bande au départ, 0,3 ban
 // Réglages de mise en scène (le reste vient de sequence.js, écrit par outils/composer.py).
 const REGLAGES = {
   finApproche: 0.6938,      // 27 : réglages de la 26 ramenés à la même distance de défilement (hauteur +100vh pour le coussin)
-  coussin: [0.80, 0.96],    // 27 : après le titre, l'image glisse vers le haut pour montrer le bas (dossier de la chaise entier)      // part du défilement consacrée à l'avancée de la caméra
-  fondu: 0.01186,            // fondu court, sur les dernières images seulement (caméra presque arrêtée) : pas de dédoublement
-  titre: [0.7174, 0.7884],    // apparition du titre
-  titreClair: true,       // texte blanc (fond sombre) ou marine (fond clair)
-  inertie: 130,           // amorti du défilement, en millisecondes : l'image rejoint la molette en douceur
+  coussin: [0.80, 0.96],    // 27 : après le titre, l'image glisse vers le haut pour montrer le bas (dossier de la chaise entier)
+  fondu: 0.01186,           // fondu court, sur les dernières images seulement (caméra presque arrêtée) : pas de dédoublement
+  titre: [0.7174, 0.7884],  // apparition du titre
+  titreClair: true,         // texte blanc (fond sombre) ou marine (fond clair)
+  inertie: 130,             // amorti du défilement, en millisecondes : l'image rejoint la molette en douceur
+  // PISTE B (27/11) : la caméra ne saute jamais. Quand l'image demandée n'est pas encore là, elle attend au bord de ce qui est
+  // chargé, puis rattrape en mouvement continu : amorti RATTRAPAGE (ms), au plus VITESSE_MAX images de la séquence par seconde.
+  rattrapage: 120, vitesseMax: 200,
 };
-const S = window.SEQUENCE;
+const S = window.SEQUENCE, B = window.SEQUENCE_B, FC = window.SEQUENCE_C;   // PISTE C : FC = flux H.264 (table-C.js)
 const c = document.getElementById('c'), ctx = c.getContext('2d');
 const sec = document.getElementById('approche');
 const pour = document.getElementById('pour');
 const titre = document.getElementById('titre'), indice = document.getElementById('indice'), barre = document.getElementById('chargement');
 titre.classList.toggle('clair', REGLAGES.titreClair);
 
-// --- images d'approche. 23/11, 21 h 30 (mesure en 4G simulée : les 376 images demandées d'un coup, 30 Mo, la première arrivait
-// à 28 s, écran gris jusque-là) : la première image SEULE et d'abord, puis 6 à la fois, en passes de plus en plus fines
-// (une sur 16 sur tout le trajet, puis une sur 8, 4, 2, puis le reste) : l'animation marche vite, de plus en plus fluide.
-// 25/11 (Anthony, iPhone, soirée du 24/11 : « ça saccade énormément », « ça bug à fond ») : mesuré (Chromium, téléphone simulé,
-// processeur bridé x4, images toutes chargées) : 14 images/s pendant l'avancée ; 8,7 s sur 11,8 s de travail passées à DÉCODER
-// les images (1 600 x 900) au moment de les dessiner. Deux correctifs (outils/fluidite-tel_2026-11-25/) :
-// (1) téléphone : série recadrée S.tel, seule la bande que le téléphone montre (672 px de large, x0 par image) : 2,4 fois moins
-//     de pixels à décoder, 19 Mo au lieu de 29,5 ; écran hors de la bande (rotation, fenêtre élargie) : série complète ;
-// (2) partout : les images autour de la position sont décodées À L'AVANCE (decode(), puis ImageBitmap gardée) ; le dessin ne
-//     prend qu'une image déjà décodée, la plus proche, au lieu de décoder sur place.
-let modeTel = false, serie = 0;
+/* --- PISTE C (2026-11-28) : la piste B, avec un seul changement : le premier étage est un flux H.264 des 376 images en PLEINE
+   définition, décodé par WebCodecs (VideoDecoder) en ImageBitmap, rangées comme les images légères de B. Sans VideoDecoder, configuration
+   refusée ou erreur du décodeur : passe légère AVIF de B. Voir essai-ouverture-C_2026-11-28/chargeur-sequence-C.js. Page FABRIQUÉE par
+   outils/premiere-visite_2026-11-27/piste-C/assembler-C.py à partir de la page B : ne pas la retoucher à la main.
+   --- PISTE B (2026-11-27, première visite) : chargement en deux étages, voir essai-ouverture-B_2026-11-27/chargeur-sequence.js.
+   Mesuré le 27/11 en 4G simulée (4 Mbit/s, 70 ms), cache vide : la page en ligne n'avait AUCUNE image du studio à 2 s, 11 à 20 sur
+   376 pendant l'avancée, l'image changeait 1,5 à 2 fois par seconde avec des sauts jusqu'à 96 images ; au téléphone, la série lourde
+   (29,5 Mo) prenait la place de la série recadrée dès qu'on défilait trop tôt (le test de la bande portait sur une image chargée
+   loin de la position). Ici : (1) passe légère de tout le trajet en un fichier lu en flux, juste après l'image 1 (préchargée dans
+   l'en-tête) ; (2) AVIF pleine qualité par une file triée sur la caméra ; (3) la caméra attend au bord de ce qui est chargé et
+   rattrape sans sauter ; l'arrivée et le titre attendent la caméra ; (4) image d'arrivée après la passe légère, vidéo d'écran
+   quand la caméra approche de l'arrivée (ou quand tout est chargé) ; (5) le test de la bande du téléphone porte sur l'image affichée,
+   au cadrage de cette image. Repli : navigateur sans AVIF = série WebP actuelle, dans le même ordre de chargement. */
+const PARAM = new URLSearchParams(location.search);
+let modeTel = false, ch = null, chAncien = null;
 function serieTel() { const T = S.tel; if (!T || vpL() > 760) return false; const vc = Math.min(S.largeur, S.hauteur * vpL() / vpH()); return vc >= T.vc[0] && vc <= T.vc[1]; }
-let images = new Array(S.nombre), bm = new Array(S.nombre), chargees = 0;
-const ORDRE = [0]; { const vu = new Set([0]); for (const pas of [16, 8, 4, 2, 1]) for (let i = 0; i < S.nombre; i += pas) if (!vu.has(i)) { vu.add(i); ORDRE.push(i); } }
-let prochaine = 1, premiereFaite = false; const apresListe = [];
-function apresPremiere(f) { if (premiereFaite) f(); else apresListe.push(f); }
-function chargerImage(i, suite) {
-  const sr = serie, im = new Image(); im.decoding = 'async'; if (i === 0) { try { im.fetchPriority = 'high'; } catch (e) {} }
-  const fini = (ok) => { if (sr !== serie) return; if (ok) { images[i] = im; chargees++; barre.style.width = (100 * chargees / S.nombre) + '%'; if (chargees === S.nombre) barre.style.opacity = 0; pompe(); } suite(); };
-  im.onload = () => fini(true); im.onerror = () => fini(false);
-  im.src = `${modeTel ? S.tel.dossier : S.dossier}/${String(i + 1).padStart(4, '0')}.${S.ext}`;
+let legerFait = false; const apresLegerListe = [];
+function apresLeger(f) { if (legerFait) f(); else apresLegerListe.push(f); }
+function creerChargeur(tel) {
+  const dos = B.dossier + '/approche-' + (tel ? 'tel' : 'complete'), ancienne = tel ? S.tel.dossier : S.dossier, nom = i => String(i + 1).padStart(4, '0');
+  const x = ChargeurSequence({
+    nombre: S.nombre, plein: B.plein, complement: PARAM.get('complement') === '0' ? [] : B.complement, serie: tel ? 'tel' : 'complete',
+    url: i => `${dos}/${nom(i)}.avif`, premier: `${dos}/0001.avif`,
+    leger: PARAM.get('leger') === '0' ? null : B.leger[tel ? 'tel' : 'complete'],
+    // PISTE C : premier étage « flux » (H.264 pleine définition, WebCodecs) ; ?flux=0 : passe légère AVIF de B ; ?casser=flux : le décodeur
+    // « tombe en panne » après 24 images (essai du repli) ; ?fluxcopie=1 : copie par une toile au lieu de createImageBitmap(VideoFrame)
+    // GOP 16 par défaut (28/11, 12 h 45 : une image clé toutes les 16 images, 1,52 et 2,02 Mo) ; ?gop=8 : les fichiers d'une image clé sur 8
+    // 29/11, 1 h 13 : flux GOP 16 plus beau PAR DÉFAUT (ipratio 1.2, CRF 27 / 29,5 : 2,02 et 2,54 Mo au lieu de 1,52 et 2,02 ; environ 1 dB
+    // de mieux en mouvement ; vrai Safari, 4G lente, 3 passages : même fluidité, caméra 4 images (tel) et 12 images (ordi) plus en retard
+    // en médiane). ?q=normal : l'ancien flux GOP 16 ; ?gop=8 : les fichiers d'une image clé sur 8
+    flux: PARAM.get('flux') === '0' ? null : FC[PARAM.get('gop') === '8' ? 'flux' : PARAM.get('q') === 'normal' ? 'flux_g16' : 'flux_g16h'][tel ? 'tel' : 'complete'],
+    fluxRaison: PARAM.get('flux') === '0' ? 'flux coupé (?flux=0)' : null,
+    fluxForce: PARAM.get('flux') === '1',   // flux dans Chromium et WebKit (28/11, 23 h 40) ; ?flux=1 le force ailleurs (Firefox)
+    casserFlux: PARAM.get('casser') === 'flux' ? 24 : 0, fluxCopie: PARAM.get('fluxcopie') === '1',
+    fluxCopiePrincipale: PARAM.get('copie') === 'principal',   // voie 'copie' (WebKit, 28/11 au soir) : copyTo() sur le fil principal au lieu du worker
+    fluxCouleur: PARAM.get('yuv') || null,   // voie 'copie' : matrice et plage forcées (601tv | 601pc | 709tv | 709pc) ; sans : lues sur chaque image
+    casserLent: PARAM.get('casser') === 'lent',   // essai de la garde « décodeur trop lent » : 400 ms ajoutées à chaque image du flux
+    // PISTE C (conversation principale, 28/11) : avec le flux, les AVIF pleine qualité ne se décodent qu'à l'arrêt ; ?plein=mouvement : comme B (décodés en mouvement)
+    pleinMouvement: PARAM.get('plein') === 'mouvement',
+    // PISTE C : voie de décodage du flux (bitmap | toile | frame | worker), flush par groupe (vidange=1|0), optimizeForLatency (latence=1|0) ;
+    // sans paramètre : réglage par moteur écrit dans le chargeur (REGLAGE_FLUX)
+    fluxVoie: PARAM.get('fluxvoie') || null, fluxVidange: PARAM.has('vidange') ? PARAM.get('vidange') === '1' : null, fluxLatence: PARAM.has('latence') ? PARAM.get('latence') === '1' : null,
+    repli: { url: i => `${ancienne}/${nom(i)}.${S.ext}`, premier: `${ancienne}/0001.${S.ext}` }, forcerRepli: PARAM.get('avif') === '0',
+    parallele: +(PARAM.get('par') || 3), decodages: +(PARAM.get('dec') || 4), voie: PARAM.get('voie') || 'auto',
+    fenetre: tel ? { av: 40, ar: 12, garde: 52 } : { av: 28, ar: 8, garde: 36 },
+    actif: () => sec.getBoundingClientRect().bottom > -innerHeight,
+    retenue: () => legerFait && !finPrete,   // l'image d'arrivée HD passe avant la file pleine qualité (mesuré : sinon prête à 7,3 s, la caméra arrive à 7 s)
+    apresLeger: () => { if (!legerFait) { legerFait = true; apresLegerListe.splice(0).forEach(f => f()); } },
+  });
+  x.tel = tel; return x;
 }
-function filImages() { if (prochaine < ORDRE.length) chargerImage(ORDRE[prochaine++], filImages); }
-function demarrer() { modeTel = serieTel(); chargerImage(0, () => { if (!premiereFaite) { premiereFaite = true; apresListe.splice(0).forEach(f => f()); } for (let k = 0; k < 6; k++) filImages(); }); }
-function versComplete() {   // 25/11 : l'écran sort de la bande recadrée : série complète, rechargée dans le même ordre
-  if (!modeTel) return; modeTel = false; serie++; bm.forEach(b => b && b.close && b.close());
-  images = new Array(S.nombre); bm = new Array(S.nombre); chargees = 0; prochaine = 1; enCours.clear(); clePrec = '';
-  chargerImage(0, () => { for (let k = 0; k < 6; k++) filImages(); });
+function demarrer() { modeTel = serieTel(); ch = creerChargeur(modeTel); ch.demarrer(); }
+function versComplete() {   // l'écran sort VRAIMENT de la bande recadrée (rotation, fenêtre élargie) : série complète
+  if (!modeTel) return; modeTel = false; if (chAncien) chAncien.detruire(); chAncien = ch; ch = creerChargeur(false); ch.demarrer();
 }
-const proche = (i) => { for (let d = 0; d < S.nombre; d++) { if (images[i - d]) return images[i - d]; if (images[i + d]) return images[i + d]; } return null; };
-// 25/11 : décodage d'avance, AVANT images devant (sens du défilement), ARRIERE derrière, PARALLELE à la fois ; au-delà de GARDE
-// images de la position, l'ImageBitmap est libérée (mémoire du téléphone : 65 au plus, 157 Mo en série recadrée).
-const PARALLELE = 6, enCours = new Set(), BITMAP = typeof createImageBitmap === 'function', WEBKIT = navigator.vendor === 'Apple Computer, Inc.';
-const bitmapsActifs = () => BITMAP && (modeTel || !WEBKIT);   // 25/11, 10 h 15 : WebKit + série complète (iPad, Safari du Mac) = méthode d'avant (mesuré)
-let chauffe = -1;   // méthode d'avant : decode() sur les images autour de la position, l'image elle-même est dessinée
-function chauffer(i) { if (i === chauffe) return; chauffe = i; for (let d = -8; d <= 30; d++) { const im = images[i + d]; if (im && im.decode) im.decode().catch(() => {}); } }
-const fenetreD = () => modeTel ? { av: 24, ar: 8, garde: 32 } : { av: 14, ar: 5, garde: 20 };   // 25/11, 10 h 10 : série complète (iPad, ordinateur), images 2,4 fois plus lourdes : 41 au plus, 236 Mo
-let posD = 0, sensD = 1, attente = false;
-function decoder(i) {
-  const im = images[i], sr = serie; enCours.add(i);
-  const fin_ = (b) => { enCours.delete(i); if (sr !== serie) { if (b && b.close) b.close(); return; }
-    if (b) { if (bm[i] || Math.abs(i - posD) > fenetreD().garde) { if (b.close) b.close(); } else { bm[i] = b; if (attente) { attente = false; clePrec = ''; } } }
-    pompe(); };
-  // WebKit (Safari, tous les navigateurs de l'iPhone) : decode() décode en arrière-plan, puis l'ImageBitmap copie l'image décodée ;
-  // Chromium et Firefox : createImageBitmap(img) y décode sur le fil principal (mesuré), on part du fichier (décodage en arrière-plan).
-  (WEBKIT ? (im.decode ? im.decode() : Promise.resolve()).then(() => createImageBitmap(im))
-          : fetch(im.src).then(r => r.blob()).then(x => createImageBitmap(x)).catch(() => createImageBitmap(im))).then(fin_, () => fin_(null));
-}
-function pompe() {
-  if (!bitmapsActifs()) return; const F = fenetreD();
-  for (let j = 0; j < bm.length; j++) if (bm[j] && Math.abs(j - posD) > F.garde) { if (bm[j].close) bm[j].close(); bm[j] = undefined; }
-  for (let d = 0; d <= F.av && enCours.size < PARALLELE; d++) for (const i of (d && d <= F.ar ? [posD + sensD * d, posD - sensD * d] : [posD + sensD * d]))
-    if (i >= 0 && i < S.nombre && images[i] && !bm[i] && !enCours.has(i) && enCours.size < PARALLELE) decoder(i);
-}
-let sortieBande = false;
-function poser(im, i, k, a) {   // 25/11 : image i de la série active au calage k (px de l'approche 1 600 x 900) ; série recadrée : bande posée à x0
-  const T = modeTel ? S.tel : null, x0 = T ? T.x0[i] : 0, w = T ? T.largeur : S.largeur;
-  if (T && (x0 > -k.x / k.s + 0.5 || x0 + w < (c.width - k.x) / k.s - 0.5)) sortieBande = true;
-  ctx.globalAlpha = a; ctx.drawImage(im, k.x + x0 * k.s, k.y, w * k.s, S.hauteur * k.s); ctx.globalAlpha = 1;
+let sortieBande = false, sortiesSuite = 0;
+function poser(inf, k, a, tel, test) {   // image inf (pleine ou légère, éventuellement en train de passer de l'une à l'autre) au calage k
+  // PISTE C : chaque couche a la géométrie de SA source. geo (donnée par le chargeur) = image du flux : série tel, bande fixe x0 464,
+  // largeur 784 ; série complète, x0 0, largeur 1600. Sinon, géométrie de la série (AVIF ou WebP tel : x0 par image, largeur 672).
+  const T = tel ? S.tel : null;
+  const bord = g_ => g_ ? g_.x0 : T ? T.x0[inf.i] : 0, larg = g_ => g_ ? g_.largeur : T ? T.largeur : S.largeur;
+  const x0 = bord(inf.geo), w = larg(inf.geo);
+  if (test && T && (x0 > -k.x / k.s + 0.5 || x0 + w < (c.width - k.x) / k.s - 0.5)) sortieBande = true;   // test de la bande, au cadrage de l'image affichée
+  const dx = k.x + x0 * k.s, dw = w * k.s, dh = S.hauteur * k.s;
+  if (inf.sous) { ctx.globalAlpha = a; ctx.drawImage(inf.sous, k.x + bord(inf.sousGeo) * k.s, k.y, larg(inf.sousGeo) * k.s, dh); }
+  ctx.globalAlpha = a * inf.fondu; ctx.drawImage(inf.src, dx, k.y, dw, dh); ctx.globalAlpha = 1;
 }
 
-// --- image d'arrivée HD + écran vivant (vidéo de la zone, posée avec son masque)
-const fin = new Image(); let finPrete = false; fin.onload = () => { finPrete = true; (fin.decode ? fin.decode().catch(() => {}) : Promise.resolve()).then(prepFin); };   /* 22/11 : préparée dès le chargement ; 23/11 : après la première image ; 25/11 : décodée en arrière-plan, préparée au calme */
-function prepFin() {   // 25/11 : 0,4 s sans mouvement, ou au plus tard à mi-chemin de l'avancée (avant, préparée pendant l'ouverture, sur le fil principal)
+// --- image d'arrivée HD + écran vivant (vidéo de la zone, posée avec son masque) : chargées APRÈS la passe légère
+/* PISTE B : l'image d'arrivée (2 720 x 1 536) est DÉCODÉE d'avance en ImageBitmap (Chromium : depuis le fichier, hors du fil principal ;
+   WebKit : decode() puis createImageBitmap). Mesuré le 27/11 (trace, téléphone simulé) : la préparer depuis l'<img> faisait décoder
+   l'image au moment du dessin, 112 ms sur le fil principal, en pleine avancée. Échec : l'<img>, comme avant. */
+const fin = new Image(); let finPrete = false, tFinPrete = null, finSrc = null;
+fin.onload = () => { finSrc = fin; finPrete = true; (fin.decode ? fin.decode().catch(() => {}) : Promise.resolve()).then(prepFin); };
+function chargerFin() {
+  const wk = navigator.vendor === 'Apple Computer, Inc.';
+  if (typeof createImageBitmap !== 'function') { fin.src = S.fin.image; return; }
+  fetch(S.fin.image).then(r => r.ok ? r.blob() : Promise.reject()).then(b => {
+    if (!wk) return createImageBitmap(b);
+    const u = URL.createObjectURL(b), im = new Image(); im.src = u;
+    return im.decode().then(() => createImageBitmap(im)).finally(() => URL.revokeObjectURL(u));
+  }).then(x => { finSrc = x; finPrete = true; prepFin(); if (ch) ch.relancer(); }, () => { fin.src = S.fin.image; });
+}
+function prepFin() {   // 25/11 : 0,4 s sans mouvement, ou au plus tard à mi-chemin de l'avancée
   if (finC) return; if (performance.now() - tRepos < 400 && (pLisse || 0) < REGLAGES.finApproche * 0.5) { setTimeout(prepFin, 250); return; }
   (window.requestIdleCallback || setTimeout)(() => { try { finPrepare(calerFin(S.nombre - 1)); } catch (e) {} }); }
- apresPremiere(() => { fin.src = S.fin.image; });
-const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; apresPremiere(() => { masque.src = S.fin.masque; });
+apresLeger(chargerFin);
+const masque = new Image(); let masquePret = false; masque.onload = () => { masquePret = true; }; apresLeger(() => { masque.src = S.fin.masque; });
 const v = document.getElementById('v');
-apresPremiere(() => { for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); } v.load(); });   // 23/11 : sources ajoutées après la première image (les ajouter lance déjà le chargement)
-// 19/11 : la vidéo attend à l'instant 0, celui des images de l'approche ; elle part à la fin du fondu
+let videoLancee = false;
+function lancerVideo() { if (videoLancee) return; videoLancee = true; for (const src of S.fin.video) { const s = document.createElement('source'); s.src = src; s.type = src.endsWith('.webm') ? 'video/webm' : 'video/mp4'; v.appendChild(s); } v.load(); }
+apresLeger(() => setTimeout(lancerVideo, 20000));   // secours : 20 s après la passe légère, même sans défilement
 const [ZX, ZY, ZW, ZH] = S.fin.zone;
-// 2026-11-22 (fluidité) : drapeau « image neuve de la vidéo d'écran » ; image d'arrivée préparée une fois à la taille du canvas
 let videoNeuve = false;
 if (v.requestVideoFrameCallback) { const rv = () => { videoNeuve = true; v.requestVideoFrameCallback(rv); }; v.requestVideoFrameCallback(rv); }
 else setInterval(() => { if (!v.paused) videoNeuve = true; }, 33);
-let finC = null, finCle = '', finCouvre = false, finBas = 0;   // 27 : finBas = px de l'image sous le bas de l'écran
-// k : calage pour le canvas ACTUEL ; l'image est construite à la taille de la pleine définition (celle de l'arrivée),
-// ce qui permet de la préparer dès le chargement, avant le passage du canvas en pleine définition
+let finC = null, finCle = '', finCouvre = false, finBas = 0;
 function finPrepare(k) {
   const dpr = Math.min(window.devicePixelRatio || 1, 2), W = Math.round(vpL() * dpr), H = Math.round(vpH() * dpr), q = W / c.width;
   const cf = W + 'x' + H + '|' + (k.x * q).toFixed(1) + '|' + (k.y * q).toFixed(1) + '|' + (k.s * q).toFixed(4);
@@ -1555,7 +2342,7 @@ function finPrepare(k) {
   finCle = cf; finC = finC || document.createElement('canvas'); finBas = Math.max(0, Math.floor(k.y * q + S.fin.hauteur * k.s * q - H)); finC.width = W; finC.height = H + finBas;
   const g = finC.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
   const x = k.x * q, y = k.y * q, s = k.s * q;
-  g.drawImage(fin, x, y, S.fin.largeur * s, S.fin.hauteur * s);
+  g.drawImage(finSrc || fin, x, y, S.fin.largeur * s, S.fin.hauteur * s);
   finCouvre = x <= 0.5 && y <= 0.5 && x + S.fin.largeur * s >= W - 0.5 && y + S.fin.hauteur * s >= H - 0.5;
   return finC;
 }
@@ -1563,111 +2350,120 @@ const oc = document.createElement('canvas'); oc.width = ZW; oc.height = ZH; cons
 
 const lisse = (t) => t * t * t * (t * (t * 6 - 15) + 10);
 const borne = (x, a, b) => Math.min(b, Math.max(a, x));
-// Pendant l'avancée, le canvas est à la définition des images (dessin 1 pour 1, aucun agrandissement à calculer) ;
-// à l'arrivée il passe à la pleine définition de l'écran, pour l'image HD.
 let hd = false;
-function taille() { document.documentElement.style.setProperty('--hs', vpH() + 'px');   /* 24/11 (Anthony, iPad et iPhone : bande grise sous le bureau en remontant) : le bloc prend la hauteur visible réelle, comme l'image ; avant, 100vh (écran sans barres) laissait voir le fond gris quand la barre de Safari revient */
-  const dpr = Math.min(window.devicePixelRatio || 1, 2); const e = hd ? dpr : Math.min(dpr, S.largeur / vpL(), S.hauteur / vpH()); const ext = hd ? finBas : 0;   // 27 : à l'arrivée, le canvas porte aussi la marge du bas de l'image (coussin)
-  /* 23/11 (bug vu par Anthony sur iPhone) : réaffecter c.width EFFACE le canvas même à taille égale ; à l'arrivée, la clé du cache
-     ne changeait pas, seule la vidéo d'écran était repeinte, et le reste restait gris (zoom à deux doigts, barre d'adresse). On ne
-     touche au canvas que si sa taille change, et on force alors un dessin complet. */
+function taille() { document.documentElement.style.setProperty('--hs', vpH() + 'px');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); const e = hd ? dpr : Math.min(dpr, S.largeur / vpL(), S.hauteur / vpH()); const ext = hd ? finBas : 0;
   const nw = Math.round(vpL() * e), nh = Math.round(vpH() * e) + ext;
   if (c.width !== nw || c.height !== nh) { c.width = nw; c.height = nh; forcerDessin = true; }
   const sh = ext ? (vpH() + ext / e).toFixed(2) + 'px' : ''; if (c.style.height !== sh) c.style.height = sh; }
 var forcerDessin = false;
-if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (visualViewport.scale < 1.02) { vpMaj(); taille(); clePrec = ''; } });   // 23/11 : fin du zoom à deux doigts
+if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (visualViewport.scale < 1.02) { vpMaj(); taille(); clePrec = ''; } });
 addEventListener('resize', taille); taille();
-demarrer();   // 25/11 : après taille() : la série (recadrée ou complète) se choisit sur l'écran réel
+demarrer();   // après taille() : la série (recadrée ou complète) se choisit sur l'écran réel
 function progression() { const r = sec.getBoundingClientRect(); return borne(-r.top / (sec.offsetHeight - vpH()), 0, 1); }
-
-// Cadrage « cover » d'une image de largeur w et hauteur h : rend l'échelle et le décalage.
-// Jonction (Anthony, 18/11) : l'image d'arrivée se cale sur l'écran de l'image d'approche affichée,
-// pour que l'écran ne saute pas au fondu. On aligne la boîte de l'écran de l'arrivée sur celle de l'approche.
 function calerFin(i) {
-  // 19/11 : calage mesuré sur toute la pièce (outils/raccord.py) ; les dernières images de l'approche le rejoignent
   if (S.fin.cale) { const ka = couvrir(S.largeur, S.hauteur), [cs, cx, cy] = S.fin.cale;
-    if (vpL() <= 760) { const ch = c.height - (hd ? finBas : 0), s0 = Math.max(c.width / S.largeur, ch / S.hauteur);   // 23/11 : téléphone, même cadre que la fin de cadrageTel
+    if (vpL() <= 760) { const ch_ = c.height - (hd ? finBas : 0), s0 = Math.max(c.width / S.largeur, ch_ / S.hauteur);
       ka.s = c.width / Math.max(c.width / s0, ARRIVEE_TEL_DROITE - ARRIVEE_TEL_GAUCHE);
-      ka.x = Math.min(0, c.width - ARRIVEE_TEL_DROITE * ka.s); ka.y = Math.min(0, (ch - S.hauteur * ka.s) / 2); }
+      ka.x = Math.min(0, c.width - ARRIVEE_TEL_DROITE * ka.s); ka.y = Math.min(0, (ch_ - S.hauteur * ka.s) / 2); }
     return { s: ka.s * cs, x: ka.x + cx * ka.s, y: ka.y + cy * ka.s }; }
-  const k = couvrir(S.fin.largeur, S.fin.hauteur);
-  const g = S.geometries && S.geometries[Math.min(i, S.nombre - 1)];
-  if (!g || !g.quad) return k;
-  const ka = couvrir(S.largeur, S.hauteur);
-  const xs = g.quad.map(q => q[0]), ys = g.quad.map(q => q[1]);
-  const ax0 = ka.x + Math.min(...xs) * ka.s, ax1 = ka.x + Math.max(...xs) * ka.s;
-  const ay0 = ka.y + Math.min(...ys) * ka.s, ay1 = ka.y + Math.max(...ys) * ka.s;
-  const [zx, zy, zw, zh] = S.fin.zone, m = 6;
-  const fw = (zw - 2 * m), fh = (zh - 2 * m);
-  const s = ((ax1 - ax0) / fw + (ay1 - ay0) / fh) / 2;
-  const cxA = (ax0 + ax1) / 2, cyA = (ay0 + ay1) / 2, cxF = zx + zw / 2, cyF = zy + zh / 2;
-  return { s, x: cxA - cxF * s, y: cyA - cyF * s };
+  return couvrir(S.fin.largeur, S.fin.hauteur);
 }
-function couvrir(w, h) { const ch = c.height - (hd ? finBas : 0); const s = Math.max(c.width / w, ch / h); return { s, x: (c.width - w * s) / 2, y: (ch - h * s) / 2 }; }   // 27 : cadrage sur la hauteur de l'écran, marge du coussin exclue
+function couvrir(w, h) { const ch_ = c.height - (hd ? finBas : 0); const s = Math.max(c.width / w, ch_ / h); return { s, x: (c.width - w * s) / 2, y: (ch_ - h * s) / 2 }; }
+function versImage(t) { const P = S.positions; let lo = 0, hi = P.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (P[m] <= t) lo = m; else hi = m; } return lo + borne((t - P[lo]) / ((P[hi] - P[lo]) || 1), 0, 1); }
+function versP(x) { const P = S.positions, i = Math.min(P.length - 2, Math.floor(x)); return (P[i] + (x - i) * (P[i + 1] - P[i])) * REGLAGES.finApproche; }
 
-// 25/11 : l'ancien chauffage (decode() sur 39 images à chaque image) est remplacé par pompe() (ImageBitmap gardées, plus haut).
+// --- la caméra : position affichée g. Elle suit la position demandée f (après l'amorti) ; si l'image manque, elle attend au bord
+// de ce qui est dessinable, puis rattrape (amorti + vitesse plafonnée, en TEMPS écoulé : juste à 30 comme à 60 images par seconde).
+let g = null, verrou = true, dejaAffiche = false, gVit = 0;
+function camera(f, dt) {
+  const g0 = g === null ? f : g; if (g === null) g = f;
+  let cov = ch.couverture(g) || (chAncien && chAncien.couverture(g));
+  if (!cov && !dejaAffiche) { const cf = ch.couverture(f); if (cf) { g = f; cov = cf; } }   // rien d'affiché encore : on se pose où on est
+  const cib = cov ? borne(f, cov[0], cov[1]) : g;
+  if (verrou && cib === f) g = f;
+  else {
+    verrou = false;
+    const pas = (cib - g) * (1 - Math.exp(-dt / REGLAGES.rattrapage)), lim = REGLAGES.vitesseMax * dt / 1000;
+    g += Math.sign(pas) * Math.min(Math.abs(pas), lim);
+    if (cib === f && Math.abs(f - g) < 0.05) { g = f; verrou = true; }
+  }
+  gVit = (g - g0) / Math.max(1, dt) * 1000;
+  return g;
+}
 
-let pLisse = null, tPrec = 0, clePrec = '', clePDom = '', cPrec = -1, tRepos = 0;   // 27 : repos
+let pLisse = null, tPrec = 0, clePrec = '', clePDom = '', cPrec = -1, tRepos = 0, pVis = null, pVisLibre = false, chargPrec = -1;
 function dessiner(ts) {
   requestAnimationFrame(dessiner);
-  if (forcerDessin) { forcerDessin = false; clePrec = ''; clePDom = ''; }   // 23/11 : canvas retaillé (donc effacé) : tout redessiner
-  if (sec.getBoundingClientRect().bottom <= 0) { if (!v.paused) v.pause(); return; }   // 22/11 : vidéo arrêtée hors écran                 // haut de page sorti de l'écran : on ne dessine rien
+  if (forcerDessin) { forcerDessin = false; clePrec = ''; clePDom = ''; }
+  if (sec.getBoundingClientRect().bottom <= 0) { if (!v.paused) v.pause(); return; }
   const cible = progression();
   const dt = Math.min(64, (ts - tPrec) || 16); tPrec = ts;
   pLisse = pLisse === null ? cible : pLisse + (cible - pLisse) * (1 - Math.exp(-dt / REGLAGES.inertie));
   if (Math.abs(cible - pLisse) < 0.00004) pLisse = cible;
   const p = pLisse;
   const bouge = cible !== cPrec || pLisse !== cible; cPrec = cible; if (bouge) tRepos = ts;
-  const kr = borne((ts - tRepos - 60) / 180, 0, 1);   // 27 : 60 ms après l'arrêt, on rejoint l'image entière la plus proche en 180 ms (plus de dédoublement)
-  const pc = lisse(borne((p - REGLAGES.coussin[0]) / (REGLAGES.coussin[1] - REGLAGES.coussin[0]), 0, 1));
+  const kr = borne((ts - tRepos - 60) / 180, 0, 1);   // 27 : 60 ms après l'arrêt, on rejoint l'image entière la plus proche en 180 ms
   const fa = REGLAGES.finApproche;
-  const t = borne(p / fa, 0, 1);
-  const af = borne((p - (fa - REGLAGES.fondu)) / REGLAGES.fondu, 0, 1);
-  if ((af > 0) !== hd) { hd = af > 0; taille(); }
-  const cle = p.toFixed(5) + '|' + chargees + '|' + c.width + 'x' + c.height + '|' + finPrete + masquePret;
-  window.__etat = { chargees, total: S.nombre, finPrete, videoPrete: v.readyState >= 2, p, cible, serie: modeTel ? 'tel' : 'complete' };
-  // 22/11 (fluidité) : clé du CANVAS ; une fois arrivé (af = 1), l'image ne dépend plus du défilement : seule la vidéo d'écran
-  // la change. Le titre et le voile (plus bas) suivent toujours le défilement.
+  const f = versImage(borne(p / fa, 0, 1)); window.__f = f;   // position demandée (table de positions, amorti), avant toute attente
+  if (chAncien && ch.couverture(g === null ? f : g)) { chAncien.detruire(); chAncien = null; }
+  camera(f, dt); ch.position(g, gVit, verrou && (ts - tRepos > 60 || f >= S.nombre - 1.001));   // PISTE C : 3e argument = caméra à l'arrêt (ou arrivée)
+  // ce qui suit l'arrivée (fondu vers l'image HD, titre, coussin) attend la caméra : position de défilement « vue » pVis
+  if (!verrou) { pVisLibre = true; pVis = Math.min(p, versP(g)); }
+  else if (pVisLibre) { pVis += (p - pVis) * (1 - Math.exp(-dt / 180)); if (Math.abs(p - pVis) < 0.0005) { pVis = p; pVisLibre = false; } }
+  else pVis = p;
+  const pv = pVis;
+  const pc = lisse(borne((pv - REGLAGES.coussin[0]) / (REGLAGES.coussin[1] - REGLAGES.coussin[0]), 0, 1));
+  const af0 = borne((pv - (fa - REGLAGES.fondu)) / REGLAGES.fondu, 0, 1);
+  if (finPrete && tFinPrete === null) tFinPrete = af0 > 0 ? ts : -1e9;   // image d'arrivée prête APRÈS l'arrivée de la caméra : elle apparaît en fondu
+  const finVis = finPrete ? borne((ts - tFinPrete) / 300, 0, 1) : 0, af = af0 * finVis;
+  if ((af0 > 0) !== hd) { hd = af0 > 0; taille(); }
+  const E = ch.etat();
+  if (E.chargees !== chargPrec) { chargPrec = E.chargees; barre.style.width = (100 * E.chargees / E.total) + '%'; if (E.pret) barre.style.opacity = 0; }
+  if (!videoLancee && legerFait && finPrete && (E.pret || f >= 300)) lancerVideo();   // vidéo d écran : après l image d arrivée HD, quand la caméra approche de l arrivée
+  window.__etat = { chargees: E.chargees, total: E.total, pret: E.pret, finPrete, videoPrete: v.readyState >= 2, p, cible, serie: ch.tel ? 'tel' : 'complete',
+    g, verrou, leger: E.leger, complement: E.complement, format: E.format, voie: E.voie,
+    premier: E.premier, raison: E.raison, flux: E.flux };   // PISTE C : premier étage réellement servi ('flux' | 'leger' | 'aucun'), raison du repli
+  // position AFFICHÉE : la caméra ; à l'arrêt, l'image entière la plus proche (pleine qualité de préférence)
+  let ga = g;
+  if (verrou && kr > 0 && af0 < 1) { const sn = ch.plusProcheNette(g); ga = g + (sn - g) * lisse(kr); if (kr >= 1) ga = sn; }
+  const sel = ch.choisir(ga) || (chAncien && chAncien.choisir(ga)), selTel = sel && (ch.choisir(ga) ? ch.tel : chAncien.tel);
+  const couvre = af >= 1 && finCouvre;
+  window.__j = couvre ? S.nombre - 1 : sel ? sel.j : null;
+  // PISTE C : 'flux' quand une couche affichée vient du flux H.264 (la moins bonne couche donne la qualité : leger, flux, plein, net)
+  const qA = sel ? sel.a.q : null, qB = sel && sel.b && sel.w > 0.02 ? sel.b.q : null;
+  window.__q = couvre ? 'net' : !sel ? null : (qA === 'leger' || qB === 'leger') ? 'leger' : (qA === 'flux' || qB === 'flux') ? 'flux' : (sel.b && sel.w > 0.02 && sel.w < 0.98) ? 'plein' : 'net';
   const vNeuve = videoNeuve; videoNeuve = false;
-  // 27 : coussin SANS redessin : le canvas (qui porte la marge du bas) glisse vers le haut par un simple déplacement CSS
   const panCss = af >= 1 && finC && hd ? pc * finBas / Math.max(1, c.width / vpL()) : 0;
   const tr = panCss > 0.05 ? 'translate3d(0,' + (-panCss).toFixed(2) + 'px,0)' : '';
   if (c.style.transform !== tr) c.style.transform = tr;
-  const cleC = (af >= 1 ? 'arrivee' : p.toFixed(5) + '|' + kr.toFixed(2)) + '|' + chargees + '|' + c.width + 'x' + c.height + '|' + finPrete + masquePret;
+  const cleC = (af >= 1 ? 'arrivee' : ga.toFixed(4) + '|' + pv.toFixed(5) + '|' + ch.version + '|' + (E.fadeEnCours ? ts : '') + '|' + af.toFixed(3)) + '|' + c.width + 'x' + c.height + '|' + finPrete + masquePret;
+  const cle = pv.toFixed(5) + '|' + cleC;
   const rien = cleC === clePrec && !(af >= 1 && vNeuve);
-  if (rien && cle === clePDom) return;                                 // rien n'a bougé du tout
+  if (rien && cle === clePDom) return;
   clePDom = cle;
-  const seuleVideo = !rien && cleC === clePrec;                        // seule la vidéo d'écran a changé : on ne repeint que sa zone
+  const seuleVideo = !rien && cleC === clePrec;
   clePrec = cleC;
-  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';   // 22/11 : plus de « high » à chaque image (coût x10) ; la fin est préparée une fois en « high »
-  let f; if (S.positions) { const P = S.positions; let lo = 0, hi = P.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (P[m] <= t) lo = m; else hi = m; } f = lo + borne((t - P[lo]) / ((P[hi] - P[lo]) || 1), 0, 1); } else f = t * (S.nombre - 1);
-  if (kr > 0 && af < 1) { const fr = Math.round(f); f = f + (fr - f) * lisse(kr); if (kr >= 1) f = fr; }
-  const i0 = Math.floor(f), part = f - i0; window.__f = f;   // table de positions (densité variable), 2026-11-21 ; __f : contrôle
-  if (i0 !== posD) { sensD = i0 > posD ? 1 : -1; posD = i0; pompe(); }   // 25/11 : décodage d'avance autour de la position
-  const BA = bitmapsActifs(); if (!BA) chauffer(i0);
-  let j = -1, im = null;
-  if (BA) for (let d = 0; d <= 40 && j < 0; d++) { if (bm[i0 - d]) j = i0 - d; else if (bm[i0 + d]) j = i0 + d; }
-  if (j >= 0) im = bm[j]; else { im = proche(i0); j = im ? images.indexOf(im) : -1; }   // rien de décodé autour (départ, saut) : image chargée la plus proche
-  const im2 = j === i0 && part > 0.02 ? (BA ? bm[i0 + 1] : images[i0 + 1]) : null;   // fondu vers l'image suivante : le mouvement devient continu
-  attente = BA && (j !== i0 || (part > 0.02 && !im2)); window.__j = j;
-  if (im && !rien && !seuleVideo && !(af >= 1 && finPrete && finCouvre)) {   // 22/11 : arrivé, l'image d'arrivée couvre tout
-    const tel = vpL() <= 760, k = tel ? cadrageTel(f) : couvrir(S.largeur, S.hauteur);   // 23/11 : cadrage du départ au téléphone
-    sortieBande = false; poser(im, j, k, 1);
-    if (im2) poser(im2, i0 + 1, k, part);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'low';
+  if (sel && !rien && !seuleVideo && !couvre) {
+    const tel = vpL() <= 760, k = tel ? cadrageTel(ga) : couvrir(S.largeur, S.hauteur);   // cadrage de l'image AFFICHÉE
+    sortieBande = false; poser(sel.a, k, 1, selTel, true); dejaAffiche = true;
+    if (sel.b && sel.w > 0.001) poser(sel.b, k, sel.w, selTel, false);
     if (tel) refletTel(k);
-    if (sortieBande) versComplete();
+    sortiesSuite = sortieBande && selTel ? sortiesSuite + 1 : 0;
+    if (sortiesSuite >= 3) versComplete();   // trois images d'écran de suite hors de la bande : vraie sortie (pas un état de chargement)
   }
   if (af >= 1) { if (v.paused) v.play().catch(() => {}); } else if (af === 0 && !v.paused) { v.pause(); v.currentTime = 0; }
   if (af > 0 && finPrete && !rien) {
-    const k = calerFin(Math.round(f));
+    const k = calerFin(Math.round(ga));
     ctx.globalAlpha = af;
     const kf = calerFin(S.nombre - 1), fc = finPrepare(kf), r = k.s / kf.s;
-    if (hd && c.height !== Math.round(vpH() * Math.min(window.devicePixelRatio || 1, 2)) + finBas) { taille(); clePrec = ''; }   // 27 : marge du coussin changée
+    if (hd && c.height !== Math.round(vpH() * Math.min(window.devicePixelRatio || 1, 2)) + finBas) { taille(); clePrec = ''; }
     const pile = fc.width === c.width && Math.abs(r - 1) < 1e-4 && Math.abs(k.x - kf.x) < 0.05 && Math.abs(k.y - kf.y) < 0.05;
     if (seuleVideo && pile) { const zx = Math.floor(k.x + ZX * k.s) - 2, zy = Math.floor(k.y + ZY * k.s) - 2, zw = Math.ceil(ZW * k.s) + 4, zh = Math.ceil(ZH * k.s) + 4;
       ctx.drawImage(fc, zx, zy, zw, zh, zx, zy, zw, zh); }
     else if (pile) ctx.drawImage(fc, 0, 0);
-    else { const q = c.width / fc.width; ctx.drawImage(fc, k.x - kf.x * r, k.y - kf.y * r, fc.width * q * r, fc.height * q * r); }   // fondu : simple décalage
+    else { const q = c.width / fc.width; ctx.drawImage(fc, k.x - kf.x * r, k.y - kf.y * r, fc.width * q * r, fc.height * q * r); }
     if (masquePret && v.readyState >= 2) {
       octx.globalCompositeOperation = 'source-over'; octx.clearRect(0, 0, ZW, ZH);
       octx.drawImage(v, 0, 0, ZW, ZH);
@@ -1675,19 +2471,19 @@ function dessiner(ts) {
       ctx.drawImage(oc, k.x + ZX * k.s, k.y + ZY * k.s, ZW * k.s, ZH * k.s);
     }
     ctx.globalAlpha = 1;
-    if (vpL() <= 760 && !seuleVideo && !finCouvre) bandeTel(Math.floor(k.y + S.fin.hauteur * k.s), 1);   // 17 h 30 : image d'arrivée moins haute que l'écran : même bande
+    if (vpL() <= 760 && !seuleVideo && !finCouvre) bandeTel(Math.floor(k.y + S.fin.hauteur * k.s), 1);
   }
-  const a = lisse(borne((p - REGLAGES.titre[0]) / (REGLAGES.titre[1] - REGLAGES.titre[0]), 0, 1));
+  const a = lisse(borne((pv - REGLAGES.titre[0]) / (REGLAGES.titre[1] - REGLAGES.titre[0]), 0, 1));
   document.getElementById('voile').style.opacity = a;
   titre.style.opacity = a; titre.style.transform = `translateY(${(1 - a) * 16}px)`; titre.classList.toggle('visible', a > 0.5);
   pour.style.opacity = a; pour.style.transform = `translateY(${(1 - a) * 22}px)`; pour.classList.toggle('visible', a > 0.5);
-  const ki = lisse(borne(p / 0.045, 0, 1));   // 27 (23/11, Anthony) : l'indice part 2,6 fois plus gros, rétrécit et s'efface en défilant
-  const ech = vpL() <= 760 ? 1.6 : 2.6;       // 23/11 : 1,6 au téléphone (« Scroll » coupé)
+  const ki = lisse(borne(p / 0.045, 0, 1));   // l'indice « Scroll » suit le défilement lui-même (il dit qu'on peut défiler)
+  const ech = vpL() <= 760 ? 1.6 : 2.6;
   indice.style.opacity = 1 - ki; indice.style.transform = `translateX(-50%) scale(${(ech - (ech - 0.8) * ki).toFixed(3)})`;
 }
 requestAnimationFrame(dessiner);
 </script>
-<dialog id="film" class="film-dlg"><button type="button" class="fermer" aria-label="Close">×</button><video id="filmV" controls playsinline preload="none" src="https://aaastudio.ai/films/film-accueil-en_v5h.mp4"></video></dialog>
+<dialog id="film" class="film-dlg"><button type="button" class="fermer" aria-label="Close">×</button><video id="filmV" poster="images/film-affiche-en_v5h.webp" controls playsinline preload="none" src="https://aaastudio.ai/films/film-accueil-en_v5i.mp4"></video></dialog>
 <script>
 (() => {
   const d = document.getElementById('film'), v = document.getElementById('filmV');

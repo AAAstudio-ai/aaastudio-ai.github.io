@@ -51,7 +51,7 @@ html:not(.js) .sys-lecteur{display:none}
 /* 23/11, 17 h 19 (Anthony) : un libellé d'une ligne se centre sur le bouton, même quand un autre libellé du lecteur tient sur deux lignes (la case prend la hauteur du plus long) */
 .sys-leg{align-self:center}
 </style>
-</head><body><div class="fi-cadre"><div class="fi-video" role="img" aria-label="動画：チーム向けのClaude AI研修。いま使っているのは、ChatGPT、Gemini、Copilot？ Claudeも気になるところ。でも、何から始めればいいのか、社内ではまだ手探り。AAA Studio：半日または1日、一緒に、チームの実際の業務で。1対1でも、チームのみんなでも。オフィスに伺います。オンラインでも。研修の内容：プロンプト、AIモデル、コンテキスト、エージェント、プロジェクト、メモリ、エフォート、コネクタ、スキル、Artifacts、Claude Code。終わるころには、すべてがクリアに。そして仕事はスピードアップ。受講後も、フォローします。"><video muted playsinline preload="auto" poster="formation-illustree-tel-ja_debut.jpg"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.webm" type="video/webm"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.mp4" type="video/mp4"></video></div>
+</head><body><div class="fi-cadre"><div class="fi-video" role="img" aria-label="動画：チーム向けのClaude AI研修。いま使っているのは、ChatGPT、Gemini、Copilot？ Claudeも気になるところ。でも、何から始めればいいのか、社内ではまだ手探り。AAA Studio：半日または1日、一緒に、チームの実際の業務で。1対1でも、チームのみんなでも。オフィスに伺います。オンラインでも。研修の内容：プロンプト、AIモデル、コンテキスト、エージェント、プロジェクト、メモリ、エフォート、コネクタ、スキル、Artifacts、Claude Code。終わるころには、すべてがクリアに。そして仕事はスピードアップ。受講後も、フォローします。"><video muted playsinline preload="auto" poster="formation-illustree-tel-ja_debut.jpg"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.mp4" type="video/mp4"><source src="https://aaastudio.ai/films/accueil-2026-11-19/formation-illustree-tel-ja.webm" type="video/webm"></video></div>
 <div class="sys-lecteur rd-lecteur"><div class="sys-temps" role="slider" tabindex="0" aria-label="アニメーションのステップ" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-seg"><i></i></span><span class="sys-pouce" aria-hidden="true"></span></div><div class="sys-ligne"><button type="button" class="sys-lire" data-etat="fin" data-joue="一時停止" data-pause="再生" data-fin="もう一度再生" aria-label="もう一度再生"><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg><svg class="i-lire" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a1 1 0 0 0 1.53.85l10-6.4a1 1 0 0 0 0-1.7l-10-6.4A1 1 0 0 0 8.5 5.6z"/></svg><svg class="i-rejouer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66"/><path d="M4 4.5V9h4.5"/></svg></button><div class="sys-legendes" aria-live="polite"><p class="sys-leg">おなじみのAIツール</p><p class="sys-leg">何から始めるか</p><p class="sys-leg">実際の業務で、一緒に</p><p class="sys-leg">1対1でも、チームでも</p><p class="sys-leg">訪問またはオンライン</p><p class="sys-leg">プロンプトからClaude Codeまで</p><p class="sys-leg">すべてがクリアに</p><p class="sys-leg">受講後のフォローアップ付き</p></div></div></div></div>
 <script>
 /* 19/11 : lecteur du second cerveau et du portail, à l'identique, branché sur la vidéo ; un segment par scène du film */
@@ -60,7 +60,7 @@ html:not(.js) .sys-lecteur{display:none}
   var CH=[0, 5.0, 11.0, 17.1, 22.6, 27.0, 33.7, 39.5],FIN=44.2,PAS=5;
   var vd=document.querySelector('.fi-video video'),lec=document.querySelector('.rd-lecteur'),
       legs=[].slice.call(lec.querySelectorAll('.sys-leg')),segs=[].slice.call(lec.querySelectorAll('.sys-seg')),barre=lec.querySelector('.sys-temps'),btn=lec.querySelector('.sys-lire'),
-      TL={joue:false,fini:false,vu:false,auto:false,glisse:false,c:-1};
+      TL={joue:false,fini:false,vu:false,auto:false,glisse:false,c:-1,visible:false,essais:0};
   /* mouvement réduit : la dernière image, le dernier libellé, plus de barre ni de bouton (comme le rond) */
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){
     lec.classList.add('sans-lecteur');vd.removeAttribute('preload');vd.setAttribute('poster','formation-illustree-tel-ja_fin.jpg');
@@ -78,7 +78,7 @@ html:not(.js) .sys-lecteur{display:none}
     var px=TL.fini?1:tVersX(t);barre.style.setProperty('--x',(px*100).toFixed(2)+'%');barre.setAttribute('aria-valuenow',Math.round(px*100));
     var lg=legs[c];if(lg)barre.setAttribute('aria-valuetext',lg.textContent);}
   function bouton(){var et=TL.fini?'fin':(TL.joue?'joue':'pause');btn.setAttribute('data-etat',et);btn.setAttribute('aria-label',btn.getAttribute('data-'+et));}
-  function lire(){if(TL.joue||TL.fini)return;TL.joue=true;var p=vd.play();if(p&&p.catch)p.catch(function(){TL.joue=false;bouton();});bouton();}
+  function lire(){if(TL.joue||TL.fini)return;TL.joue=true;var p=vd.play();if(p&&p.catch)p.catch(function(){TL.joue=false;bouton();/* 25/11 : lancement refusé (changement de langue, chargement interrompu, mode économie) : repris tant qu'elle est à l'écran, 4 fois au plus */if(TL.visible&&TL.essais<4){TL.essais++;setTimeout(function(){if(TL.visible&&!TL.joue&&!TL.fini)lire();},700);}else TL.auto=true;});bouton();}
   function suspendre(){if(!TL.joue)return;TL.joue=false;vd.pause();bouton();}
   /* fin : barre pleine, dernier libellé, bouton « rejouer » ; la vidéo reste sur sa dernière image */
   function terminer(){TL.joue=false;TL.fini=true;maj();bouton();}
@@ -99,7 +99,7 @@ html:not(.js) .sys-lecteur{display:none}
   maj();bouton();
   /* lecture quand la moitié de la vidéo est à l'écran ; en dessous, pause ; reprise quand elle revient, si la pause n'a pas été demandée (comme le rond) */
   new IntersectionObserver(function(es){es.forEach(function(x){
-    if(x.intersectionRatio>=.5){if(!TL.vu){TL.vu=true;depuisDebut();}else if(TL.auto&&!TL.joue&&!TL.fini){TL.auto=false;lire();}}
+    TL.visible=x.intersectionRatio>=.5;if(TL.visible)TL.essais=0;if(x.intersectionRatio>=.5){if(!TL.vu){TL.vu=true;depuisDebut();}else if(TL.auto&&!TL.joue&&!TL.fini){TL.auto=false;lire();}}
     else if(TL.joue){TL.auto=true;suspendre();}});},{threshold:[0,.25,.5,.75,1]}).observe(vd);
   window.LECTEUR_FILM={get t(){return pos();},get etat(){return TL;},chapitres:CH,fin:FIN,aller:chercher,lire:lire};
 })();
